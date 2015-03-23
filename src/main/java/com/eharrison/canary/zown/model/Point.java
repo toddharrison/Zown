@@ -17,4 +17,16 @@ public class Point {
 		final int dZ = z - p.z;
 		return dX * dX + dY * dY + dZ * dZ;
 	}
+	
+	@Override
+	public boolean equals(final Object o) {
+		boolean equal = false;
+		if (o instanceof Point) {
+			final Point p = (Point) o;
+			if (p.x == x && p.y == y && p.z == z) {
+				equal = true;
+			}
+		}
+		return equal;
+	}
 }

@@ -49,7 +49,7 @@ public class Zone {
 		boolean contained = false;
 		if (centerPoint == null) {
 			contained = true;
-		} else {
+		} else if (p != null) {
 			if (centerPoint.distanceSquared(p) <= minRadiusSquared) {
 				// Definite collision, inside of minimum radius
 				contained = true;
