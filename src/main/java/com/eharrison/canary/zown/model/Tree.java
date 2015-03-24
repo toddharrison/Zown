@@ -25,8 +25,16 @@ public class Tree<T> {
 		return data;
 	}
 	
+	public Tree<T> getParent() {
+		return parent;
+	}
+	
 	public Tree<T> addChild(final T child) {
 		final Tree<T> childTree = new Tree<T>(child);
+		return addChild(childTree);
+	}
+	
+	public Tree<T> addChild(final Tree<T> childTree) {
 		childTree.parent = this;
 		this.children.add(childTree);
 		return childTree;

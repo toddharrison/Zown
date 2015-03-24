@@ -4,22 +4,25 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class WorldZone {
-	private final Map<String, Zone> zonesByName;
-	private final Tree<Zone> zones;
+	public static final String WORLD_ROOT = "world";
+	
+	private final Map<String, Tree<Zone>> zonesByName;
+	private final Tree<Zone> root;
 	
 	public WorldZone() {
-		zonesByName = new HashMap<String, Zone>();
-		final Zone worldZone = new Zone("world");
-		zones = new Tree<Zone>(worldZone);
-		zonesByName.put(worldZone.getName(), worldZone);
+		zonesByName = new HashMap<String, Tree<Zone>>();
+		final Zone worldZone = new Zone(WORLD_ROOT);
+		root = new Tree<Zone>(worldZone);
+		zonesByName.put(worldZone.getName(), root);
 	}
 	
 	public boolean addZone(final Zone zone) {
 		final boolean added;
-		switch (addZone(zones, zone)) {
+		final Tree<Zone> treeZone = new Tree<Zone>(zone);
+		switch (addZone(root, treeZone)) {
 			case ADDED:
 				added = true;
-				zonesByName.put(zone.getName(), zone);
+				zonesByName.put(zone.getName(), treeZone);
 				break;
 			default:
 				added = false;
@@ -27,31 +30,32 @@ public class WorldZone {
 		return added;
 	}
 	
-	public Zone getZone(final String name) {
+	public Tree<Zone> getZone(final String name) {
 		return zonesByName.get(name);
 	}
 	
-	public Zone getZone(final Point point) {
-		return getZone(zones, point);
+	public Tree<Zone> getZone(final Point point) {
+		return getZone(root, point);
 	}
 	
-	private AddZoneResult addZone(final Tree<Zone> tree, final Zone zone) {
-		final Zone parent = tree.getData();
-		if (parent.intersects(zone)) {
+	private AddZoneResult addZone(final Tree<Zone> parent, final Tree<Zone> child) {
+		final Zone parentZone = parent.getData();
+		final Zone childZone = child.getData();
+		if (parentZone.intersects(childZone)) {
 			return AddZoneResult.INTERSECTED;
 		}
 		
 		AddZoneResult added = null;
-		if (parent.contains(zone)) {
-			for (final Tree<Zone> t : tree.getChildren()) {
-				added = addZone(t, zone);
+		if (parentZone.contains(childZone)) {
+			for (final Tree<Zone> t : parent.getChildren()) {
+				added = addZone(t, child);
 				if (added != null) {
 					break;
 				}
 			}
 			
 			if (added == null) {
-				tree.addChild(zone);
+				parent.addChild(child);
 				added = AddZoneResult.ADDED;
 			}
 		}
@@ -59,12 +63,12 @@ public class WorldZone {
 		return added;
 	}
 	
-	private Zone getZone(final Tree<Zone> tree, final Point point) {
-		Zone zone = null;
+	private Tree<Zone> getZone(final Tree<Zone> tree, final Point point) {
+		Tree<Zone> zone = null;
 		if (tree.getData().contains(point)) {
-			zone = tree.getData();
+			zone = tree;
 			for (final Tree<Zone> t : tree.getChildren()) {
-				final Zone z = getZone(t, point);
+				final Tree<Zone> z = getZone(t, point);
 				if (z != null) {
 					zone = z;
 				}
