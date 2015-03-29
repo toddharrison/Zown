@@ -27,6 +27,14 @@
       <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
+    <!--
+    <dependency>
+      <groupId>net.canarymod</groupId>
+      <artifactId>CanaryMod</artifactId>
+      <version>1.8.0-1.2.1-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
+    -->
   </dependencies>
 
   <build>

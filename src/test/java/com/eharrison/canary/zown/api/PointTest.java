@@ -1,4 +1,4 @@
-package com.eharrison.canary.zown.model;
+package com.eharrison.canary.zown.api;
 
 import static org.junit.Assert.*;
 
