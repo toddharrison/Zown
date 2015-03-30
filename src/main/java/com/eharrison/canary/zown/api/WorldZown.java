@@ -39,8 +39,8 @@ public class WorldZown {
 		return world;
 	}
 	
-	public Zown getRootZown() {
-		return zownTree.getData();
+	public Tree<Zown> getRootZown() {
+		return zownTree;
 	}
 	
 	public Tree<Zown> getZown(final String name) {
@@ -77,7 +77,7 @@ public class WorldZown {
 		final Zown zown = new Zown(name, template, p1, p2);
 		if (!zownMap.containsKey(zown.getName())) {
 			if (!intersectsExistingZown(zown)) {
-				final Tree<Zown> targetTree = getTargetContainingZown(zownTree, zown);
+				final Tree<Zown> targetTree = getTargetContainingZown(this.zownTree, zown);
 				zownTree = targetTree.addChild(zown);
 				zownMap.put(zown.getName(), zownTree);
 			}
@@ -90,6 +90,11 @@ public class WorldZown {
 		if (zownMap.containsKey(zown)) {
 			final Tree<Zown> tree = zownMap.remove(zown);
 			removed = tree.getParent().removeChild(tree);
+			if (removed) {
+				for (final Tree<Zown> t : tree) {
+					zownMap.remove(t.getData().getName());
+				}
+			}
 		}
 		return removed;
 	}
