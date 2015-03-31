@@ -12,7 +12,8 @@ public class WorldZown {
 		return worldZowns.get(world);
 	}
 	
-	public static final WorldZown getWorldZown(final World world, final Template defaultTemplate) {
+	public static final WorldZown getOrCreateWorldZown(final World world,
+			final Template defaultTemplate) {
 		WorldZown worldZown = worldZowns.get(world);
 		if (worldZown == null) {
 			worldZown = new WorldZown(world, defaultTemplate);
@@ -37,6 +38,10 @@ public class WorldZown {
 	
 	public World getWorld() {
 		return world;
+	}
+	
+	public Template getDefaultTemplate() {
+		return defaultTemplate;
 	}
 	
 	public Tree<Zown> getRootZown() {

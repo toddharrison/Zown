@@ -1,24 +1,28 @@
 package com.eharrison.canary.zown.api;
 
+import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import net.canarymod.api.world.World;
 
 import org.easymock.EasyMockSupport;
-import org.easymock.Mock;
 import org.junit.Before;
 import org.junit.Test;
 
 public class WorldZownTest extends EasyMockSupport {
 	private WorldZown worldZown;
 	
-	@Mock
 	private World world;
-	
-	@Mock
 	private Template template;
 	
 	@Before
 	public void init() {
+		world = createMock(World.class);
+		template = createMock(Template.class);
 		worldZown = new WorldZown(world, template);
 	}
 	
@@ -29,12 +33,12 @@ public class WorldZownTest extends EasyMockSupport {
 		WorldZown worldZown = WorldZown.getWorldZown(world);
 		assertNull(worldZown);
 		
-		worldZown = WorldZown.getWorldZown(world, template);
+		worldZown = WorldZown.getOrCreateWorldZown(world, template);
 		assertNotNull(worldZown);
 		final Tree<Zown> root = worldZown.getRootZown();
 		assertTrue(root.isRoot());
 		assertTrue(root.isLeaf());
-		assertEquals(template, root.getData().getTemplate());
+		assertNull(root.getData().getTemplate());
 		
 		assertEquals(worldZown, WorldZown.getWorldZown(world));
 		
@@ -45,6 +49,8 @@ public class WorldZownTest extends EasyMockSupport {
 	
 	@Test
 	public void createGlobalZowns() {
+		final List<Zown> zowns = new ArrayList<Zown>();
+		expect(template.getZowns()).andReturn(zowns).anyTimes();
 		replayAll();
 		
 		final Tree<Zown> zown1 = worldZown.createZown("zown1", null, null);
@@ -52,6 +58,10 @@ public class WorldZownTest extends EasyMockSupport {
 		assertTrue(zown1.isLeaf());
 		assertFalse(zown1.isRoot());
 		assertEquals(worldZown.getRootZown(), zown1.getParent());
+		assertEquals(template, zown1.getData().getTemplate());
+		
+		assertEquals(1, zowns.size());
+		assertTrue(zowns.contains(zown1.getData()));
 		
 		assertEquals(zown1, worldZown.getZown("zown1"));
 		assertFalse(worldZown.addZown(zown1.getData()));
@@ -60,11 +70,16 @@ public class WorldZownTest extends EasyMockSupport {
 		assertNotNull(zown2);
 		assertEquals(zown1, zown2.getParent());
 		
+		assertEquals(2, zowns.size());
+		assertTrue(zowns.contains(zown2.getData()));
+		
 		verifyAll();
 	}
 	
 	@Test
 	public void createSeparateZowns() {
+		final Collection<Zown> zowns = new ArrayList<Zown>();
+		expect(template.getZowns()).andReturn(zowns).anyTimes();
 		replayAll();
 		
 		final Tree<Zown> root = worldZown.getRootZown();
@@ -85,6 +100,8 @@ public class WorldZownTest extends EasyMockSupport {
 	
 	@Test
 	public void createContainedZowns() {
+		final Collection<Zown> zowns = new ArrayList<Zown>();
+		expect(template.getZowns()).andReturn(zowns).anyTimes();
 		replayAll();
 		
 		final Tree<Zown> zown1 = worldZown.createZown("zown1", new Point(0, 0, 0),
@@ -102,6 +119,8 @@ public class WorldZownTest extends EasyMockSupport {
 	
 	@Test
 	public void createIntersectingZowns() {
+		final Collection<Zown> zowns = new ArrayList<Zown>();
+		expect(template.getZowns()).andReturn(zowns).anyTimes();
 		replayAll();
 		
 		final Tree<Zown> root = worldZown.getRootZown();
@@ -121,6 +140,8 @@ public class WorldZownTest extends EasyMockSupport {
 	
 	@Test
 	public void removeZown() {
+		final Collection<Zown> zowns = new ArrayList<Zown>();
+		expect(template.getZowns()).andReturn(zowns).anyTimes();
 		replayAll();
 		
 		final Tree<Zown> root = worldZown.getRootZown();
@@ -145,6 +166,8 @@ public class WorldZownTest extends EasyMockSupport {
 	
 	@Test
 	public void getZownByPoint() {
+		final Collection<Zown> zowns = new ArrayList<Zown>();
+		expect(template.getZowns()).andReturn(zowns).anyTimes();
 		replayAll();
 		
 		final Tree<Zown> root = worldZown.getRootZown();
