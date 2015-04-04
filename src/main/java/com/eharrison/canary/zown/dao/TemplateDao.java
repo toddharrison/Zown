@@ -65,6 +65,10 @@ public class TemplateDao extends AConfigurationDao {
 			if (id == null) {
 				// New record, create it
 				saved = super.save();
+				
+				// TODO remove when ID is automatically loaded
+				Database.get().load(templateDao, filters);
+				id = templateDao.id;
 			} else {
 				// Existing record, update previous values
 				filters = new HashMap<String, Object>();

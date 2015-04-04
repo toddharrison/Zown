@@ -90,13 +90,29 @@ public abstract class AConfigurationDao extends DataAccess {
 	}
 	
 	public void copyConfiguration(final AConfigurationDao configDao) {
-		configDao.allowList = new ArrayList<String>(allowList);
-		configDao.blockBuildExceptionList = new ArrayList<String>(blockBuildExceptionList);
-		configDao.blockInteractExceptionList = new ArrayList<String>(blockInteractExceptionList);
-		configDao.commandRestrictionsList = new ArrayList<String>(commandRestrictionsList);
-		configDao.denyList = new ArrayList<String>(denyList);
-		configDao.entityCreateExceptionList = new ArrayList<String>(entityCreateExceptionList);
-		configDao.entityInteractExceptionList = new ArrayList<String>(entityInteractExceptionList);
-		configDao.ownerPermissionList = new ArrayList<String>(ownerPermissionList);
+		if (allowList != null) {
+			configDao.allowList = new ArrayList<String>(allowList);
+		}
+		if (blockBuildExceptionList != null) {
+			configDao.blockBuildExceptionList = new ArrayList<String>(blockBuildExceptionList);
+		}
+		if (blockInteractExceptionList != null) {
+			configDao.blockInteractExceptionList = new ArrayList<String>(blockInteractExceptionList);
+		}
+		if (commandRestrictionsList != null) {
+			configDao.commandRestrictionsList = new ArrayList<String>(commandRestrictionsList);
+		}
+		if (denyList != null) {
+			configDao.denyList = new ArrayList<String>(denyList);
+		}
+		if (entityCreateExceptionList != null) {
+			configDao.entityCreateExceptionList = new ArrayList<String>(entityCreateExceptionList);
+		}
+		if (entityInteractExceptionList != null) {
+			configDao.entityInteractExceptionList = new ArrayList<String>(entityInteractExceptionList);
+		}
+		if (ownerPermissionList != null) {
+			configDao.ownerPermissionList = new ArrayList<String>(ownerPermissionList);
+		}
 	}
 }

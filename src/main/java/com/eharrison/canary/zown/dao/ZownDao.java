@@ -99,6 +99,10 @@ public class ZownDao extends AConfigurationDao {
 			if (id == null) {
 				// New record, create it
 				saved = super.save();
+				
+				// TODO remove when ID is automatically loaded
+				Database.get().load(zownDao, filters);
+				id = zownDao.id;
 			} else {
 				// Existing record, update previous values
 				filters = new HashMap<String, Object>();
