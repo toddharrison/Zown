@@ -29,6 +29,10 @@ public class ZownDao extends AConfigurationDao {
 		super("zown");
 	}
 	
+	protected ZownDao(final Database database) {
+		super("zown", database);
+	}
+	
 	@Override
 	public DataAccess getInstance() {
 		return new ZownDao();
@@ -68,7 +72,7 @@ public class ZownDao extends AConfigurationDao {
 			final Map<String, Object> filters = new HashMap<String, Object>();
 			filters.put(WORLD_NAME, worldName);
 			filters.put(ZOWN_NAME, zownName);
-			Database.get().load(this, filters);
+			database.load(this, filters);
 			if (hasData()) {
 				read = true;
 			}
@@ -84,7 +88,7 @@ public class ZownDao extends AConfigurationDao {
 		Map<String, Object> filters = new HashMap<String, Object>();
 		filters.put(WORLD_NAME, worldName);
 		filters.put(ZOWN_NAME, zownName);
-		Database.get().load(zownDao, filters);
+		database.load(zownDao, filters);
 		
 		if (zownDao.hasData()) {
 			// Record exists with same world and zown names
@@ -101,13 +105,13 @@ public class ZownDao extends AConfigurationDao {
 				saved = super.save();
 				
 				// TODO remove when ID is automatically loaded
-				Database.get().load(zownDao, filters);
+				database.load(zownDao, filters);
 				id = zownDao.id;
 			} else {
 				// Existing record, update previous values
 				filters = new HashMap<String, Object>();
 				filters.put(ID, id);
-				Database.get().load(zownDao, filters);
+				database.load(zownDao, filters);
 				
 				if (zownDao.hasData() && !zownDao.zownName.equals(zownName)) {
 					updateParentNameReferences(zownDao.zownName, zownName);
@@ -135,7 +139,7 @@ public class ZownDao extends AConfigurationDao {
 		filters.put(WORLD_NAME, worldName);
 		filters.put(PARENT_ZOWN_NAME, oldName);
 		final List<DataAccess> datasets = new ArrayList<DataAccess>();
-		Database.get().loadAll(zownDao, datasets, filters);
+		database.loadAll(zownDao, datasets, filters);
 		
 		for (final DataAccess da : datasets) {
 			zownDao = (ZownDao) da;
@@ -153,7 +157,7 @@ public class ZownDao extends AConfigurationDao {
 		filters.put(WORLD_NAME, worldName);
 		filters.put(PARENT_ZOWN_NAME, parent);
 		final List<DataAccess> datasets = new ArrayList<DataAccess>();
-		Database.get().loadAll(zownDao, datasets, filters);
+		database.loadAll(zownDao, datasets, filters);
 		
 		for (final DataAccess da : datasets) {
 			zownDao = (ZownDao) da;

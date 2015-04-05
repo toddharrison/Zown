@@ -21,6 +21,10 @@ public class TemplateDao extends AConfigurationDao {
 		super("zown_template");
 	}
 	
+	public TemplateDao(final Database database) {
+		super("zown_template", database);
+	}
+	
 	@Override
 	public DataAccess getInstance() {
 		return new TemplateDao();
@@ -35,7 +39,7 @@ public class TemplateDao extends AConfigurationDao {
 		if (templateName != null) {
 			final Map<String, Object> filters = new HashMap<String, Object>();
 			filters.put(TEMPLATE_NAME, templateName);
-			Database.get().load(this, filters);
+			database.load(this, filters);
 			if (hasData()) {
 				read = true;
 			}
@@ -50,7 +54,7 @@ public class TemplateDao extends AConfigurationDao {
 		final TemplateDao templateDao = new TemplateDao();
 		Map<String, Object> filters = new HashMap<String, Object>();
 		filters.put(TEMPLATE_NAME, templateName);
-		Database.get().load(templateDao, filters);
+		database.load(templateDao, filters);
 		
 		if (templateDao.hasData()) {
 			// Record exists with same template name
@@ -67,13 +71,13 @@ public class TemplateDao extends AConfigurationDao {
 				saved = super.save();
 				
 				// TODO remove when ID is automatically loaded
-				Database.get().load(templateDao, filters);
+				database.load(templateDao, filters);
 				id = templateDao.id;
 			} else {
 				// Existing record, update previous values
 				filters = new HashMap<String, Object>();
 				filters.put(ID, id);
-				Database.get().load(templateDao, filters);
+				database.load(templateDao, filters);
 				
 				if (templateDao.hasData() && !templateDao.templateName.equals(templateName)) {
 					updateTemplateNameReferences(templateDao.templateName, templateName);
@@ -100,7 +104,7 @@ public class TemplateDao extends AConfigurationDao {
 		final Map<String, Object> filters = new HashMap<String, Object>();
 		filters.put(ZownDao.TEMPLATE_NAME, oldName);
 		final List<DataAccess> datasets = new ArrayList<DataAccess>();
-		Database.get().loadAll(zownDao, datasets, filters);
+		database.loadAll(zownDao, datasets, filters);
 		
 		for (final DataAccess da : datasets) {
 			zownDao = (ZownDao) da;
@@ -117,7 +121,7 @@ public class TemplateDao extends AConfigurationDao {
 		final Map<String, Object> filters = new HashMap<String, Object>();
 		filters.put(ZownDao.TEMPLATE_NAME, template);
 		final List<DataAccess> datasets = new ArrayList<DataAccess>();
-		Database.get().loadAll(zownDao, datasets, filters);
+		database.loadAll(zownDao, datasets, filters);
 		
 		for (final DataAccess da : datasets) {
 			zownDao = (ZownDao) da;

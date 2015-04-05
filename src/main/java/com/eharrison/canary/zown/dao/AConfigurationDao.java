@@ -23,8 +23,15 @@ public abstract class AConfigurationDao extends DataAccess {
 	public static final String ENTITY_INTERACT_EXCEPTIONS = "entity_interact_exceptions";
 	public static final String COMMAND_RESTRICTIONS = "command_restrictions";
 	
+	protected final Database database;
+	
 	protected AConfigurationDao(final String tableName) {
+		this(tableName, Database.get());
+	}
+	
+	protected AConfigurationDao(final String tableName, final Database database) {
 		super(tableName);
+		this.database = database;
 	}
 	
 	@Column(columnName = OWNER_PERMISSIONS, dataType = DataType.STRING, isList = true)
@@ -56,7 +63,7 @@ public abstract class AConfigurationDao extends DataAccess {
 		if (id != null) {
 			final Map<String, Object> filters = new HashMap<String, Object>();
 			filters.put(ID, id);
-			Database.get().load(this, filters);
+			database.load(this, filters);
 			if (hasData()) {
 				read = true;
 			}
@@ -67,12 +74,12 @@ public abstract class AConfigurationDao extends DataAccess {
 	public boolean save() throws DatabaseReadException, DatabaseWriteException {
 		boolean saved = false;
 		if (id == null) {
-			Database.get().insert(this);
+			database.insert(this);
 			saved = true;
 		} else {
 			final Map<String, Object> filters = new HashMap<String, Object>();
 			filters.put(ID, id);
-			Database.get().update(this, filters);
+			database.update(this, filters);
 			saved = true;
 		}
 		return saved;
@@ -83,7 +90,7 @@ public abstract class AConfigurationDao extends DataAccess {
 		if (id != null) {
 			final Map<String, Object> filters = new HashMap<String, Object>();
 			filters.put(ID, id);
-			Database.get().remove(this, filters);
+			database.remove(this, filters);
 			deleted = true;
 		}
 		return deleted;
