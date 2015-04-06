@@ -1,4 +1,4 @@
-package com.eharrison.canary.zown.api;
+package com.eharrison.canary.zown.api.impl;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -29,6 +29,15 @@ public class Tree<T> implements Iterable<Tree<T>> {
 	
 	public Tree<T> getParent() {
 		return parent;
+	}
+	
+	public boolean removeParent() {
+		boolean removed = false;
+		if (parent != null) {
+			removed = parent.removeChild(this);
+			parent = null;
+		}
+		return removed;
 	}
 	
 	public Tree<T> addChild(final T child) {

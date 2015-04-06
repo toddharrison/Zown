@@ -1,8 +1,10 @@
-package com.eharrison.canary.zown.api;
+package com.eharrison.canary.zown.api.impl;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+
+import com.eharrison.canary.zown.api.impl.Tree;
 
 public class TreeTest {
 	@Test

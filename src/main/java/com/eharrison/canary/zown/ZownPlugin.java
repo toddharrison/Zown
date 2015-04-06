@@ -21,6 +21,33 @@ public class ZownPlugin extends Plugin {
 		
 		try {
 			
+			// final TemplateDao worldTemplate = new TemplateDao();
+			// worldTemplate.templateName = "worldTemplate";
+			// worldTemplate.allowList = new ArrayList<String>();
+			// worldTemplate.allowList.add("build");
+			// worldTemplate.allowList.add("mobDamage");
+			// worldTemplate.save();
+			//
+			// final TemplateDao serverTemplate = new TemplateDao();
+			// serverTemplate.templateName = "serverTemplate";
+			// serverTemplate.denyList = new ArrayList<String>();
+			// serverTemplate.denyList.add("build");
+			// serverTemplate.denyList.add("mobDamage");
+			// serverTemplate.save();
+			//
+			// final TemplateDao plotTemplate = new TemplateDao();
+			// plotTemplate.templateName = "plotTemplate";
+			// plotTemplate.denyList = new ArrayList<String>();
+			// plotTemplate.denyList.add("mobDamage");
+			// plotTemplate.ownerPermissionList = new ArrayList<String>();
+			// plotTemplate.ownerPermissionList.add("mobDamage");
+			// plotTemplate.save();
+			
+			// final TemplateDao template = new TemplateDao();
+			// template.templateName = "plotTemplate";
+			// System.out.println(template.read());
+			// System.out.println(template);
+			
 			// final TemplateDao template1 = new TemplateDao();
 			// template1.templateName = "template1";
 			// System.out.println("Read template1: " + template1.read());

@@ -4,6 +4,8 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import com.eharrison.canary.zown.api.Point;
+
 public class PointTest {
 	@Test
 	public void createPoint() {

@@ -1,11 +1,15 @@
-package com.eharrison.canary.zown.api;
+package com.eharrison.canary.zown.api.impl;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import net.canarymod.api.entity.living.humanoid.Player;
 
-public class Zown implements IConfigurable {
+import com.eharrison.canary.zown.api.IConfiguration;
+import com.eharrison.canary.zown.api.IZown;
+import com.eharrison.canary.zown.api.Point;
+
+public class Zown implements IZown {
 	private String name;
 	private Template template;
 	private Configuration configuration;
@@ -23,6 +27,10 @@ public class Zown implements IConfigurable {
 		this(name, null, null, null);
 	}
 	
+	protected Zown(final String name, final Template template) {
+		this(name, template, null, null);
+	}
+	
 	protected Zown(final String name, final Point p1, final Point p2) {
 		this(name, null, p1, p2);
 	}
@@ -33,7 +41,7 @@ public class Zown implements IConfigurable {
 		if (template == null) {
 			configuration = new Configuration();
 		} else {
-			template.getZowns().add(this);
+			template.addZown(this);
 		}
 		owners = new HashSet<String>();
 		members = new HashSet<String>();
@@ -44,54 +52,53 @@ public class Zown implements IConfigurable {
 		}
 	}
 	
-	protected void setName(final String name) {
-		this.name = name;
-	}
-	
+	@Override
 	public String getName() {
 		return name;
 	}
 	
+	protected void setName(final String name) {
+		this.name = name;
+	}
+	
+	@Override
 	public Template getTemplate() {
 		return template;
 	}
 	
-	public void setTemplate(final Template template) {
-		if (this.template != null) {
-			this.template.getZowns().remove(this);
+	protected void setTemplate(final Template template) {
+		if (template == null && configuration == null) {
+			configuration = this.template.getConfiguration().clone();
 		}
 		this.template = template;
-		configuration = null;
-		template.getZowns().add(this);
 	}
 	
-	public void removeTemplate() {
+	protected void loadTemplate(final Template template) {
 		if (template != null) {
-			template.getZowns().remove(this);
+			this.template = template;
+			configuration = null;
 		}
-		if (configuration == null) {
-			configuration = template.getConfiguration().clone();
-		}
-		template = null;
 	}
 	
 	@Override
-	public Configuration getConfiguration() {
+	public IConfiguration getConfiguration() {
 		if (configuration == null) {
 			return template.getConfiguration();
 		}
 		return configuration;
 	}
 	
+	@Override
 	public Point getMinPoint() {
 		return minPoint;
 	}
 	
+	@Override
 	public Point getMaxPoint() {
 		return maxPoint;
 	}
 	
-	public void setBounds(final Point p1, final Point p2) {
+	protected void setBounds(final Point p1, final Point p2) {
 		minPoint = new Point(Math.min(p1.x, p2.x), Math.min(p1.y, p2.y), Math.min(p1.z, p2.z));
 		maxPoint = new Point(Math.max(p1.x, p2.x), Math.max(p1.y, p2.y), Math.max(p1.z, p2.z));
 		centerPoint = new Point((int) Math.floor((minPoint.x + maxPoint.x) / 2.0),
@@ -105,18 +112,23 @@ public class Zown implements IConfigurable {
 		maxRadiusSquared = centerPoint.distanceSquared(maxPoint);
 	}
 	
+	@Override
 	public boolean addOwner(final Player player) {
+		removeMember(player);
 		return owners.add(player.getUUIDString());
 	}
 	
+	@Override
 	public boolean removeOwner(final Player player) {
 		return owners.remove(player.getUUIDString());
 	}
 	
+	@Override
 	public boolean isOwner(final Player player) {
 		return owners.contains(player.getUUIDString());
 	}
 	
+	@Override
 	public boolean addMember(final Player player) {
 		boolean added = false;
 		final String uuid = player.getUUIDString();
@@ -126,30 +138,37 @@ public class Zown implements IConfigurable {
 		return added;
 	}
 	
+	@Override
 	public boolean removeMember(final Player player) {
 		return members.remove(player.getUUIDString());
 	}
 	
+	@Override
 	public boolean isMember(final Player player) {
 		return members.contains(player.getUUIDString());
 	}
 	
+	@Override
 	public boolean isOwnerOrMember(final Player player) {
 		return isOwner(player) || isMember(player);
 	}
 	
+	@Override
 	public boolean addEntryExclusion(final Player player) {
 		return entryExclusion.add(player.getUUIDString());
 	}
 	
+	@Override
 	public boolean removeEntryExclusion(final Player player) {
 		return entryExclusion.remove(player.getUUIDString());
 	}
 	
+	@Override
 	public boolean hasEntryExclusion(final Player player) {
 		return entryExclusion.contains(player.getUUIDString());
 	}
 	
+	@Override
 	public int getBlockCount() {
 		final int x = maxPoint.x - minPoint.x;
 		final int y = maxPoint.y - minPoint.y;
@@ -157,12 +176,14 @@ public class Zown implements IConfigurable {
 		return x * y * z;
 	}
 	
+	@Override
 	public int getColumnCount() {
 		final int x = maxPoint.x - minPoint.x;
 		final int z = maxPoint.z - minPoint.z;
 		return x * z;
 	}
 	
+	@Override
 	public boolean contains(final Point p) {
 		boolean contained = false;
 		if (centerPoint == null) {
@@ -182,7 +203,8 @@ public class Zown implements IConfigurable {
 		return contained;
 	}
 	
-	public boolean contains(final Zown z) {
+	@Override
+	public boolean contains(final IZown z) {
 		boolean contained = false;
 		if (centerPoint == null || contains(z.getMinPoint()) && contains(z.getMaxPoint())) {
 			contained = true;
@@ -190,7 +212,8 @@ public class Zown implements IConfigurable {
 		return contained;
 	}
 	
-	public boolean intersects(final Zown z) {
+	@Override
+	public boolean intersects(final IZown z) {
 		boolean intersects = false;
 		if (centerPoint != null && contains(z.getMinPoint()) ^ contains(z.getMaxPoint())) {
 			intersects = true;
