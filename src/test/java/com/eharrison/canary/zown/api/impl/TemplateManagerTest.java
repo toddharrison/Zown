@@ -1,20 +1,31 @@
 package com.eharrison.canary.zown.api.impl;
 
+import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
 
+import org.easymock.EasyMockSupport;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TemplateManagerTest {
-	private TemplateManager templateManager;
+import com.eharrison.canary.zown.dao.DataManager;
+
+public class TemplateManagerTest extends EasyMockSupport {
+	private DataManager dataManagerMock;
 	
 	@Before
 	public void init() {
-		templateManager = new TemplateManager();
+		dataManagerMock = createMock(DataManager.class);
 	}
 	
 	@Test
-	public void testCreateAndRemoveTemplate() {
+	public void testCreateAndRemoveTemplate() throws Exception {
+		dataManagerMock.loadTemplates(isA(TemplateManager.class));
+		expect(dataManagerMock.saveTemplate(isA(Template.class))).andReturn(true);
+		expect(dataManagerMock.removeTemplate(isA(Template.class))).andReturn(true);
+		replayAll();
+		
+		final TemplateManager templateManager = new TemplateManager(dataManagerMock);
+		
 		assertNull(templateManager.getTemplate("foo"));
 		
 		final Template template = templateManager.createTemplate("foo");
@@ -27,10 +38,19 @@ public class TemplateManagerTest {
 		assertTrue(templateManager.removeTemplate("foo"));
 		assertFalse(templateManager.removeTemplate("foo"));
 		assertNull(templateManager.getTemplate("foo"));
+		
+		verifyAll();
 	}
 	
 	@Test
-	public void testRenameTemplate() {
+	public void testRenameTemplate() throws Exception {
+		dataManagerMock.loadTemplates(isA(TemplateManager.class));
+		expect(dataManagerMock.saveTemplate(isA(Template.class))).andReturn(true);
+		expect(dataManagerMock.saveTemplate(isA(Template.class), eq("foo"))).andReturn(true);
+		replayAll();
+		
+		final TemplateManager templateManager = new TemplateManager(dataManagerMock);
+		
 		assertNotNull(templateManager.createTemplate("foo"));
 		assertNotNull(templateManager.getTemplate("foo"));
 		
@@ -38,6 +58,6 @@ public class TemplateManagerTest {
 		assertNull(templateManager.getTemplate("foo"));
 		assertNotNull(templateManager.getTemplate("bar"));
 		
-		assertTrue(templateManager.removeTemplate("bar"));
+		verifyAll();
 	}
 }

@@ -3,13 +3,23 @@ package com.eharrison.canary.zown.api.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.eharrison.canary.zown.ZownPlugin;
 import com.eharrison.canary.zown.api.ITemplateManager;
+import com.eharrison.canary.zown.dao.DataManager;
 
 public class TemplateManager implements ITemplateManager {
 	private final Map<String, Template> templates;
+	private final DataManager dataManager;
 	
-	public TemplateManager() {
+	public TemplateManager(final DataManager dataManager) {
 		templates = new HashMap<String, Template>();
+		this.dataManager = dataManager;
+		
+		try {
+			dataManager.loadTemplates(this);
+		} catch (final Exception e) {
+			ZownPlugin.LOG.error("Error loading templates", e);
+		}
 	}
 	
 	@Override
@@ -23,6 +33,12 @@ public class TemplateManager implements ITemplateManager {
 		if (!templates.containsKey(name)) {
 			template = new Template(name);
 			templates.put(name, template);
+			
+			try {
+				dataManager.saveTemplate(template);
+			} catch (final Exception e) {
+				ZownPlugin.LOG.error("Error saving template", e);
+			}
 		}
 		return template;
 	}
@@ -37,6 +53,12 @@ public class TemplateManager implements ITemplateManager {
 			}
 			templates.remove(name);
 			removed = true;
+			
+			try {
+				dataManager.removeTemplate(template);
+			} catch (final Exception e) {
+				ZownPlugin.LOG.error("Error removing template", e);
+			}
 		}
 		return removed;
 	}
@@ -51,6 +73,12 @@ public class TemplateManager implements ITemplateManager {
 				templates.remove(oldName);
 				templates.put(newName, template);
 				renamed = true;
+				
+				try {
+					dataManager.saveTemplate(template, oldName);
+				} catch (final Exception e) {
+					ZownPlugin.LOG.error("Error renaming template", e);
+				}
 			}
 		}
 		return renamed;
