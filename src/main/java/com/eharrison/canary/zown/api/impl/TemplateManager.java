@@ -1,5 +1,7 @@
 package com.eharrison.canary.zown.api.impl;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,6 +25,11 @@ public class TemplateManager implements ITemplateManager {
 	}
 	
 	@Override
+	public Collection<Template> getTemplates() {
+		return Collections.unmodifiableCollection(templates.values());
+	}
+	
+	@Override
 	public Template getTemplate(final String name) {
 		return templates.get(name);
 	}
@@ -39,6 +46,15 @@ public class TemplateManager implements ITemplateManager {
 			} catch (final Exception e) {
 				ZownPlugin.LOG.error("Error saving template", e);
 			}
+		}
+		return template;
+	}
+	
+	public Template addTemplate(final String name) {
+		Template template = null;
+		if (!templates.containsKey(name)) {
+			template = new Template(name);
+			templates.put(name, template);
 		}
 		return template;
 	}
@@ -82,5 +98,20 @@ public class TemplateManager implements ITemplateManager {
 			}
 		}
 		return renamed;
+	}
+	
+	@Override
+	public boolean saveTemplate(final String name) {
+		boolean saved = false;
+		final Template template = templates.get(name);
+		if (template != null) {
+			try {
+				dataManager.saveTemplate(template);
+				saved = true;
+			} catch (final Exception e) {
+				ZownPlugin.LOG.error("Error saving template", e);
+			}
+		}
+		return saved;
 	}
 }

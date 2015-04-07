@@ -60,4 +60,19 @@ public class TemplateManagerTest extends EasyMockSupport {
 		
 		verifyAll();
 	}
+	
+	@Test
+	public void testSaveTemplate() throws Exception {
+		dataManagerMock.loadTemplates(isA(TemplateManager.class));
+		expect(dataManagerMock.saveTemplate(isA(Template.class))).andReturn(true).times(2);
+		replayAll();
+		
+		final TemplateManager templateManager = new TemplateManager(dataManagerMock);
+		
+		assertNotNull(templateManager.createTemplate("foo"));
+		assertTrue(templateManager.saveTemplate("foo"));
+		assertFalse(templateManager.saveTemplate("bar"));
+		
+		verifyAll();
+	}
 }

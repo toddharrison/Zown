@@ -5,6 +5,10 @@ import net.canarymod.database.exceptions.DatabaseReadException;
 import net.canarymod.logger.Logman;
 import net.canarymod.plugin.Plugin;
 
+import com.eharrison.canary.zown.api.ITemplateManager;
+import com.eharrison.canary.zown.api.impl.TemplateManager;
+import com.eharrison.canary.zown.dao.DataManager;
+
 public class ZownPlugin extends Plugin {
 	public static Logman LOG;
 	
@@ -20,6 +24,15 @@ public class ZownPlugin extends Plugin {
 		LOG.info("Authored by " + getAuthor());
 		
 		try {
+			
+			final DataManager dataManager = new DataManager();
+			final ITemplateManager templateManager = new TemplateManager(dataManager);
+			
+			// final ITemplate template = templateManager.getTemplate("worldTemplate");
+			// System.out.println("Template: " + template);
+			// System.out.println(template.getConfiguration());
+			
+			System.out.println(templateManager.removeTemplate("tory"));
 			
 			// final TemplateDao worldTemplate = new TemplateDao();
 			// worldTemplate.templateName = "worldTemplate";

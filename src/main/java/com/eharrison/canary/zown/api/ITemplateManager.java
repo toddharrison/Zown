@@ -1,6 +1,10 @@
 package com.eharrison.canary.zown.api;
 
+import java.util.Collection;
+
 public interface ITemplateManager {
+	Collection<? extends ITemplate> getTemplates();
+	
 	ITemplate getTemplate(String name);
 	
 	ITemplate createTemplate(String name);
@@ -8,4 +12,6 @@ public interface ITemplateManager {
 	boolean removeTemplate(String name);
 	
 	boolean renameTemplate(String oldName, String newName);
+	
+	boolean saveTemplate(String name);
 }

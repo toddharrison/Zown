@@ -175,4 +175,26 @@ public class Configuration implements IConfiguration {
 		config.commandRestrictions.addAll(commandRestrictions);
 		return config;
 	}
+	
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder();
+		sb.append("Configuration: {\n");
+		sb.append("  ownerPermissions: ");
+		sb.append(ownerPermissions);
+		sb.append("\n  flags: ");
+		sb.append(flags);
+		sb.append("\n  blockBuildExclusions: ");
+		sb.append(blockBuildExclusions);
+		sb.append("\n  blockInteractExclusions: ");
+		sb.append(blockInteractExclusions);
+		sb.append("\n  entityCreateExclusions: ");
+		sb.append(entityCreateExclusions);
+		sb.append("\n  entityInteractExclusions: ");
+		sb.append(entityInteractExclusions);
+		sb.append("\n  commandRestrictions: ");
+		sb.append(commandRestrictions);
+		sb.append("\n}");
+		return sb.toString();
+	}
 }

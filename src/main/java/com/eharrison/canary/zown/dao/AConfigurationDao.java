@@ -79,10 +79,8 @@ public abstract class AConfigurationDao extends DataAccess {
 		} else {
 			final Map<String, Object> filters = new HashMap<String, Object>();
 			filters.put(ID, id);
-			// TODO
-			// database.update(this, filters);
+			database.update(this, filters);
 			saved = true;
-			throw new IllegalStateException("foo");
 		}
 		return saved;
 	}

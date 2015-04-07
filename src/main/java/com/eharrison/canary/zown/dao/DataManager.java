@@ -48,7 +48,7 @@ public class DataManager {
 		for (final DataAccess dataset : datasets) {
 			templateDao = (TemplateDao) dataset;
 			
-			final Template template = templateManager.createTemplate(templateDao.templateName);
+			final Template template = templateManager.addTemplate(templateDao.templateName);
 			if (template == null) {
 				// Attempted to create duplicate template
 				ZownPlugin.LOG.warn("Tried to load a duplicate template: " + templateDao.templateName);
@@ -93,6 +93,9 @@ public class DataManager {
 		if (template != null) {
 			final TemplateDao templateDao = new TemplateDao();
 			templateDao.templateName = template.getName();
+			
+			// Populate the templateDao id if it exists in the database
+			templateDao.read();
 			
 			templateDao.delete();
 		}
