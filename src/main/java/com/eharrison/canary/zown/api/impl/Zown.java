@@ -1,5 +1,7 @@
 package com.eharrison.canary.zown.api.impl;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,7 +17,7 @@ public class Zown implements IZown {
 	private Configuration configuration;
 	private final Set<String> owners;
 	private final Set<String> members;
-	private final Set<String> entryExclusion;
+	private final Set<String> entryExclusions;
 	
 	private Point minPoint;
 	private Point maxPoint;
@@ -45,7 +47,7 @@ public class Zown implements IZown {
 		}
 		owners = new HashSet<String>();
 		members = new HashSet<String>();
-		entryExclusion = new HashSet<String>();
+		entryExclusions = new HashSet<String>();
 		
 		if (p1 != null && p2 != null) {
 			setBounds(p1, p2);
@@ -88,6 +90,10 @@ public class Zown implements IZown {
 		return configuration;
 	}
 	
+	public boolean overridesTemplate() {
+		return configuration != null;
+	}
+	
 	@Override
 	public Point getMinPoint() {
 		return minPoint;
@@ -128,6 +134,10 @@ public class Zown implements IZown {
 		return owners.contains(player.getUUIDString());
 	}
 	
+	public Collection<String> getOwnerUUIDs() {
+		return Collections.unmodifiableCollection(owners);
+	}
+	
 	@Override
 	public boolean addMember(final Player player) {
 		boolean added = false;
@@ -148,6 +158,10 @@ public class Zown implements IZown {
 		return members.contains(player.getUUIDString());
 	}
 	
+	public Collection<String> getMemberUUIDs() {
+		return Collections.unmodifiableCollection(members);
+	}
+	
 	@Override
 	public boolean isOwnerOrMember(final Player player) {
 		return isOwner(player) || isMember(player);
@@ -155,17 +169,21 @@ public class Zown implements IZown {
 	
 	@Override
 	public boolean addEntryExclusion(final Player player) {
-		return entryExclusion.add(player.getUUIDString());
+		return entryExclusions.add(player.getUUIDString());
 	}
 	
 	@Override
 	public boolean removeEntryExclusion(final Player player) {
-		return entryExclusion.remove(player.getUUIDString());
+		return entryExclusions.remove(player.getUUIDString());
 	}
 	
 	@Override
 	public boolean hasEntryExclusion(final Player player) {
-		return entryExclusion.contains(player.getUUIDString());
+		return entryExclusions.contains(player.getUUIDString());
+	}
+	
+	public Collection<String> getEntryExclusionUUIDs() {
+		return Collections.unmodifiableCollection(entryExclusions);
 	}
 	
 	@Override

@@ -10,26 +10,33 @@ import org.easymock.EasyMockSupport;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.eharrison.canary.zown.api.ITemplateManager;
 import com.eharrison.canary.zown.api.IZown;
 import com.eharrison.canary.zown.api.Point;
+import com.eharrison.canary.zown.dao.DataManager;
 
 public class ZownManagerTest extends EasyMockSupport {
-	private ZownManager zownManager;
 	private Template template;
 	
+	private DataManager dataManagerMock;
+	private ITemplateManager templateManagerMock;
 	private World worldMock;
 	
 	@Before
 	public void init() {
+		dataManagerMock = createMock(DataManager.class);
+		templateManagerMock = createMock(ITemplateManager.class);
 		worldMock = createMock(World.class);
 		template = new Template("template");
-		zownManager = new ZownManager();
 	}
 	
 	@Test
-	public void testWorldZown() {
+	public void testWorldZown() throws Exception {
 		expect(worldMock.getFqName()).andReturn("foo").anyTimes();
+		expect(dataManagerMock.saveZown(eq(worldMock), isA(Tree.class))).andReturn(true);
 		replayAll();
+		
+		final ZownManager zownManager = new ZownManager(dataManagerMock, templateManagerMock);
 		
 		final Tree<? extends IZown> worldZown = zownManager.getZown(worldMock);
 		assertNotNull(worldZown);
@@ -45,9 +52,12 @@ public class ZownManagerTest extends EasyMockSupport {
 	}
 	
 	@Test
-	public void testCreateZown() {
+	public void testCreateZown() throws Exception {
 		expect(worldMock.getFqName()).andReturn("foo").anyTimes();
+		expect(dataManagerMock.saveZown(eq(worldMock), isA(Tree.class))).andReturn(true).anyTimes();
 		replayAll();
+		
+		final ZownManager zownManager = new ZownManager(dataManagerMock, templateManagerMock);
 		
 		final Tree<? extends IZown> zown1 = zownManager.createZown(worldMock, "zown1", template,
 				new Point(0, 0, 0), new Point(10, 10, 10));
@@ -75,11 +85,14 @@ public class ZownManagerTest extends EasyMockSupport {
 	}
 	
 	@Test
-	public void testGetZownByLocation() {
+	public void testGetZownByLocation() throws Exception {
 		expect(worldMock.getName()).andReturn("foo");
 		expect(worldMock.getType()).andReturn(DimensionType.NORMAL);
 		expect(worldMock.getFqName()).andReturn("foo_normal").anyTimes();
+		expect(dataManagerMock.saveZown(eq(worldMock), isA(Tree.class))).andReturn(true).anyTimes();
 		replayAll();
+		
+		final ZownManager zownManager = new ZownManager(dataManagerMock, templateManagerMock);
 		
 		final Location location = new Location(worldMock, 5, 5, 5, 0, 0);
 		
@@ -105,9 +118,13 @@ public class ZownManagerTest extends EasyMockSupport {
 	}
 	
 	@Test
-	public void testRemoveZown() {
+	public void testRemoveZown() throws Exception {
 		expect(worldMock.getFqName()).andReturn("foo").anyTimes();
+		expect(dataManagerMock.saveZown(eq(worldMock), isA(Tree.class))).andReturn(true).anyTimes();
+		expect(dataManagerMock.removeZown(eq(worldMock), isA(Tree.class))).andReturn(true);
 		replayAll();
+		
+		final ZownManager zownManager = new ZownManager(dataManagerMock, templateManagerMock);
 		
 		final Tree<? extends IZown> zown1 = zownManager.createZown(worldMock, "zown1", template,
 				new Point(0, 0, 0), new Point(10, 10, 10));
@@ -134,9 +151,13 @@ public class ZownManagerTest extends EasyMockSupport {
 	}
 	
 	@Test
-	public void testRenameZown() {
+	public void testRenameZown() throws Exception {
 		expect(worldMock.getFqName()).andReturn("foo").anyTimes();
+		expect(dataManagerMock.saveZown(eq(worldMock), isA(Tree.class))).andReturn(true).times(2);
+		expect(dataManagerMock.saveZown(eq(worldMock), isA(Tree.class), eq("zown1"))).andReturn(true);
 		replayAll();
+		
+		final ZownManager zownManager = new ZownManager(dataManagerMock, templateManagerMock);
 		
 		final Tree<? extends IZown> zown = zownManager.createZown(worldMock, "zown1", template,
 				new Point(0, 0, 0), new Point(10, 10, 10));

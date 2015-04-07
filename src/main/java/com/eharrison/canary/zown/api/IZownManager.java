@@ -6,6 +6,10 @@ import net.canarymod.api.world.position.Location;
 import com.eharrison.canary.zown.api.impl.Tree;
 
 public interface IZownManager {
+	void loadZowns(World world);
+	
+	void unloadZowns(World world);
+	
 	Tree<? extends IZown> getZown(World world);
 	
 	Tree<? extends IZown> getZown(World world, String name);

@@ -6,18 +6,41 @@ import java.util.Map;
 import net.canarymod.api.world.World;
 import net.canarymod.api.world.position.Location;
 
+import com.eharrison.canary.zown.ZownPlugin;
 import com.eharrison.canary.zown.api.ITemplate;
+import com.eharrison.canary.zown.api.ITemplateManager;
 import com.eharrison.canary.zown.api.IZown;
 import com.eharrison.canary.zown.api.IZownManager;
 import com.eharrison.canary.zown.api.Point;
+import com.eharrison.canary.zown.dao.DataManager;
 
 public class ZownManager implements IZownManager {
 	private final Map<World, Tree<Zown>> zownTrees;
 	private final Map<World, Map<String, Tree<Zown>>> zownMaps;
+	private final DataManager dataManager;
+	private final ITemplateManager templateManager;
 	
-	public ZownManager() {
+	public ZownManager(final DataManager dataManager, final ITemplateManager templateManager) {
 		zownTrees = new HashMap<World, Tree<Zown>>();
 		zownMaps = new HashMap<World, Map<String, Tree<Zown>>>();
+		this.dataManager = dataManager;
+		this.templateManager = templateManager;
+	}
+	
+	@Override
+	public void loadZowns(final World world) {
+		try {
+			unloadZowns(world);
+			dataManager.loadZowns(world, templateManager, this);
+		} catch (final Exception e) {
+			ZownPlugin.LOG.error("Error loading zowns for " + world.getFqName(), e);
+		}
+	}
+	
+	@Override
+	public void unloadZowns(final World world) {
+		zownTrees.remove(world);
+		zownMaps.remove(world);
 	}
 	
 	@Override
@@ -30,6 +53,12 @@ public class ZownManager implements IZownManager {
 			zownMap.put(world.getFqName(), zownTree);
 			zownTrees.put(world, zownTree);
 			zownMaps.put(world, zownMap);
+			
+			try {
+				dataManager.saveZown(world, zownTree);
+			} catch (final Exception e) {
+				ZownPlugin.LOG.error("Error saving world zown", e);
+			}
 		} else {
 			zownTree = zownTrees.get(world);
 		}
@@ -55,7 +84,7 @@ public class ZownManager implements IZownManager {
 	@Override
 	public Tree<? extends IZown> createZown(final World world, final String name,
 			final ITemplate template, final Point p1, final Point p2) {
-		Tree<Zown> zoneTree = null;
+		Tree<Zown> zownTree = null;
 		
 		Map<String, Tree<Zown>> zownMap = zownMaps.get(world);
 		if (zownMap == null) {
@@ -68,13 +97,29 @@ public class ZownManager implements IZownManager {
 			final Zown z = new Zown(name, (Template) template, p1, p2);
 			if (!intersectsExistingZown(rootTree, z)) {
 				final Tree<Zown> targetTree = getTargetContainingZown(rootTree, z);
-				zoneTree = new Tree<Zown>(z);
-				targetTree.addChild(zoneTree);
-				zownMap.put(name, zoneTree);
+				zownTree = new Tree<Zown>(z);
+				targetTree.addChild(zownTree);
+				zownMap.put(name, zownTree);
+				
+				try {
+					dataManager.saveZown(world, zownTree);
+				} catch (final Exception e) {
+					ZownPlugin.LOG.error("Error saving zown", e);
+				}
 			}
 		}
 		
-		return zoneTree;
+		return zownTree;
+	}
+	
+	public Tree<? extends IZown> addZown(final World world, final String parentName,
+			final String name, final ITemplate template, final Point p1, final Point p2) {
+		final Map<String, Tree<Zown>> zownMap = zownMaps.get(world);
+		
+		final Tree<Zown> parentZown = zownMap.get(parentName);
+		
+		// TODO;
+		return null;
 	}
 	
 	@Override
@@ -87,6 +132,12 @@ public class ZownManager implements IZownManager {
 			if (removed) {
 				for (final Tree<Zown> t : tree) {
 					zownMap.remove(t.getData().getName());
+				}
+				
+				try {
+					dataManager.removeZown(world, tree);
+				} catch (final Exception e) {
+					ZownPlugin.LOG.error("Error saving zown", e);
 				}
 			}
 		}
@@ -102,6 +153,12 @@ public class ZownManager implements IZownManager {
 			zownTree.getData().setName(newName);
 			zownMap.put(newName, zownTree);
 			renamed = true;
+			
+			try {
+				dataManager.saveZown(world, zownTree, oldName);
+			} catch (final Exception e) {
+				ZownPlugin.LOG.error("Error saving zown", e);
+			}
 		}
 		return renamed;
 	}

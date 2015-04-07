@@ -14,6 +14,7 @@ import net.canarymod.api.entity.living.animal.EntityAnimal;
 import net.canarymod.api.entity.living.humanoid.Villager;
 import net.canarymod.api.entity.living.monster.EntityMob;
 import net.canarymod.api.entity.vehicle.Vehicle;
+import net.canarymod.api.world.World;
 import net.canarymod.api.world.blocks.BlockType;
 import net.canarymod.database.DataAccess;
 import net.canarymod.database.Database;
@@ -23,9 +24,16 @@ import net.canarymod.database.exceptions.DatabaseWriteException;
 import com.eharrison.canary.zown.ZownPlugin;
 import com.eharrison.canary.zown.api.IConfigurable;
 import com.eharrison.canary.zown.api.IConfiguration;
+import com.eharrison.canary.zown.api.ITemplate;
+import com.eharrison.canary.zown.api.ITemplateManager;
+import com.eharrison.canary.zown.api.IZown;
+import com.eharrison.canary.zown.api.Point;
 import com.eharrison.canary.zown.api.impl.Configuration;
 import com.eharrison.canary.zown.api.impl.Template;
 import com.eharrison.canary.zown.api.impl.TemplateManager;
+import com.eharrison.canary.zown.api.impl.Tree;
+import com.eharrison.canary.zown.api.impl.Zown;
+import com.eharrison.canary.zown.api.impl.ZownManager;
 
 public class DataManager {
 	private final Database database;
@@ -38,8 +46,7 @@ public class DataManager {
 		this.database = database;
 	}
 	
-	public void loadTemplates(final TemplateManager templateManager) throws DatabaseReadException,
-			DatabaseWriteException {
+	public void loadTemplates(final TemplateManager templateManager) throws DatabaseReadException {
 		TemplateDao templateDao = new TemplateDao();
 		final List<DataAccess> datasets = new ArrayList<DataAccess>();
 		final Map<String, Object> filters = new HashMap<String, Object>();
@@ -59,11 +66,56 @@ public class DataManager {
 		}
 	}
 	
+	public void loadZowns(final World world, final ITemplateManager templateManager,
+			final ZownManager zownManager) throws DatabaseReadException {
+		
+		// TODO
+		// ZownDao zownDao = new ZownDao();
+		// zownDao.worldName = world.getFqName();
+		// zownDao.zownName = world.getFqName();
+		// if (zownDao.read()) {
+		//
+		// }
+		
+		ZownDao zownDao = new ZownDao();
+		final List<DataAccess> datasets = new ArrayList<DataAccess>();
+		final Map<String, Object> filters = new HashMap<String, Object>();
+		database.loadAll(zownDao, datasets, filters);
+		
+		for (final DataAccess dataset : datasets) {
+			zownDao = (ZownDao) dataset;
+			
+			final ITemplate template = templateManager.getTemplate(zownDao.templateName);
+			final Point p1 = Point.parse(zownDao.minPointString);
+			final Point p2 = Point.parse(zownDao.maxPointString);
+			
+			final Tree<? extends IZown> zown = zownManager.addZown(world, zownDao.parentZownName,
+					zownDao.zownName, template, p1, p2);
+			if (zown == null) {
+				// Attempted to create duplicate template
+				ZownPlugin.LOG.warn("Tried to load a duplicate zown: " + zownDao.worldName + " "
+						+ zownDao.zownName);
+			} else {
+				loadConfiguration(zown.getData(), zownDao);
+				ZownPlugin.LOG.info("Loaded zown " + zownDao.worldName + " " + zownDao.templateName);
+			}
+		}
+	}
+	
 	public boolean saveTemplate(final Template template) throws DatabaseReadException,
 			DatabaseWriteException {
 		boolean saved = false;
 		if (template != null) {
 			saved = saveTemplate(template, template.getName());
+		}
+		return saved;
+	}
+	
+	public boolean saveZown(final World world, final Tree<Zown> zown) throws DatabaseReadException,
+			DatabaseWriteException {
+		boolean saved = false;
+		if (zown != null) {
+			saved = saveZown(world, zown, zown.getData().getName());
 		}
 		return saved;
 	}
@@ -87,6 +139,48 @@ public class DataManager {
 		return saved;
 	}
 	
+	public boolean saveZown(final World world, final Tree<Zown> zownTree, final String originalName)
+			throws DatabaseReadException, DatabaseWriteException {
+		boolean saved = false;
+		if (zownTree != null) {
+			final ZownDao zownDao = new ZownDao();
+			zownDao.worldName = world.getFqName();
+			zownDao.zownName = originalName;
+			
+			// Populate the zownDao id if it exists in the database
+			zownDao.read();
+			
+			// Set the zownDao data
+			if (!zownTree.isRoot()) {
+				zownDao.parentZownName = zownTree.getParent().getData().getName();
+			}
+			final Zown zown = zownTree.getData();
+			zownDao.zownName = zown.getName();
+			if (zown.getTemplate() != null) {
+				zownDao.templateName = zown.getTemplate().getName();
+			}
+			zownDao.ownerList = new ArrayList<String>(zown.getOwnerUUIDs());
+			zownDao.memberList = new ArrayList<String>(zown.getMemberUUIDs());
+			zownDao.entryExclusions = new ArrayList<String>(zown.getEntryExclusionUUIDs());
+			if (zown.getMinPoint() != null) {
+				zownDao.minPointString = zown.getMinPoint().toString();
+			}
+			if (zown.getMaxPoint() != null) {
+				zownDao.maxPointString = zown.getMaxPoint().toString();
+			}
+			
+			if (zown.overridesTemplate()) {
+				saveConfiguration(zown, zownDao);
+				zownDao.templateOverride = true;
+			} else {
+				zownDao.templateOverride = false;
+			}
+			
+			saved = zownDao.save();
+		}
+		return saved;
+	}
+	
 	public boolean removeTemplate(final Template template) throws DatabaseReadException,
 			DatabaseWriteException {
 		final boolean removed = false;
@@ -98,6 +192,22 @@ public class DataManager {
 			templateDao.read();
 			
 			templateDao.delete();
+		}
+		return removed;
+	}
+	
+	public boolean removeZown(final World world, final Tree<? extends IZown> zown)
+			throws DatabaseReadException, DatabaseWriteException {
+		final boolean removed = false;
+		if (zown != null) {
+			final ZownDao zownDao = new ZownDao();
+			zownDao.worldName = world.getFqName();
+			zownDao.zownName = zown.getData().getName();
+			
+			// Populate the zownDao id if it exists in the database
+			zownDao.read();
+			
+			zownDao.delete();
 		}
 		return removed;
 	}

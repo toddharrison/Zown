@@ -2,15 +2,28 @@ package com.eharrison.canary.zown;
 
 import net.canarymod.Canary;
 import net.canarymod.database.exceptions.DatabaseReadException;
+import net.canarymod.hook.HookHandler;
+import net.canarymod.hook.system.LoadWorldHook;
+import net.canarymod.hook.system.UnloadWorldHook;
 import net.canarymod.logger.Logman;
 import net.canarymod.plugin.Plugin;
+import net.canarymod.plugin.PluginListener;
 
+import com.eharrison.canary.zown.api.ITemplate;
 import com.eharrison.canary.zown.api.ITemplateManager;
+import com.eharrison.canary.zown.api.IZown;
+import com.eharrison.canary.zown.api.IZownManager;
+import com.eharrison.canary.zown.api.Point;
 import com.eharrison.canary.zown.api.impl.TemplateManager;
+import com.eharrison.canary.zown.api.impl.Tree;
+import com.eharrison.canary.zown.api.impl.ZownManager;
 import com.eharrison.canary.zown.dao.DataManager;
 
-public class ZownPlugin extends Plugin {
+public class ZownPlugin extends Plugin implements PluginListener {
 	public static Logman LOG;
+	
+	private ITemplateManager templateManager;
+	private IZownManager zownManager;
 	
 	public ZownPlugin() throws DatabaseReadException {
 		ZownPlugin.LOG = getLogman();
@@ -23,16 +36,27 @@ public class ZownPlugin extends Plugin {
 		LOG.info("Enabling " + getName() + " Version " + getVersion());
 		LOG.info("Authored by " + getAuthor());
 		
+		Canary.hooks().registerListener(this, this);
+		
 		try {
 			
 			final DataManager dataManager = new DataManager();
-			final ITemplateManager templateManager = new TemplateManager(dataManager);
+			templateManager = new TemplateManager(dataManager);
+			zownManager = new ZownManager(dataManager, templateManager);
+			
+			final ITemplate template = templateManager.getTemplate("worldTemplate");
+			
+			final Tree<? extends IZown> zownTree = zownManager.createZown(Canary.getServer()
+					.getDefaultWorld(), "foo", template, new Point(0, 0, 0), new Point(10, 10, 10));
+			System.out.println(zownTree);
+			
+			// TODO test load zowns from DB
 			
 			// final ITemplate template = templateManager.getTemplate("worldTemplate");
 			// System.out.println("Template: " + template);
 			// System.out.println(template.getConfiguration());
 			
-			System.out.println(templateManager.removeTemplate("tory"));
+			// System.out.println(templateManager.removeTemplate("tory"));
 			
 			// final TemplateDao worldTemplate = new TemplateDao();
 			// worldTemplate.templateName = "worldTemplate";
@@ -113,7 +137,20 @@ public class ZownPlugin extends Plugin {
 	public void disable() {
 		LOG.info("Disabling " + getName());
 		
+		templateManager = null;
+		zownManager = null;
+		
 		Canary.commands().unregisterCommands(this);
 		Canary.hooks().unregisterPluginListeners(this);
+	}
+	
+	@HookHandler
+	public void onWorldLoad(final LoadWorldHook hook) {
+		// zownManager.loadZowns(hook.getWorld());
+	}
+	
+	@HookHandler
+	public void onWorldUnload(final UnloadWorldHook hook) {
+		// zownManager.unloadZowns(hook.getWorld());
 	}
 }
