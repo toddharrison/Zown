@@ -101,13 +101,17 @@ public class DataManager {
 			}
 			
 			// Add the zown to the manager
-			final Tree<? extends IZown> zownTree = zownManager.addZown(world, zownDao.parentZownName,
+			final Tree<Zown> zownTree = zownManager.addZown(world, zownDao.parentZownName,
 					zownDao.zownName, template, p1, p2);
 			if (zownTree == null) {
 				// Attempted to create duplicate zown
 				ZownPlugin.LOG.warn("Tried to load a bad zown: " + zownDao.zownName);
 			} else {
-				loadConfiguration(zownTree.getData(), zownDao);
+				if (zownTree.getData().overridesConfiguration()) {
+					loadConfiguration(zownTree.getData(), zownDao);
+				} else {
+					zownTree.getData().setTemplate((Template) template);
+				}
 				ZownPlugin.LOG.info("Loaded zown " + zownDao.zownName);
 				
 				// Load child zowns recursively
@@ -190,7 +194,7 @@ public class DataManager {
 				zownDao.maxPointString = zown.getMaxPoint().toString();
 			}
 			
-			if (zown.overridesTemplate()) {
+			if (zown.overridesConfiguration()) {
 				saveConfiguration(zown, zownDao);
 				zownDao.templateOverride = true;
 			} else {

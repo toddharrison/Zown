@@ -68,14 +68,14 @@ public class Zown implements IZown {
 		return template;
 	}
 	
-	protected void setTemplate(final Template template) {
+	public void setTemplate(final Template template) {
 		if (template == null && configuration == null) {
 			configuration = this.template.getConfiguration().clone();
 		}
 		this.template = template;
 	}
 	
-	protected void loadTemplate(final Template template) {
+	public void loadTemplate(final Template template) {
 		if (template != null) {
 			this.template = template;
 			configuration = null;
@@ -90,7 +90,8 @@ public class Zown implements IZown {
 		return configuration;
 	}
 	
-	public boolean overridesTemplate() {
+	@Override
+	public boolean overridesConfiguration() {
 		return configuration != null;
 	}
 	

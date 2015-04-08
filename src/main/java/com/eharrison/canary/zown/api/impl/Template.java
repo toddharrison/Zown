@@ -34,6 +34,11 @@ public class Template implements ITemplate {
 	}
 	
 	@Override
+	public boolean overridesConfiguration() {
+		return true;
+	}
+	
+	@Override
 	public Collection<Zown> getZowns() {
 		return Collections.unmodifiableCollection(zowns);
 	}

@@ -117,8 +117,8 @@ public class ZownManager implements IZownManager {
 		return zownTree;
 	}
 	
-	public Tree<? extends IZown> addZown(final World world, final String parentName,
-			final String name, final ITemplate template, final Point p1, final Point p2) {
+	public Tree<Zown> addZown(final World world, final String parentName, final String name,
+			final ITemplate template, final Point p1, final Point p2) {
 		Tree<Zown> zownTree = null;
 		
 		if (world.getFqName().equals(name)) {
