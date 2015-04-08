@@ -1,6 +1,7 @@
 package com.eharrison.canary.zown;
 
 import net.canarymod.Canary;
+import net.canarymod.api.world.World;
 import net.canarymod.database.exceptions.DatabaseReadException;
 import net.canarymod.hook.HookHandler;
 import net.canarymod.hook.system.LoadWorldHook;
@@ -10,8 +11,10 @@ import net.canarymod.plugin.Plugin;
 import net.canarymod.plugin.PluginListener;
 import net.canarymod.tasks.ServerTask;
 
+import com.eharrison.canary.zown.api.ITemplate;
 import com.eharrison.canary.zown.api.ITemplateManager;
 import com.eharrison.canary.zown.api.IZownManager;
+import com.eharrison.canary.zown.api.Point;
 import com.eharrison.canary.zown.api.impl.TemplateManager;
 import com.eharrison.canary.zown.api.impl.ZownManager;
 import com.eharrison.canary.zown.dao.DataManager;
@@ -44,7 +47,10 @@ public class ZownPlugin extends Plugin implements PluginListener {
 			public void run() {
 				try {
 					
-					// zownManager.createZown(world, name, template, p1, p2);
+					final World world = Canary.getServer().getDefaultWorld();
+					final ITemplate template = templateManager.getTemplate("plotTemplate");
+					
+					zownManager.createZown(world, "foo", template, new Point(0, 0, 0), new Point(10, 10, 10));
 					
 				} catch (final Exception e) {
 					LOG.error("Error running", e);
