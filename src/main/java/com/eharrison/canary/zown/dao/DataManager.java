@@ -68,36 +68,57 @@ public class DataManager {
 	
 	public void loadZowns(final World world, final ITemplateManager templateManager,
 			final ZownManager zownManager) throws DatabaseReadException {
+		final String worldName = world.getFqName();
 		
-		// TODO
-		// ZownDao zownDao = new ZownDao();
-		// zownDao.worldName = world.getFqName();
-		// zownDao.zownName = world.getFqName();
-		// if (zownDao.read()) {
-		//
-		// }
-		
-		ZownDao zownDao = new ZownDao();
-		final List<DataAccess> datasets = new ArrayList<DataAccess>();
-		final Map<String, Object> filters = new HashMap<String, Object>();
-		database.loadAll(zownDao, datasets, filters);
-		
-		for (final DataAccess dataset : datasets) {
-			zownDao = (ZownDao) dataset;
+		final ZownDao worldZown = new ZownDao();
+		worldZown.worldName = worldName;
+		worldZown.zownName = worldName;
+		if (worldZown.read()) {
+			loadZowns(world, templateManager, zownManager, worldZown);
+		}
+	}
+	
+	private void loadZowns(final World world, final ITemplateManager templateManager,
+			final ZownManager zownManager, final ZownDao zownDao) throws DatabaseReadException {
+		if (zownDao != null && zownDao.hasData()) {
+			// Load the referenced template
+			ITemplate template = null;
+			if (zownDao.templateName != null && !zownDao.templateName.equals("null")) {
+				template = templateManager.getTemplate(zownDao.templateName);
+				if (template == null) {
+					ZownPlugin.LOG.warn("The specified template " + zownDao.templateName + " doesn't exist");
+				}
+			}
 			
-			final ITemplate template = templateManager.getTemplate(zownDao.templateName);
-			final Point p1 = Point.parse(zownDao.minPointString);
-			final Point p2 = Point.parse(zownDao.maxPointString);
+			// Parse bounds
+			Point p1 = null;
+			if (zownDao.minPointString != null) {
+				p1 = Point.parse(zownDao.minPointString);
+			}
+			Point p2 = null;
+			if (zownDao.maxPointString != null) {
+				p2 = Point.parse(zownDao.maxPointString);
+			}
 			
-			final Tree<? extends IZown> zown = zownManager.addZown(world, zownDao.parentZownName,
+			// Add the zown to the manager
+			final Tree<? extends IZown> zownTree = zownManager.addZown(world, zownDao.parentZownName,
 					zownDao.zownName, template, p1, p2);
-			if (zown == null) {
-				// Attempted to create duplicate template
-				ZownPlugin.LOG.warn("Tried to load a duplicate zown: " + zownDao.worldName + " "
-						+ zownDao.zownName);
+			if (zownTree == null) {
+				// Attempted to create duplicate zown
+				ZownPlugin.LOG.warn("Tried to load a duplicate zown: " + zownDao.zownName);
 			} else {
-				loadConfiguration(zown.getData(), zownDao);
-				ZownPlugin.LOG.info("Loaded zown " + zownDao.worldName + " " + zownDao.templateName);
+				loadConfiguration(zownTree.getData(), zownDao);
+				ZownPlugin.LOG.info("Loaded zown " + zownDao.zownName);
+				
+				// Load child zowns recursively
+				final ZownDao childZownDao = new ZownDao();
+				final List<DataAccess> datasets = new ArrayList<DataAccess>();
+				final Map<String, Object> filters = new HashMap<String, Object>();
+				filters.put(ZownDao.PARENT_ZOWN_NAME, zownDao.zownName);
+				database.loadAll(childZownDao, datasets, filters);
+				for (final DataAccess da : datasets) {
+					loadZowns(world, templateManager, zownManager, (ZownDao) da);
+				}
 			}
 		}
 	}

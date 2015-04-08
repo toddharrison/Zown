@@ -9,13 +9,9 @@ import net.canarymod.logger.Logman;
 import net.canarymod.plugin.Plugin;
 import net.canarymod.plugin.PluginListener;
 
-import com.eharrison.canary.zown.api.ITemplate;
 import com.eharrison.canary.zown.api.ITemplateManager;
-import com.eharrison.canary.zown.api.IZown;
 import com.eharrison.canary.zown.api.IZownManager;
-import com.eharrison.canary.zown.api.Point;
 import com.eharrison.canary.zown.api.impl.TemplateManager;
-import com.eharrison.canary.zown.api.impl.Tree;
 import com.eharrison.canary.zown.api.impl.ZownManager;
 import com.eharrison.canary.zown.dao.DataManager;
 
@@ -44,11 +40,11 @@ public class ZownPlugin extends Plugin implements PluginListener {
 			templateManager = new TemplateManager(dataManager);
 			zownManager = new ZownManager(dataManager, templateManager);
 			
-			final ITemplate template = templateManager.getTemplate("worldTemplate");
-			
-			final Tree<? extends IZown> zownTree = zownManager.createZown(Canary.getServer()
-					.getDefaultWorld(), "foo", template, new Point(0, 0, 0), new Point(10, 10, 10));
-			System.out.println(zownTree);
+			// final ITemplate template = templateManager.getTemplate("worldTemplate");
+			//
+			// final Tree<? extends IZown> zownTree = zownManager.createZown(Canary.getServer()
+			// .getDefaultWorld(), "foo", template, new Point(0, 0, 0), new Point(10, 10, 10));
+			// System.out.println(zownTree);
 			
 			// TODO test load zowns from DB
 			
@@ -146,11 +142,11 @@ public class ZownPlugin extends Plugin implements PluginListener {
 	
 	@HookHandler
 	public void onWorldLoad(final LoadWorldHook hook) {
-		// zownManager.loadZowns(hook.getWorld());
+		zownManager.loadZowns(hook.getWorld());
 	}
 	
 	@HookHandler
 	public void onWorldUnload(final UnloadWorldHook hook) {
-		// zownManager.unloadZowns(hook.getWorld());
+		zownManager.unloadZowns(hook.getWorld());
 	}
 }

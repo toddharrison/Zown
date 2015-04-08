@@ -29,8 +29,11 @@ public class ZownManager implements IZownManager {
 	
 	@Override
 	public void loadZowns(final World world) {
+		ZownPlugin.LOG.info("Loading zowns for " + world.getFqName());
+		
+		zownTrees.remove(world);
+		zownMaps.remove(world);
 		try {
-			unloadZowns(world);
 			dataManager.loadZowns(world, templateManager, this);
 		} catch (final Exception e) {
 			ZownPlugin.LOG.error("Error loading zowns for " + world.getFqName(), e);
@@ -39,6 +42,8 @@ public class ZownManager implements IZownManager {
 	
 	@Override
 	public void unloadZowns(final World world) {
+		ZownPlugin.LOG.info("Unloading zowns for " + world.getFqName());
+		
 		zownTrees.remove(world);
 		zownMaps.remove(world);
 	}
@@ -94,10 +99,10 @@ public class ZownManager implements IZownManager {
 		
 		if (!zownMap.containsKey(name)) {
 			final Tree<Zown> rootTree = zownTrees.get(world);
-			final Zown z = new Zown(name, (Template) template, p1, p2);
-			if (!intersectsExistingZown(rootTree, z)) {
-				final Tree<Zown> targetTree = getTargetContainingZown(rootTree, z);
-				zownTree = new Tree<Zown>(z);
+			final Zown zown = new Zown(name, (Template) template, p1, p2);
+			if (!intersectsExistingZown(rootTree, zown)) {
+				final Tree<Zown> targetTree = getTargetContainingZown(rootTree, zown);
+				zownTree = new Tree<Zown>(zown);
 				targetTree.addChild(zownTree);
 				zownMap.put(name, zownTree);
 				
@@ -114,12 +119,31 @@ public class ZownManager implements IZownManager {
 	
 	public Tree<? extends IZown> addZown(final World world, final String parentName,
 			final String name, final ITemplate template, final Point p1, final Point p2) {
-		final Map<String, Tree<Zown>> zownMap = zownMaps.get(world);
+		Tree<Zown> zownTree = null;
 		
-		final Tree<Zown> parentZown = zownMap.get(parentName);
+		if (world.getFqName().equals(name)) {
+			final Zown worldZown = new Zown(name, (Template) template);
+			zownTree = new Tree<Zown>(worldZown);
+			final Map<String, Tree<Zown>> zownMap = new HashMap<String, Tree<Zown>>();
+			zownMap.put(world.getFqName(), zownTree);
+			zownTrees.put(world, zownTree);
+			zownMaps.put(world, zownMap);
+		} else {
+			final Map<String, Tree<Zown>> zownMap = zownMaps.get(world);
+			
+			if (!zownMap.containsKey(name)) {
+				final Tree<Zown> rootTree = zownTrees.get(world);
+				final Zown zown = new Zown(name, (Template) template, p1, p2);
+				if (!intersectsExistingZown(rootTree, zown)) {
+					final Tree<Zown> targetTree = getTargetContainingZown(rootTree, zown);
+					zownTree = new Tree<Zown>(zown);
+					targetTree.addChild(zownTree);
+					zownMap.put(name, zownTree);
+				}
+			}
+		}
 		
-		// TODO;
-		return null;
+		return zownTree;
 	}
 	
 	@Override
