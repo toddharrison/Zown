@@ -105,7 +105,7 @@ public class DataManager {
 					zownDao.zownName, template, p1, p2);
 			if (zownTree == null) {
 				// Attempted to create duplicate zown
-				ZownPlugin.LOG.warn("Tried to load a duplicate zown: " + zownDao.zownName);
+				ZownPlugin.LOG.warn("Tried to load a bad zown: " + zownDao.zownName);
 			} else {
 				loadConfiguration(zownTree.getData(), zownDao);
 				ZownPlugin.LOG.info("Loaded zown " + zownDao.zownName);

@@ -136,10 +136,18 @@ public class ZownManager implements IZownManager {
 				final Zown zown = new Zown(name, (Template) template, p1, p2);
 				if (!intersectsExistingZown(rootTree, zown)) {
 					final Tree<Zown> targetTree = getTargetContainingZown(rootTree, zown);
-					zownTree = new Tree<Zown>(zown);
-					targetTree.addChild(zownTree);
-					zownMap.put(name, zownTree);
+					if (targetTree.getData().getName().equals(parentName)) {
+						zownTree = new Tree<Zown>(zown);
+						targetTree.addChild(zownTree);
+						zownMap.put(name, zownTree);
+					} else {
+						ZownPlugin.LOG.error("Zown to add has wrong parent zown");
+					}
+				} else {
+					ZownPlugin.LOG.error("Zown to add intersects another zown");
 				}
+			} else {
+				ZownPlugin.LOG.error("Zown to add has duplicate name");
 			}
 		}
 		
