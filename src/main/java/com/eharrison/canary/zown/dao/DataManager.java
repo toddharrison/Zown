@@ -107,11 +107,23 @@ public class DataManager {
 				// Attempted to create duplicate zown
 				ZownPlugin.LOG.warn("Tried to load a bad zown: " + zownDao.zownName);
 			} else {
-				if (zownTree.getData().overridesConfiguration()) {
-					loadConfiguration(zownTree.getData(), zownDao);
+				final Zown zown = zownTree.getData();
+				if (zown.overridesConfiguration()) {
+					loadConfiguration(zown, zownDao);
 				} else {
-					zownTree.getData().setTemplate((Template) template);
+					zown.setTemplate((Template) template);
 				}
+				
+				if (zownDao.ownerList != null) {
+					zown.getOwnerUUIDs().addAll(zownDao.ownerList);
+				}
+				if (zownDao.memberList != null) {
+					zown.getMemberUUIDs().addAll(zownDao.memberList);
+				}
+				if (zownDao.entryExclusions != null) {
+					zown.getEntryExclusionUUIDs().addAll(zownDao.entryExclusions);
+				}
+				
 				ZownPlugin.LOG.info("Loaded zown " + zownDao.zownName);
 				
 				// Load child zowns recursively

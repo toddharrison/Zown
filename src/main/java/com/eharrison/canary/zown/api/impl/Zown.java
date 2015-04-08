@@ -1,7 +1,6 @@
 package com.eharrison.canary.zown.api.impl;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -136,7 +135,7 @@ public class Zown implements IZown {
 	}
 	
 	public Collection<String> getOwnerUUIDs() {
-		return Collections.unmodifiableCollection(owners);
+		return owners;
 	}
 	
 	@Override
@@ -160,7 +159,7 @@ public class Zown implements IZown {
 	}
 	
 	public Collection<String> getMemberUUIDs() {
-		return Collections.unmodifiableCollection(members);
+		return members;
 	}
 	
 	@Override
@@ -184,7 +183,7 @@ public class Zown implements IZown {
 	}
 	
 	public Collection<String> getEntryExclusionUUIDs() {
-		return Collections.unmodifiableCollection(entryExclusions);
+		return entryExclusions;
 	}
 	
 	@Override
