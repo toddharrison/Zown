@@ -128,6 +128,12 @@ public class ZownManager implements IZownManager {
 			zownMap.put(world.getFqName(), zownTree);
 			zownTrees.put(world, zownTree);
 			zownMaps.put(world, zownMap);
+			
+			try {
+				dataManager.saveZown(world, zownTree);
+			} catch (final Exception e) {
+				ZownPlugin.LOG.error("Error saving world zown", e);
+			}
 		} else {
 			final Map<String, Tree<Zown>> zownMap = zownMaps.get(world);
 			

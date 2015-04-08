@@ -67,7 +67,7 @@ public class DataManager {
 	}
 	
 	public void loadZowns(final World world, final ITemplateManager templateManager,
-			final ZownManager zownManager) throws DatabaseReadException {
+			final ZownManager zownManager) throws DatabaseReadException, DatabaseWriteException {
 		final String worldName = world.getFqName();
 		
 		final ZownDao worldZown = new ZownDao();
@@ -75,6 +75,9 @@ public class DataManager {
 		worldZown.zownName = worldName;
 		if (worldZown.read()) {
 			loadZowns(world, templateManager, zownManager, worldZown);
+		} else {
+			zownManager.getZown(world);
+			ZownPlugin.LOG.info("Created world zown for " + worldName);
 		}
 	}
 	
