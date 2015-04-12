@@ -2,6 +2,7 @@ package com.eharrison.canary.zown;
 
 import net.canarymod.Canary;
 import net.canarymod.api.world.World;
+import net.canarymod.commandsys.CommandDependencyException;
 import net.canarymod.database.exceptions.DatabaseReadException;
 import net.canarymod.hook.HookHandler;
 import net.canarymod.hook.system.LoadWorldHook;
@@ -9,14 +10,17 @@ import net.canarymod.hook.system.UnloadWorldHook;
 import net.canarymod.logger.Logman;
 import net.canarymod.plugin.Plugin;
 import net.canarymod.plugin.PluginListener;
+import net.canarymod.plugin.Priority;
 import net.canarymod.tasks.ServerTask;
 
 import com.eharrison.canary.zown.api.ITemplate;
 import com.eharrison.canary.zown.api.ITemplateManager;
 import com.eharrison.canary.zown.api.IZownManager;
-import com.eharrison.canary.zown.api.Point;
 import com.eharrison.canary.zown.api.impl.TemplateManager;
 import com.eharrison.canary.zown.api.impl.ZownManager;
+import com.eharrison.canary.zown.command.TemplateCommand;
+import com.eharrison.canary.zown.command.UserCommand;
+import com.eharrison.canary.zown.command.ZownCommand;
 import com.eharrison.canary.zown.dao.DataManager;
 
 public class ZownPlugin extends Plugin implements PluginListener {
@@ -24,6 +28,9 @@ public class ZownPlugin extends Plugin implements PluginListener {
 	
 	private ITemplateManager templateManager;
 	private IZownManager zownManager;
+	private ZownCommand zownCommand;
+	private TemplateCommand templateCommand;
+	private UserCommand userCommand;
 	
 	public ZownPlugin() throws DatabaseReadException {
 		ZownPlugin.LOG = getLogman();
@@ -31,7 +38,7 @@ public class ZownPlugin extends Plugin implements PluginListener {
 	
 	@Override
 	public boolean enable() {
-		final boolean success = true;
+		boolean success = true;
 		
 		LOG.info("Enabling " + getName() + " Version " + getVersion());
 		LOG.info("Authored by " + getAuthor());
@@ -42,6 +49,19 @@ public class ZownPlugin extends Plugin implements PluginListener {
 		templateManager = new TemplateManager(dataManager);
 		zownManager = new ZownManager(dataManager, templateManager);
 		
+		zownCommand = new ZownCommand(templateManager, zownManager);
+		templateCommand = new TemplateCommand(templateManager);
+		userCommand = new UserCommand();
+		
+		try {
+			Canary.commands().registerCommands(zownCommand, this, false);
+			Canary.commands().registerCommands(templateCommand, this, false);
+			Canary.commands().registerCommands(userCommand, this, false);
+		} catch (final CommandDependencyException e) {
+			LOG.error("Error registering commands: ", e);
+			success = false;
+		}
+		
 		Canary.getServer().addSynchronousTask(new ServerTask(this, 20) {
 			@Override
 			public void run() {
@@ -50,13 +70,14 @@ public class ZownPlugin extends Plugin implements PluginListener {
 					final World world = Canary.getServer().getDefaultWorld();
 					final ITemplate template = templateManager.getTemplate("plotTemplate");
 					
-					zownManager.createZown(world, "foo", template, new Point(0, 0, 0), new Point(10, 10, 10));
+					// zownManager.createZown(world, "foo", template, new Point(0, 0, 0), new Point(10, 10,
+					// 10));
 					
 				} catch (final Exception e) {
 					LOG.error("Error running", e);
 				}
 				
-				Canary.getServer().initiateShutdown("Stopping");
+				// Canary.getServer().initiateShutdown("Stopping");
 			}
 		});
 		
@@ -74,12 +95,12 @@ public class ZownPlugin extends Plugin implements PluginListener {
 		Canary.hooks().unregisterPluginListeners(this);
 	}
 	
-	@HookHandler
+	@HookHandler(priority = Priority.PASSIVE)
 	public void onWorldLoad(final LoadWorldHook hook) {
 		zownManager.loadZowns(hook.getWorld());
 	}
 	
-	@HookHandler
+	@HookHandler(priority = Priority.PASSIVE)
 	public void onWorldUnload(final UnloadWorldHook hook) {
 		zownManager.unloadZowns(hook.getWorld());
 	}

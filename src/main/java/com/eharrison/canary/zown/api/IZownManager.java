@@ -21,4 +21,6 @@ public interface IZownManager {
 	boolean removeZown(World world, String name);
 	
 	boolean renameZown(World world, String oldName, String newName);
+	
+	boolean resizeZown(World world, String name, Point p1, Point p2);
 }

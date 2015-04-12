@@ -2,7 +2,7 @@ package com.eharrison.canary.zown.api;
 
 import net.canarymod.api.world.position.Location;
 
-public class Point {
+public class Point implements Cloneable {
 	public int x;
 	public int y;
 	public int z;
@@ -46,6 +46,11 @@ public class Point {
 		final int dY = y - p.y;
 		final int dZ = z - p.z;
 		return dX * dX + dY * dY + dZ * dZ;
+	}
+	
+	@Override
+	public Point clone() {
+		return new Point(x, y, z);
 	}
 	
 	@Override

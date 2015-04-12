@@ -122,12 +122,16 @@ public class ZownTest extends EasyMockSupport {
 		assertTrue(zown.contains(new Point(5, 5, 5)));
 		assertTrue(zown.contains(new Point(10, 10, 10)));
 		assertFalse(zown.contains(new Point(11, 11, 11)));
+		assertTrue(zown.contains(new Point(5, 5, 5), new Point(10, 10, 10)));
+		assertFalse(zown.contains(new Point(5, 5, 5), new Point(11, 11, 11)));
 		assertFalse(zown.contains(new Zown("bar")));
 		assertFalse(zown.contains(new Zown("baz", new Point(0, 0, 0), new Point(4, 4, 4))));
 		assertFalse(zown.contains(new Zown("baz", new Point(0, 0, 0), new Point(5, 5, 5))));
 		assertTrue(zown.contains(new Zown("baz", new Point(6, 6, 6), new Point(7, 7, 7))));
 		assertTrue(zown.contains(new Zown("baz", new Point(5, 5, 5), new Point(10, 10, 10))));
 		
+		assertFalse(zown.intersects(new Point(0, 0, 0), new Point(4, 4, 4)));
+		assertTrue(zown.intersects(new Point(0, 0, 0), new Point(5, 5, 5)));
 		assertFalse(zown.intersects(new Zown("bar")));
 		assertFalse(zown.intersects(new Zown("baz", new Point(0, 0, 0), new Point(4, 4, 4))));
 		assertTrue(zown.intersects(new Zown("baz", new Point(0, 0, 0), new Point(5, 5, 5))));

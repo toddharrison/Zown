@@ -201,10 +201,52 @@ public class ZownManager implements IZownManager {
 		return renamed;
 	}
 	
+	@Override
+	public boolean resizeZown(final World world, final String name, final Point p1, final Point p2) {
+		boolean resized = false;
+		final Map<String, Tree<Zown>> zownMap = zownMaps.get(world);
+		if (zownMap != null) {
+			final Tree<Zown> zownTree = zownMap.get(name);
+			if (zownTree != null) {
+				final Tree<Zown> rootTree = zownTrees.get(world);
+				if (!intersectsExistingZown(rootTree, p1, p2, zownTree)) {
+					final Tree<Zown> targetTree = getTargetContainingZown(rootTree, p1, p2, zownTree);
+					if (zownTree.getParent() == targetTree) {
+						zownTree.getData().setBounds(p1, p2);
+						resized = true;
+						
+						try {
+							dataManager.saveZown(world, zownTree);
+						} catch (final Exception e) {
+							ZownPlugin.LOG.error("Error saving zown", e);
+						}
+						// } else {
+						// ZownPlugin.LOG.error("Zown being moved outside current parent");
+					}
+					// } else {
+					// ZownPlugin.LOG.error("Zown resize intersects another zown");
+				}
+			}
+		}
+		return resized;
+	}
+	
 	private boolean intersectsExistingZown(final Tree<Zown> zownTree, final Zown zown) {
 		boolean intersects = false;
 		for (final Tree<Zown> t : zownTree) {
 			if (t.getData().intersects(zown)) {
+				intersects = true;
+				break;
+			}
+		}
+		return intersects;
+	}
+	
+	private boolean intersectsExistingZown(final Tree<Zown> zownTree, final Point p1, final Point p2,
+			final Tree<Zown> ignoredZown) {
+		boolean intersects = false;
+		for (final Tree<Zown> t : zownTree) {
+			if (t != ignoredZown && t.getData().intersects(p1, p2)) {
 				intersects = true;
 				break;
 			}
@@ -218,6 +260,21 @@ public class ZownManager implements IZownManager {
 			containingZown = tree;
 			for (final Tree<Zown> t : tree.getChildren()) {
 				final Tree<Zown> z = getTargetContainingZown(t, zown);
+				if (z != null) {
+					containingZown = z;
+				}
+			}
+		}
+		return containingZown;
+	}
+	
+	private Tree<Zown> getTargetContainingZown(final Tree<Zown> tree, final Point p1, final Point p2,
+			final Tree<Zown> ignoredZown) {
+		Tree<Zown> containingZown = null;
+		if (tree != ignoredZown && tree.getData().contains(p1, p2)) {
+			containingZown = tree;
+			for (final Tree<Zown> t : tree.getChildren()) {
+				final Tree<Zown> z = getTargetContainingZown(t, p1, p2, ignoredZown);
 				if (z != null) {
 					containingZown = z;
 				}

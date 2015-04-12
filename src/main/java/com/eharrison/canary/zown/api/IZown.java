@@ -35,11 +35,13 @@ public interface IZown extends IConfigurable {
 	
 	Point getMaxPoint();
 	
-	// boolean setBounds(Point point1, Point point2);
-	
 	boolean contains(final Point point);
 	
+	boolean contains(final Point p1, final Point p2);
+	
 	boolean contains(final IZown zown);
+	
+	boolean intersects(final Point p1, final Point p2);
 	
 	boolean intersects(final IZown zown);
 	

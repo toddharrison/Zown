@@ -171,4 +171,39 @@ public class ZownManagerTest extends EasyMockSupport {
 		
 		verifyAll();
 	}
+	
+	@Test
+	public void testResizeZown() throws Exception {
+		expect(worldMock.getFqName()).andReturn("foo").anyTimes();
+		expect(dataManagerMock.saveZown(eq(worldMock), isA(Tree.class))).andReturn(true).times(4);
+		replayAll();
+		
+		final ZownManager zownManager = new ZownManager(dataManagerMock, templateManagerMock);
+		
+		final Tree<? extends IZown> rootZown = zownManager.getZown(worldMock);
+		
+		final Tree<? extends IZown> zown1 = zownManager.createZown(worldMock, "zown1", template,
+				new Point(0, 0, 0), new Point(10, 10, 10));
+		final Tree<? extends IZown> zown2 = zownManager.createZown(worldMock, "zown2", template,
+				new Point(15, 15, 15), new Point(20, 20, 20));
+		
+		assertNotNull(zown1);
+		assertEquals(rootZown, zown1.getParent());
+		assertNotNull(zown2);
+		assertEquals(rootZown, zown2.getParent());
+		
+		assertTrue(zownManager
+				.resizeZown(worldMock, "zown1", new Point(5, 5, 5), new Point(10, 10, 10)));
+		
+		assertEquals(new Point(5, 5, 5), zown1.getData().getMinPoint());
+		assertEquals(new Point(10, 10, 10), zown1.getData().getMaxPoint());
+		
+		assertFalse(zownManager.resizeZown(worldMock, "zown1", new Point(5, 5, 5),
+				new Point(15, 15, 15)));
+		
+		assertEquals(new Point(5, 5, 5), zown1.getData().getMinPoint());
+		assertEquals(new Point(10, 10, 10), zown1.getData().getMaxPoint());
+		
+		verifyAll();
+	}
 }

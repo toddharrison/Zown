@@ -231,6 +231,24 @@ public class Zown implements IZown {
 	}
 	
 	@Override
+	public boolean contains(final Point p1, final Point p2) {
+		boolean contained = false;
+		if (centerPoint == null || contains(p1) && contains(p2)) {
+			contained = true;
+		}
+		return contained;
+	}
+	
+	@Override
+	public boolean intersects(final Point p1, final Point p2) {
+		boolean intersects = false;
+		if (centerPoint != null && contains(p1) ^ contains(p2)) {
+			intersects = true;
+		}
+		return intersects;
+	}
+	
+	@Override
 	public boolean intersects(final IZown z) {
 		boolean intersects = false;
 		if (centerPoint != null && contains(z.getMinPoint()) ^ contains(z.getMaxPoint())) {
