@@ -13,7 +13,7 @@ public class ParameterTokenizer {
 	
 	public ParameterTokenizer(final String[] parameters) {
 		this.parameters = parameters;
-		index = 0;
+		index = 1;
 	}
 	
 	public boolean hasToken() {

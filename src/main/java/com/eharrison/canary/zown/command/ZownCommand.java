@@ -31,10 +31,10 @@ public class ZownCommand implements CommandListener {
 		"zown"
 	}, description = "zown", permissions = {
 		"zown.zown"
-	}, toolTip = "/zown <list | info | show | create | expand | delete | rename | editpoints>")
+	}, toolTip = "/zown <list | info | show | create | expand | delete | rename | editpoints | template>")
 	public void zownCommand(final MessageReceiver caller, final String[] parameters) {
 		sendMessage(caller,
-				"Usage: /zown <list | info | show | create | expand | delete | rename | editpoints>");
+				"Usage: /zown <list | info | show | create | expand | delete | rename | editpoints | template>");
 	}
 	
 	@Command(aliases = {
@@ -296,7 +296,7 @@ public class ZownCommand implements CommandListener {
 			}
 		} else {
 			switch (parameters.length) {
-				case 3:
+				case 4:
 					world = worldManager.getWorld(parameters[1], false);
 					zown = parameters[2];
 					newZown = parameters[3];
