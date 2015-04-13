@@ -10,7 +10,7 @@ public class ParameterTokenizerTest {
 	@Test
 	public void test() {
 		final ParameterTokenizer pTokens = new ParameterTokenizer(new String[] {
-				"foo", "bar", "42", "1", "1", "1"
+				"command", "foo", "bar", "42", "1", "1", "1"
 		});
 		
 		assertEquals("foo", pTokens.readString());
