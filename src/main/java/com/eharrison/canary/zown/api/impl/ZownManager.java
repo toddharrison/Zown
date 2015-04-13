@@ -231,6 +231,24 @@ public class ZownManager implements IZownManager {
 		return resized;
 	}
 	
+	@Override
+	public boolean saveZown(final World world, final String name) {
+		boolean saved = false;
+		final Map<String, Tree<Zown>> zownMap = zownMaps.get(world);
+		if (zownMap != null) {
+			final Tree<Zown> zownTree = zownMap.get(name);
+			if (zownTree != null) {
+				try {
+					dataManager.saveZown(world, zownTree);
+					saved = true;
+				} catch (final Exception e) {
+					ZownPlugin.LOG.error("Error saving zown", e);
+				}
+			}
+		}
+		return saved;
+	}
+	
 	private boolean intersectsExistingZown(final Tree<Zown> zownTree, final Zown zown) {
 		boolean intersects = false;
 		for (final Tree<Zown> t : zownTree) {

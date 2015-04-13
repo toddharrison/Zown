@@ -222,7 +222,7 @@ public class ZownCommand implements CommandListener {
 				final Point p1 = zownTree.getData().getMinPoint().clone();
 				p1.y = 0;
 				final Point p2 = zownTree.getData().getMaxPoint().clone();
-				p2.z = 255;
+				p2.y = 255;
 				if (zownManager.resizeZown(world, zown, p1, p2)) {
 					sendMessage(caller, "Expanded zown '" + zown + "'.");
 				} else {
