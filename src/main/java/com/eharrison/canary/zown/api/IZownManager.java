@@ -24,5 +24,7 @@ public interface IZownManager {
 	
 	boolean resizeZown(World world, String name, Point p1, Point p2);
 	
-	boolean saveZown(World world, String name);
+	boolean applyTemplate(World world, String name, ITemplate template);
+	
+	boolean saveZownConfiguration(World world, String name);
 }

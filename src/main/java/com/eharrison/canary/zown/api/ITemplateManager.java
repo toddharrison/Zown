@@ -13,5 +13,5 @@ public interface ITemplateManager {
 	
 	boolean renameTemplate(String oldName, String newName);
 	
-	boolean saveTemplate(String name);
+	boolean saveTemplateConfiguration(String name);
 }

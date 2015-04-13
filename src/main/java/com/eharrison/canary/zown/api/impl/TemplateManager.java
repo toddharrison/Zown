@@ -101,7 +101,7 @@ public class TemplateManager implements ITemplateManager {
 	}
 	
 	@Override
-	public boolean saveTemplate(final String name) {
+	public boolean saveTemplateConfiguration(final String name) {
 		boolean saved = false;
 		final Template template = templates.get(name);
 		if (template != null) {

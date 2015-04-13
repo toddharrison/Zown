@@ -232,7 +232,26 @@ public class ZownManager implements IZownManager {
 	}
 	
 	@Override
-	public boolean saveZown(final World world, final String name) {
+	public boolean applyTemplate(final World world, final String name, final ITemplate template) {
+		boolean applied = false;
+		final Map<String, Tree<Zown>> zownMap = zownMaps.get(world);
+		if (zownMap != null) {
+			final Tree<Zown> zownTree = zownMap.get(name);
+			if (zownTree != null) {
+				try {
+					zownTree.getData().setTemplate((Template) template);
+					dataManager.saveZown(world, zownTree);
+					applied = true;
+				} catch (final Exception e) {
+					ZownPlugin.LOG.error("Error saving zown", e);
+				}
+			}
+		}
+		return applied;
+	}
+	
+	@Override
+	public boolean saveZownConfiguration(final World world, final String name) {
 		boolean saved = false;
 		final Map<String, Tree<Zown>> zownMap = zownMaps.get(world);
 		if (zownMap != null) {

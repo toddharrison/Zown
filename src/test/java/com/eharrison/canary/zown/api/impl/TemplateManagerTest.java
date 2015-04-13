@@ -70,8 +70,8 @@ public class TemplateManagerTest extends EasyMockSupport {
 		final TemplateManager templateManager = new TemplateManager(dataManagerMock);
 		
 		assertNotNull(templateManager.createTemplate("foo"));
-		assertTrue(templateManager.saveTemplate("foo"));
-		assertFalse(templateManager.saveTemplate("bar"));
+		assertTrue(templateManager.saveTemplateConfiguration("foo"));
+		assertFalse(templateManager.saveTemplateConfiguration("bar"));
 		
 		verifyAll();
 	}

@@ -31,10 +31,11 @@ public class ZownCommand implements CommandListener {
 		"zown"
 	}, description = "zown", permissions = {
 		"zown.zown"
-	}, toolTip = "/zown <list | info | show | create | expand | delete | rename | editpoints | template>")
+	}, toolTip = "/zown <list | info | show | create | expand | delete | rename | editpoints | template | applytemplate>")
 	public void zownCommand(final MessageReceiver caller, final String[] parameters) {
-		sendMessage(caller,
-				"Usage: /zown <list | info | show | create | expand | delete | rename | editpoints | template>");
+		sendMessage(
+				caller,
+				"Usage: /zown <list | info | show | create | expand | delete | rename | editpoints | template | applytemplate>");
 	}
 	
 	@Command(aliases = {
@@ -362,6 +363,53 @@ public class ZownCommand implements CommandListener {
 				}
 			} else {
 				sendMessage(caller, "No zown '" + zown + "' exists.");
+			}
+		}
+	}
+	
+	@Command(aliases = {
+		"applytemplate"
+	}, parent = "zown", description = "zown applytemplate", permissions = {
+		"zown.zown.applytemplate"
+	}, toolTip = "/zown applytemplate <zown> <template>")
+	public void zownApplyTemplateCommand(final MessageReceiver caller, final String[] parameters) {
+		World world = null;
+		String zown = null;
+		String template = null;
+		
+		if (caller instanceof Player) {
+			final Player player = caller.asPlayer();
+			switch (parameters.length) {
+				case 3:
+					world = player.getWorld();
+					zown = parameters[1];
+					template = parameters[2];
+					break;
+				default:
+					sendMessage(caller, "Usage: /zown applytemplate <zown> <template>");
+			}
+		} else {
+			switch (parameters.length) {
+				case 4:
+					world = worldManager.getWorld(parameters[1], false);
+					zown = parameters[2];
+					template = parameters[3];
+					break;
+				default:
+					sendMessage(caller, "Usage: /zown applytemplate <world> <zown> <template>");
+			}
+		}
+		
+		if (world != null && zown != null && template != null) {
+			final ITemplate t = templateManager.getTemplate(template);
+			if (t != null) {
+				if (zownManager.applyTemplate(world, zown, t)) {
+					sendMessage(caller, "Applied template '" + template + "' to zown '" + zown + "'.");
+				} else {
+					sendMessage(caller, "Failed to apply template '" + template + "'.");
+				}
+			} else {
+				sendMessage(caller, "No template '" + template + "' exists.");
 			}
 		}
 	}

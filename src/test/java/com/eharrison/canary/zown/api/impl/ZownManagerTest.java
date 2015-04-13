@@ -206,4 +206,24 @@ public class ZownManagerTest extends EasyMockSupport {
 		
 		verifyAll();
 	}
+	
+	@Test
+	public void testSettingTemplate() throws Exception {
+		expect(worldMock.getFqName()).andReturn("foo").anyTimes();
+		expect(dataManagerMock.saveZown(eq(worldMock), isA(Tree.class))).andReturn(true).times(3);
+		replayAll();
+		
+		final ZownManager zownManager = new ZownManager(dataManagerMock, templateManagerMock);
+		
+		final Tree<? extends IZown> zown1 = zownManager.createZown(worldMock, "zown1", null, new Point(
+				0, 0, 0), new Point(10, 10, 10));
+		
+		assertNull(zown1.getData().getTemplate());
+		
+		zownManager.applyTemplate(worldMock, "zown1", template);
+		
+		assertEquals(template, zown1.getData().getTemplate());
+		
+		verifyAll();
+	}
 }
