@@ -35,7 +35,12 @@ public class Template implements ITemplate {
 	
 	@Override
 	public boolean overridesConfiguration() {
-		return true;
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public boolean setOverridesConfiguration(final boolean overridesConfiguration) {
+		throw new UnsupportedOperationException();
 	}
 	
 	@Override

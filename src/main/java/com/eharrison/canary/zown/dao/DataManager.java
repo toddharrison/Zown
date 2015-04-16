@@ -5,15 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.canarymod.api.entity.ArmorStand;
 import net.canarymod.api.entity.Entity;
-import net.canarymod.api.entity.hanging.ItemFrame;
-import net.canarymod.api.entity.hanging.LeashKnot;
-import net.canarymod.api.entity.hanging.Painting;
-import net.canarymod.api.entity.living.animal.EntityAnimal;
-import net.canarymod.api.entity.living.humanoid.Villager;
-import net.canarymod.api.entity.living.monster.EntityMob;
-import net.canarymod.api.entity.vehicle.Vehicle;
 import net.canarymod.api.world.World;
 import net.canarymod.api.world.blocks.BlockType;
 import net.canarymod.database.DataAccess;
@@ -29,6 +21,7 @@ import com.eharrison.canary.zown.api.ITemplateManager;
 import com.eharrison.canary.zown.api.IZown;
 import com.eharrison.canary.zown.api.Point;
 import com.eharrison.canary.zown.api.impl.Configuration;
+import com.eharrison.canary.zown.api.impl.MinecraftMapper;
 import com.eharrison.canary.zown.api.impl.Template;
 import com.eharrison.canary.zown.api.impl.TemplateManager;
 import com.eharrison.canary.zown.api.impl.Tree;
@@ -284,7 +277,7 @@ public class DataManager {
 		// Set block interface
 		if (dao.blockBuildExceptionList != null) {
 			for (final String block : dao.blockBuildExceptionList) {
-				final BlockType blockType = BlockType.fromString(block);
+				final BlockType blockType = MinecraftMapper.getBlockType(block);
 				if (blockType == null) {
 					ZownPlugin.LOG.warn("Error adding " + block + " to the block build exclusions");
 				} else {
@@ -294,7 +287,7 @@ public class DataManager {
 		}
 		if (dao.blockInteractExceptionList != null) {
 			for (final String block : dao.blockInteractExceptionList) {
-				final BlockType blockType = BlockType.fromString(block);
+				final BlockType blockType = MinecraftMapper.getBlockType(block);
 				if (blockType == null) {
 					ZownPlugin.LOG.warn("Error adding " + block + " to the block interaction exclusions");
 				} else {
@@ -306,7 +299,7 @@ public class DataManager {
 		// Set entity interface
 		if (dao.entityCreateExceptionList != null) {
 			for (final String entity : dao.entityCreateExceptionList) {
-				final Class<? extends Entity> entityClass = getEntityClass(entity);
+				final Class<? extends Entity> entityClass = MinecraftMapper.getEntityClass(entity);
 				if (entityClass == null) {
 					ZownPlugin.LOG.warn("Error adding " + entity + " to the entity create exclusions");
 				} else {
@@ -316,7 +309,7 @@ public class DataManager {
 		}
 		if (dao.entityInteractExceptionList != null) {
 			for (final String entity : dao.entityInteractExceptionList) {
-				final Class<? extends Entity> entityClass = getEntityClass(entity);
+				final Class<? extends Entity> entityClass = MinecraftMapper.getEntityClass(entity);
 				if (entityClass == null) {
 					ZownPlugin.LOG.warn("Error adding " + entity + " to the entity interaction exclusions");
 				} else {
@@ -350,65 +343,21 @@ public class DataManager {
 		// Set block interface
 		dao.blockBuildExceptionList = new ArrayList<String>();
 		for (final BlockType blockType : config.getBlockBuildExclusions()) {
-			dao.blockBuildExceptionList.add(blockType.getMachineName());
+			dao.blockBuildExceptionList.add(MinecraftMapper.getBlock(blockType));
 		}
 		dao.blockInteractExceptionList = new ArrayList<String>();
 		for (final BlockType blockType : config.getBlockInteractExclusions()) {
-			dao.blockInteractExceptionList.add(blockType.getMachineName());
+			dao.blockInteractExceptionList.add(MinecraftMapper.getBlock(blockType));
 		}
 		
 		// Set entity interface
 		dao.entityCreateExceptionList = new ArrayList<String>();
 		for (final Class<? extends Entity> entityClass : config.getEntityCreateExclusions()) {
-			dao.entityCreateExceptionList.add(getEntity(entityClass));
+			dao.entityCreateExceptionList.add(MinecraftMapper.getEntity(entityClass));
 		}
 		dao.entityInteractExceptionList = new ArrayList<String>();
 		for (final Class<? extends Entity> entityClass : config.getEntityInteractExclusions()) {
-			dao.entityInteractExceptionList.add(getEntity(entityClass));
+			dao.entityInteractExceptionList.add(MinecraftMapper.getEntity(entityClass));
 		}
-	}
-	
-	private Class<? extends Entity> getEntityClass(final String entity) {
-		Class<? extends Entity> entityClass = null;
-		if ("minecraft:armor_stand".equals(entity)) {
-			entityClass = ArmorStand.class;
-		} else if ("minecraft:item_frame".equals(entity)) {
-			entityClass = ItemFrame.class;
-		} else if ("minecraft:leash_knot".equals(entity)) {
-			entityClass = LeashKnot.class;
-		} else if ("minecraft:painting".equals(entity)) {
-			entityClass = Painting.class;
-		} else if ("minecraft:entity_animal".equals(entity)) {
-			entityClass = EntityAnimal.class;
-		} else if ("minecraft:villager".equals(entity)) {
-			entityClass = Villager.class;
-		} else if ("minecraft:entity_mob".equals(entity)) {
-			entityClass = EntityMob.class;
-		} else if ("minecraft:vehicle".equals(entity)) {
-			entityClass = Vehicle.class;
-		}
-		return entityClass;
-	}
-	
-	private String getEntity(final Class<? extends Entity> entityClass) {
-		String entity = null;
-		if (entityClass == ArmorStand.class) {
-			entity = "minecraft:armor_stand";
-		} else if (entityClass == ItemFrame.class) {
-			entity = "minecraft:item_frame";
-		} else if (entityClass == LeashKnot.class) {
-			entity = "minecraft:leash_knot";
-		} else if (entityClass == Painting.class) {
-			entity = "minecraft:painting";
-		} else if (entityClass == EntityAnimal.class) {
-			entity = "minecraft:entity_animal";
-		} else if (entityClass == Villager.class) {
-			entity = "minecraft:villager";
-		} else if (entityClass == EntityMob.class) {
-			entity = "minecraft:entity_mob";
-		} else if (entityClass == Vehicle.class) {
-			entity = "minecraft:vehicle";
-		}
-		return entity;
 	}
 }

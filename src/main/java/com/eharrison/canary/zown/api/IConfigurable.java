@@ -4,4 +4,6 @@ public interface IConfigurable {
 	boolean overridesConfiguration();
 	
 	IConfiguration getConfiguration();
+	
+	boolean setOverridesConfiguration(boolean overridesConfiguration);
 }

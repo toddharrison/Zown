@@ -95,6 +95,23 @@ public class Zown implements IZown {
 	}
 	
 	@Override
+	public boolean setOverridesConfiguration(final boolean overridesConfiguration) {
+		boolean changed = false;
+		if (overridesConfiguration) {
+			if (configuration == null) {
+				configuration = template.getConfiguration().clone();
+				changed = true;
+			}
+		} else {
+			if (configuration != null && template != null) {
+				configuration = null;
+				changed = true;
+			}
+		}
+		return changed;
+	}
+	
+	@Override
 	public Point getMinPoint() {
 		return minPoint;
 	}
