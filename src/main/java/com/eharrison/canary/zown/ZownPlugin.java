@@ -22,6 +22,7 @@ import com.eharrison.canary.zown.command.TemplateCommand;
 import com.eharrison.canary.zown.command.UserCommand;
 import com.eharrison.canary.zown.command.ZownCommand;
 import com.eharrison.canary.zown.dao.DataManager;
+import com.eharrison.canary.zown.listener.CommandListener;
 
 public class ZownPlugin extends Plugin implements PluginListener {
 	public static Logman LOG;
@@ -43,11 +44,12 @@ public class ZownPlugin extends Plugin implements PluginListener {
 		LOG.info("Enabling " + getName() + " Version " + getVersion());
 		LOG.info("Authored by " + getAuthor());
 		
-		Canary.hooks().registerListener(this, this);
-		
 		final DataManager dataManager = new DataManager();
 		templateManager = new TemplateManager(dataManager);
 		zownManager = new ZownManager(dataManager, templateManager);
+		
+		Canary.hooks().registerListener(this, this);
+		Canary.hooks().registerListener(new CommandListener(zownManager), this);
 		
 		zownCommand = new ZownCommand(templateManager, zownManager);
 		templateCommand = new TemplateCommand(templateManager);

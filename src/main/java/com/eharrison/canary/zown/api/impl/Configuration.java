@@ -146,17 +146,17 @@ public class Configuration implements IConfiguration {
 	
 	@Override
 	public boolean addCommandRestriction(final String command) {
-		return commandRestrictions.add(command);
+		return commandRestrictions.add(command.toLowerCase());
 	}
 	
 	@Override
 	public boolean removeCommandRestriction(final String command) {
-		return commandRestrictions.remove(command);
+		return commandRestrictions.remove(command.toLowerCase());
 	}
 	
 	@Override
 	public boolean hasCommandRestriction(final String command) {
-		return commandRestrictions.contains(command);
+		return commandRestrictions.contains(command.toLowerCase());
 	}
 	
 	public Collection<String> getCommandRestrictions() {
