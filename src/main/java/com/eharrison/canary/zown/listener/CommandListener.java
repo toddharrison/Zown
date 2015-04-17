@@ -5,6 +5,7 @@ import net.canarymod.chat.ChatFormat;
 import net.canarymod.hook.HookHandler;
 import net.canarymod.hook.command.PlayerCommandHook;
 import net.canarymod.plugin.PluginListener;
+import net.canarymod.plugin.Priority;
 
 import com.eharrison.canary.zown.api.IZown;
 import com.eharrison.canary.zown.api.IZownManager;
@@ -17,7 +18,7 @@ public class CommandListener implements PluginListener {
 		this.zownManager = zownManager;
 	}
 	
-	@HookHandler
+	@HookHandler(priority = Priority.CRITICAL)
 	public void onPlayerCommand(final PlayerCommandHook hook) {
 		final Player player = hook.getPlayer();
 		final String[] command = hook.getCommand();
