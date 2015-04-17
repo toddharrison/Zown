@@ -23,10 +23,12 @@ public class CommandListener implements PluginListener {
 		final Player player = hook.getPlayer();
 		final String[] command = hook.getCommand();
 		
-		final Tree<? extends IZown> zownTree = zownManager.getZown(player.getLocation());
-		if (zownTree.getData().getConfiguration().hasCommandRestriction(command[0])) {
-			hook.setCanceled();
-			player.message(ChatFormat.GOLD + "That command has been restricted.");
+		if (!player.isOperator()) {
+			final Tree<? extends IZown> zownTree = zownManager.getZown(player.getLocation());
+			if (zownTree.getData().getConfiguration().hasCommandRestriction(command[0])) {
+				hook.setCanceled();
+				player.message(ChatFormat.GOLD + "That command has been restricted.");
+			}
 		}
 	}
 }

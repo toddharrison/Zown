@@ -2,6 +2,7 @@ package com.eharrison.canary.zown.listener;
 
 import java.util.List;
 
+import net.canarymod.api.entity.living.humanoid.Player;
 import net.canarymod.api.inventory.ItemType;
 import net.canarymod.api.world.blocks.Block;
 import net.canarymod.api.world.position.Location;
@@ -34,37 +35,45 @@ public class ModifyWorldListener implements PluginListener {
 	
 	@HookHandler(priority = Priority.CRITICAL)
 	public void onBlockPlace(final BlockPlaceHook hook) {
+		final Player player = hook.getPlayer();
 		final Block block = hook.getBlockPlaced();
 		
-		final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
-		final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_BUILD);
-		if (flag != null && !flag) {
-			hook.setCanceled();
+		if (!player.isOperator()) {
+			final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
+			final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_BUILD);
+			if (flag != null && !flag) {
+				hook.setCanceled();
+			}
 		}
 	}
 	
 	@HookHandler(priority = Priority.CRITICAL)
 	public void onBlockDestroy(final BlockDestroyHook hook) {
+		final Player player = hook.getPlayer();
 		final Block block = hook.getBlock();
 		
-		final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
-		final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_BUILD);
-		if (flag != null && !flag) {
-			hook.setCanceled();
+		if (!player.isOperator()) {
+			final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
+			final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_BUILD);
+			if (flag != null && !flag) {
+				hook.setCanceled();
+			}
 		}
 	}
 	
 	@HookHandler(priority = Priority.CRITICAL)
 	public void onItemUse(final ItemUseHook hook) {
-		// final Player player = hook.getPlayer();
+		final Player player = hook.getPlayer();
 		final Block block = hook.getBlockClicked();
 		
-		final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
-		final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_BUILD);
-		if (flag != null && !flag) {
-			final ItemType type = hook.getItem().getType();
-			if (type == ItemType.FlintAndSteel) {
-				hook.setCanceled();
+		if (!player.isOperator()) {
+			final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
+			final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_BUILD);
+			if (flag != null && !flag) {
+				final ItemType type = hook.getItem().getType();
+				if (type == ItemType.FlintAndSteel) {
+					hook.setCanceled();
+				}
 			}
 		}
 	}
@@ -95,12 +104,15 @@ public class ModifyWorldListener implements PluginListener {
 	
 	@HookHandler(priority = Priority.CRITICAL)
 	public void onIgnition(final IgnitionHook hook) {
+		final Player player = hook.getPlayer();
 		final Block block = hook.getBlock();
 		
-		final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
-		final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_BUILD);
-		if (flag != null && !flag) {
-			hook.setCanceled();
+		if (!player.isOperator()) {
+			final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
+			final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_BUILD);
+			if (flag != null && !flag) {
+				hook.setCanceled();
+			}
 		}
 	}
 	

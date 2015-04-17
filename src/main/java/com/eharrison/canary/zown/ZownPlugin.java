@@ -25,6 +25,7 @@ import com.eharrison.canary.zown.dao.DataManager;
 import com.eharrison.canary.zown.listener.CommandListener;
 import com.eharrison.canary.zown.listener.EntityListener;
 import com.eharrison.canary.zown.listener.ModifyWorldListener;
+import com.eharrison.canary.zown.listener.PlayerListener;
 
 public class ZownPlugin extends Plugin implements PluginListener {
 	public static Logman LOG;
@@ -54,6 +55,7 @@ public class ZownPlugin extends Plugin implements PluginListener {
 		Canary.hooks().registerListener(new CommandListener(zownManager), this);
 		Canary.hooks().registerListener(new ModifyWorldListener(zownManager), this);
 		Canary.hooks().registerListener(new EntityListener(zownManager), this);
+		Canary.hooks().registerListener(new PlayerListener(zownManager), this);
 		
 		zownCommand = new ZownCommand(templateManager, zownManager);
 		templateCommand = new TemplateCommand(templateManager);

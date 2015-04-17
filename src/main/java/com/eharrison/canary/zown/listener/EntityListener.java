@@ -1,12 +1,14 @@
 package com.eharrison.canary.zown.listener;
 
 import net.canarymod.api.entity.Entity;
+import net.canarymod.api.entity.living.LivingBase;
 import net.canarymod.api.entity.living.animal.EntityAnimal;
 import net.canarymod.api.entity.living.monster.EntityMob;
 import net.canarymod.api.world.position.Location;
 import net.canarymod.hook.HookHandler;
 import net.canarymod.hook.entity.EntityMoveHook;
 import net.canarymod.hook.entity.EntitySpawnHook;
+import net.canarymod.hook.entity.MobTargetHook;
 import net.canarymod.plugin.PluginListener;
 import net.canarymod.plugin.Priority;
 
@@ -33,7 +35,8 @@ public class EntityListener implements PluginListener {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(location);
 			final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_HOSTILEPERMIT);
 			if (flag != null && !flag) {
-				hook.setCanceled();
+				entity.destroy();
+				// hook.setCanceled();
 			}
 		} else if (entity instanceof EntityAnimal) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(location);
@@ -57,6 +60,26 @@ public class EntityListener implements PluginListener {
 			}
 		} else if (entity instanceof EntityAnimal) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(location);
+			final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_PASSIVEPERMIT);
+			if (flag != null && !flag) {
+				hook.setCanceled();
+			}
+		}
+	}
+	
+	@HookHandler(priority = Priority.CRITICAL)
+	public void onTarget(final MobTargetHook hook) {
+		final Entity entity = hook.getEntity();
+		final LivingBase target = hook.getTarget();
+		
+		if (entity instanceof EntityMob) {
+			final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
+			final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_HOSTILEPERMIT);
+			if (flag != null && !flag) {
+				hook.setCanceled();
+			}
+		} else if (entity instanceof EntityAnimal) {
+			final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
 			final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_PASSIVEPERMIT);
 			if (flag != null && !flag) {
 				hook.setCanceled();

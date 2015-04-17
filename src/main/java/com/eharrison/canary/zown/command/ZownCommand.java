@@ -134,13 +134,14 @@ public class ZownCommand implements CommandListener {
 	public void zownCreateCommand(final MessageReceiver caller, final String[] parameters) {
 		final ParameterTokenizer pTokens = new ParameterTokenizer(parameters);
 		World world = null;
+		Player player = null;
 		String zown = null;
 		ITemplate template = null;
 		Point p1 = null;
 		Point p2 = null;
 		
 		if (caller instanceof Player) {
-			final Player player = caller.asPlayer();
+			player = caller.asPlayer();
 			switch (parameters.length) {
 				case 8:
 					world = player.getWorld();
@@ -183,6 +184,12 @@ public class ZownCommand implements CommandListener {
 			if (zownTree == null) {
 				sendMessage(caller, "Failed to create zown '" + zown + "'.");
 			} else {
+				if (player != null) {
+					zownTree.getData().addOwner(player);
+					if (!zownManager.saveZownConfiguration(world, zown)) {
+						sendMessage(caller, "Could not add player '" + player.getName() + "' as default owner.");
+					}
+				}
 				sendMessage(caller, "Created zown '" + zown + "'.");
 			}
 		}
@@ -457,11 +464,13 @@ public class ZownCommand implements CommandListener {
 				sendMessage(caller, "No zown '" + zown + "' exists.");
 			} else {
 				if ("add".equalsIgnoreCase(action)) {
+					
 					if (!zownTree.getData().overridesConfiguration()) {
 						// TODO put in zownManager
 						zownTree.getData().setOverridesConfiguration(true);
 						zownManager.saveZownConfiguration(world, zown);
 					}
+					
 					if (zownTree.getData().getConfiguration().addOwnerPermission(flag)) {
 						sendMessage(caller, "Added owner permission '" + flag + "' to zown '" + zown + "'.");
 						zownManager.saveZownConfiguration(world, zown);
@@ -493,7 +502,7 @@ public class ZownCommand implements CommandListener {
 	}, parent = "zown", description = "zown flag", permissions = {
 		"zown.flag"
 	}, toolTip = "/zown flag <zown> <flag>:<ALLOW | DENY>...")
-	public void templateFlagCommand(final MessageReceiver caller, final String[] parameters) {
+	public void zownFlagCommand(final MessageReceiver caller, final String[] parameters) {
 		World world = null;
 		String zown = null;
 		int index = 0;
@@ -522,6 +531,13 @@ public class ZownCommand implements CommandListener {
 			if (zownTree == null) {
 				sendMessage(caller, "Zown '" + zown + "' doesn't exist.");
 			} else {
+				
+				if (!zownTree.getData().overridesConfiguration()) {
+					// TODO put in zownManager
+					zownTree.getData().setOverridesConfiguration(true);
+					zownManager.saveZownConfiguration(world, zown);
+				}
+				
 				final IConfiguration config = zownTree.getData().getConfiguration();
 				for (int i = index; i < parameters.length; i++) {
 					final String[] flag = parameters[i].split(":");
@@ -592,6 +608,13 @@ public class ZownCommand implements CommandListener {
 				sendMessage(caller, "No zown '" + zown + "' exists.");
 			} else {
 				if ("add".equalsIgnoreCase(action)) {
+					
+					if (!zownTree.getData().overridesConfiguration()) {
+						// TODO put in zownManager
+						zownTree.getData().setOverridesConfiguration(true);
+						zownManager.saveZownConfiguration(world, zown);
+					}
+					
 					if (zownTree.getData().getConfiguration().addCommandRestriction(command)) {
 						sendMessage(caller, "Added command restriction '" + command + "' to zown '" + zown
 								+ "'.");
@@ -600,12 +623,17 @@ public class ZownCommand implements CommandListener {
 						sendMessage(caller, "Command restriction '" + command + "' already exists on zown.");
 					}
 				} else if ("remove".equalsIgnoreCase(action)) {
-					if (zownTree.getData().getConfiguration().removeCommandRestriction(command)) {
-						sendMessage(caller, "Removed command restriction '" + command + "' from zown '" + zown
-								+ "'.");
-						zownManager.saveZownConfiguration(world, zown);
+					if (zownTree.getData().overridesConfiguration()) {
+						if (zownTree.getData().getConfiguration().removeCommandRestriction(command)) {
+							sendMessage(caller, "Removed command restriction '" + command + "' from zown '"
+									+ zown + "'.");
+							zownManager.saveZownConfiguration(world, zown);
+						} else {
+							sendMessage(caller, "Command restriction '" + command + "' does not exist on zown.");
+						}
 					} else {
-						sendMessage(caller, "Command restriction '" + command + "' does not exist on zown.");
+						sendMessage(caller, "Zown '" + zown + "' inherits from template '"
+								+ zownTree.getData().getTemplate().getName() + "'.");
 					}
 				} else {
 					sendMessage(caller, "Unrecognized action '" + action + "' must be <add | remove>.");
