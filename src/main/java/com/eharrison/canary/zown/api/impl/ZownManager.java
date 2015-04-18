@@ -233,7 +233,7 @@ public class ZownManager implements IZownManager {
 			final Tree<Zown> zownTree = zownMap.get(name);
 			if (zownTree != null) {
 				try {
-					zownTree.getData().setTemplate((Template) template);
+					zownTree.getData().loadTemplate((Template) template);
 					dataManager.saveZown(world, zownTree);
 					applied = true;
 				} catch (final Exception e) {

@@ -206,6 +206,7 @@ public class DataManager {
 				saveConfiguration(zown, zownDao);
 				zownDao.templateOverride = true;
 			} else {
+				clearConfiguration(zown, zownDao);
 				zownDao.templateOverride = false;
 			}
 			
@@ -359,5 +360,25 @@ public class DataManager {
 		for (final Class<? extends Entity> entityClass : config.getEntityInteractExclusions()) {
 			dao.entityInteractExceptionList.add(MinecraftMapper.getEntity(entityClass));
 		}
+	}
+	
+	private void clearConfiguration(final IConfigurable configurable, final AConfigurationDao dao) {
+		// Set owner permissions
+		dao.ownerPermissionList = new ArrayList<String>();
+		
+		// Set flags
+		dao.allowList = new ArrayList<String>();
+		dao.denyList = new ArrayList<String>();
+		
+		// Set command restrictions
+		dao.commandRestrictionsList = new ArrayList<String>();
+		
+		// Set block interface
+		dao.blockBuildExceptionList = new ArrayList<String>();
+		dao.blockInteractExceptionList = new ArrayList<String>();
+		
+		// Set entity interface
+		dao.entityCreateExceptionList = new ArrayList<String>();
+		dao.entityInteractExceptionList = new ArrayList<String>();
 	}
 }
