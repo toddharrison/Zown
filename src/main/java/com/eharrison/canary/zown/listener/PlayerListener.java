@@ -25,7 +25,7 @@ public class PlayerListener implements PluginListener {
 	public void onProjectileHit(final ProjectileHitHook hook) {
 		final Entity target = hook.getEntityHit();
 		
-		if (target.isPlayer()) {
+		if (target != null && target.isPlayer()) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
 			final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_PLAYERIMMUNE);
 			if (flag != null && !flag) {
