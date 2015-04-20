@@ -32,11 +32,11 @@ public class ZownCommand implements CommandListener {
 		"zown"
 	}, description = "zown", permissions = {
 		"zown.zown"
-	}, toolTip = "/zown <list | info | show | create | expand | delete | rename | editpoints | template | applytemplate | ownerperm | flag | restrictcommand>")
+	}, toolTip = "/zown <list | info | show | create | expand | delete | rename | editpoints | template | applytemplate | ownerperm | flag | restrictcommand | owner | member>")
 	public void zownCommand(final MessageReceiver caller, final String[] parameters) {
 		sendMessage(
 				caller,
-				"Usage: /zown <list | info | show | create | expand | delete | rename | editpoints | template | applytemplate | ownerperm | flag | restrictcommand>");
+				"Usage: /zown <list | info | show | create | expand | delete | rename | editpoints | template | applytemplate | ownerperm | flag | restrictcommand | owner | member>");
 	}
 	
 	@Command(aliases = {
@@ -634,6 +634,136 @@ public class ZownCommand implements CommandListener {
 					} else {
 						sendMessage(caller, "Zown '" + zown + "' inherits from template '"
 								+ zownTree.getData().getTemplate().getName() + "'.");
+					}
+				} else {
+					sendMessage(caller, "Unrecognized action '" + action + "' must be <add | remove>.");
+				}
+			}
+		}
+	}
+	
+	@Command(aliases = {
+		"owner"
+	}, parent = "zown", description = "zown owner", permissions = {
+		"zown.owner"
+	}, toolTip = "/zown owner <zown> <add | remove> <player>")
+	public void zownOwnerCommand(final MessageReceiver caller, final String[] parameters) {
+		World world = null;
+		String zown = null;
+		String action = null;
+		String playerName = null;
+		
+		if (caller instanceof Player) {
+			final Player player = caller.asPlayer();
+			switch (parameters.length) {
+				case 4:
+					world = player.getWorld();
+					zown = parameters[1];
+					action = parameters[2];
+					playerName = parameters[3];
+					break;
+				default:
+					sendMessage(caller, "Usage: /zown owner <zown> <add | remove> <player>");
+			}
+		} else {
+			switch (parameters.length) {
+				case 5:
+					world = worldManager.getWorld(parameters[1], false);
+					zown = parameters[2];
+					action = parameters[3];
+					playerName = parameters[4];
+					break;
+				default:
+					sendMessage(caller, "Usage: /zown owner <world> <zown> <add | remove> <player>");
+			}
+		}
+		
+		if (world != null && zown != null && action != null && playerName != null) {
+			final Tree<? extends IZown> zownTree = zownManager.getZown(world, zown);
+			final Player player = Canary.getServer().getPlayer(playerName);
+			if (zownTree == null) {
+				sendMessage(caller, "No zown '" + zown + "' exists.");
+			} else if (player == null) {
+				sendMessage(caller, "No player '" + playerName + "' is online.");
+			} else {
+				if ("add".equalsIgnoreCase(action)) {
+					if (zownTree.getData().addOwner(player)) {
+						sendMessage(caller, "Added owner '" + playerName + "' to zown '" + zown + "'.");
+						zownManager.saveZownConfiguration(world, zown);
+					} else {
+						sendMessage(caller, "Owner '" + playerName + "' already exists on zown.");
+					}
+				} else if ("remove".equalsIgnoreCase(action)) {
+					if (zownTree.getData().removeOwner(player)) {
+						sendMessage(caller, "Removed owner '" + playerName + "' from zown '" + zown + "'.");
+						zownManager.saveZownConfiguration(world, zown);
+					} else {
+						sendMessage(caller, "Owner '" + playerName + "' does not exist on zown.");
+					}
+				} else {
+					sendMessage(caller, "Unrecognized action '" + action + "' must be <add | remove>.");
+				}
+			}
+		}
+	}
+	
+	@Command(aliases = {
+		"member"
+	}, parent = "zown", description = "zown member", permissions = {
+		"zown.member"
+	}, toolTip = "/zown member <zown> <add | remove> <player>")
+	public void zownMemberCommand(final MessageReceiver caller, final String[] parameters) {
+		World world = null;
+		String zown = null;
+		String action = null;
+		String playerName = null;
+		
+		if (caller instanceof Player) {
+			final Player player = caller.asPlayer();
+			switch (parameters.length) {
+				case 4:
+					world = player.getWorld();
+					zown = parameters[1];
+					action = parameters[2];
+					playerName = parameters[3];
+					break;
+				default:
+					sendMessage(caller, "Usage: /zown member <zown> <add | remove> <player>");
+			}
+		} else {
+			switch (parameters.length) {
+				case 5:
+					world = worldManager.getWorld(parameters[1], false);
+					zown = parameters[2];
+					action = parameters[3];
+					playerName = parameters[4];
+					break;
+				default:
+					sendMessage(caller, "Usage: /zown member <world> <zown> <add | remove> <player>");
+			}
+		}
+		
+		if (world != null && zown != null && action != null && playerName != null) {
+			final Tree<? extends IZown> zownTree = zownManager.getZown(world, zown);
+			final Player player = Canary.getServer().getPlayer(playerName);
+			if (zownTree == null) {
+				sendMessage(caller, "No zown '" + zown + "' exists.");
+			} else if (player == null) {
+				sendMessage(caller, "No player '" + playerName + "' is online.");
+			} else {
+				if ("add".equalsIgnoreCase(action)) {
+					if (zownTree.getData().addMember(player)) {
+						sendMessage(caller, "Added member '" + playerName + "' to zown '" + zown + "'.");
+						zownManager.saveZownConfiguration(world, zown);
+					} else {
+						sendMessage(caller, "Member '" + playerName + "' already exists on zown.");
+					}
+				} else if ("remove".equalsIgnoreCase(action)) {
+					if (zownTree.getData().removeMember(player)) {
+						sendMessage(caller, "Removed member '" + playerName + "' from zown '" + zown + "'.");
+						zownManager.saveZownConfiguration(world, zown);
+					} else {
+						sendMessage(caller, "Member '" + playerName + "' does not exist on zown.");
 					}
 				} else {
 					sendMessage(caller, "Unrecognized action '" + action + "' must be <add | remove>.");

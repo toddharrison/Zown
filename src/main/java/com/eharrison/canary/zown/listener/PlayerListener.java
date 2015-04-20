@@ -28,7 +28,7 @@ public class PlayerListener implements PluginListener {
 		if (target != null && target.isPlayer()) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
 			final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_PLAYERIMMUNE);
-			if (flag != null && !flag) {
+			if (flag != null && flag) {
 				hook.setCanceled();
 			}
 		}
@@ -41,7 +41,7 @@ public class PlayerListener implements PluginListener {
 		if (target.isPlayer()) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
 			final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_PLAYERIMMUNE);
-			if (flag != null && !flag) {
+			if (flag != null && flag) {
 				hook.setCanceled();
 			}
 		}
@@ -54,7 +54,7 @@ public class PlayerListener implements PluginListener {
 		if (target.isPlayer()) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
 			final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_PLAYERIMMUNE);
-			if (flag != null && !flag) {
+			if (flag != null && flag) {
 				hook.setCanceled();
 			}
 		}

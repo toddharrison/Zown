@@ -59,12 +59,12 @@ public class ZownPlugin extends Plugin implements PluginListener {
 		
 		zownCommand = new ZownCommand(templateManager, zownManager);
 		templateCommand = new TemplateCommand(templateManager);
-		userCommand = new UserCommand();
+		// userCommand = new UserCommand();
 		
 		try {
 			Canary.commands().registerCommands(zownCommand, this, false);
 			Canary.commands().registerCommands(templateCommand, this, false);
-			Canary.commands().registerCommands(userCommand, this, false);
+			// Canary.commands().registerCommands(userCommand, this, false);
 		} catch (final CommandDependencyException e) {
 			LOG.error("Error registering commands: ", e);
 			success = false;
