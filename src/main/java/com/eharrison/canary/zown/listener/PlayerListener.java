@@ -8,13 +8,12 @@ import net.canarymod.hook.entity.ProjectileHitHook;
 import net.canarymod.plugin.PluginListener;
 import net.canarymod.plugin.Priority;
 
+import com.eharrison.canary.zown.Flag;
 import com.eharrison.canary.zown.api.IZown;
 import com.eharrison.canary.zown.api.IZownManager;
 import com.eharrison.canary.zown.api.impl.Tree;
 
 public class PlayerListener implements PluginListener {
-	public static final String FLAG_PLAYERIMMUNE = "playerimmune";
-	
 	private final IZownManager zownManager;
 	
 	public PlayerListener(final IZownManager zownManager) {
@@ -27,12 +26,25 @@ public class PlayerListener implements PluginListener {
 		
 		if (target != null && target.isPlayer()) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
-			final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_PLAYERIMMUNE);
+			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.playerimmune.name());
 			if (flag != null && flag) {
 				hook.setCanceled();
 			}
 		}
 	}
+	
+	// @HookHandler(priority = Priority.CRITICAL)
+	// public void onPotionEffectApplied(final PotionEffectAppliedHook hook) {
+	// final Entity target = hook.getEntity();
+	//
+	// if (target != null && target.isPlayer()) {
+	// final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
+	// final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.playerimmune.name());
+	// if (flag != null && flag) {
+	// // hook.setCanceled();
+	// }
+	// }
+	// }
 	
 	@HookHandler(priority = Priority.CRITICAL)
 	public void onEntityLightningStruck(final EntityLightningStruckHook hook) {
@@ -40,7 +52,7 @@ public class PlayerListener implements PluginListener {
 		
 		if (target.isPlayer()) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
-			final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_PLAYERIMMUNE);
+			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.playerimmune.name());
 			if (flag != null && flag) {
 				hook.setCanceled();
 			}
@@ -53,7 +65,7 @@ public class PlayerListener implements PluginListener {
 		
 		if (target.isPlayer()) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
-			final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_PLAYERIMMUNE);
+			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.playerimmune.name());
 			if (flag != null && flag) {
 				hook.setCanceled();
 			}

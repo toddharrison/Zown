@@ -23,16 +23,13 @@ import net.canarymod.hook.world.IgnitionHook;
 import net.canarymod.plugin.PluginListener;
 import net.canarymod.plugin.Priority;
 
+import com.eharrison.canary.zown.Flag;
 import com.eharrison.canary.zown.ZownPlugin;
 import com.eharrison.canary.zown.api.IZown;
 import com.eharrison.canary.zown.api.IZownManager;
 import com.eharrison.canary.zown.api.impl.Tree;
 
 public class ModifyWorldListener implements PluginListener {
-	public static final String FLAG_BUILD = "build";
-	public static final String FLAG_FIRESPREAD = "firespread";
-	public static final String FLAG_INTERACT = "interact";
-	
 	private final IZownManager zownManager;
 	
 	public ModifyWorldListener(final IZownManager zownManager) {
@@ -46,7 +43,7 @@ public class ModifyWorldListener implements PluginListener {
 		
 		if (!player.isOperator()) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
-			final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_BUILD);
+			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
 			if (flag != null && !flag) {
 				hook.setCanceled();
 			}
@@ -60,7 +57,7 @@ public class ModifyWorldListener implements PluginListener {
 		
 		if (!player.isOperator()) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
-			final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_BUILD);
+			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
 			if (flag != null && !flag) {
 				hook.setCanceled();
 			}
@@ -72,7 +69,7 @@ public class ModifyWorldListener implements PluginListener {
 		final HangingEntity entity = hook.getPainting();
 		
 		final Tree<? extends IZown> zownTree = zownManager.getZown(entity.getLocation());
-		final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_BUILD);
+		final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
 		if (flag != null && !flag) {
 			hook.setCanceled();
 		}
@@ -85,7 +82,7 @@ public class ModifyWorldListener implements PluginListener {
 		
 		if (!player.isOperator()) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
-			final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_BUILD);
+			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
 			if (flag != null && !flag) {
 				final ItemType type = hook.getItem().getType();
 				if (type == ItemType.FlintAndSteel || type == ItemType.WaterBucket
@@ -101,7 +98,7 @@ public class ModifyWorldListener implements PluginListener {
 	// final Block block = hook.getBlock();
 	//
 	// final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
-	// final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_BUILD);
+	// final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
 	// if (flag != null && !flag) {
 	// ZownPlugin.LOG.info("Cancelling LiquidDestroy");
 	// hook.setCanceled();
@@ -113,7 +110,7 @@ public class ModifyWorldListener implements PluginListener {
 	// final Block block = hook.getBlockTo();
 	//
 	// final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
-	// final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_BUILD);
+	// final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
 	// if (flag != null && !flag) {
 	// ZownPlugin.LOG.info("Cancelling Flow");
 	// hook.setCanceled();
@@ -127,13 +124,13 @@ public class ModifyWorldListener implements PluginListener {
 		
 		if (player != null && !player.isOperator()) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
-			final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_BUILD);
+			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
 			if (flag != null && !flag) {
 				hook.setCanceled();
 			}
 		} else {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
-			final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_FIRESPREAD);
+			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.firespread.name());
 			if (flag != null && !flag) {
 				hook.setCanceled();
 			}
@@ -146,7 +143,7 @@ public class ModifyWorldListener implements PluginListener {
 		
 		for (final Block block : blocks) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
-			final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_BUILD);
+			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
 			if (flag != null && !flag) {
 				hook.setCanceled();
 				break;
@@ -159,7 +156,7 @@ public class ModifyWorldListener implements PluginListener {
 		final Block block = hook.getBlock();
 		
 		final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
-		final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_BUILD);
+		final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
 		if (flag != null && !flag) {
 			hook.setCanceled();
 		}
@@ -170,7 +167,7 @@ public class ModifyWorldListener implements PluginListener {
 		final Location location = hook.getEnderman().getLocation();
 		
 		final Tree<? extends IZown> zownTree = zownManager.getZown(location);
-		final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_BUILD);
+		final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
 		if (flag != null && !flag) {
 			hook.setCanceled();
 		}
@@ -183,7 +180,7 @@ public class ModifyWorldListener implements PluginListener {
 		
 		if (!player.isOperator()) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(entity.getLocation());
-			final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_INTERACT);
+			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.interact.name());
 			if (flag != null && !flag) {
 				hook.setCanceled();
 			}
@@ -197,7 +194,7 @@ public class ModifyWorldListener implements PluginListener {
 		
 		if (!player.isOperator()) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(entity.getLocation());
-			final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_INTERACT);
+			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.interact.name());
 			if (flag != null && !flag) {
 				hook.setCanceled();
 			}
@@ -211,7 +208,7 @@ public class ModifyWorldListener implements PluginListener {
 	//
 	// if (!player.isOperator()) {
 	// final Tree<? extends IZown> zownTree = zownManager.getZown(entity.getLocation());
-	// final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_INTERACT);
+	// final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.interact.name());
 	// if (flag != null && !flag) {
 	// hook.setCanceled();
 	// }
@@ -225,7 +222,7 @@ public class ModifyWorldListener implements PluginListener {
 		
 		if (!player.isOperator() && block.getTileEntity() != null) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
-			final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_INTERACT);
+			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.interact.name());
 			if (flag != null && !flag) {
 				ZownPlugin.LOG.info("Cancelling right click on " + block.getType());
 				hook.setCanceled();
@@ -240,7 +237,7 @@ public class ModifyWorldListener implements PluginListener {
 	//
 	// if (!player.isOperator()) {
 	// final Tree<? extends IZown> zownTree = zownManager.getZown(entity.getLocation());
-	// final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_INTERACT);
+	// final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.interact.name());
 	// if (flag != null && !flag) {
 	// ZownPlugin.LOG.info("Cancelling right click on " + entity.getDisplayName());
 	// hook.setCanceled();

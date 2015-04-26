@@ -5,6 +5,7 @@ import net.canarymod.api.entity.living.LivingBase;
 import net.canarymod.api.entity.living.animal.EntityAnimal;
 import net.canarymod.api.entity.living.monster.EntityMob;
 import net.canarymod.api.world.position.Location;
+import net.canarymod.api.world.position.Vector3D;
 import net.canarymod.hook.HookHandler;
 import net.canarymod.hook.entity.EntityMoveHook;
 import net.canarymod.hook.entity.EntitySpawnHook;
@@ -12,14 +13,13 @@ import net.canarymod.hook.entity.MobTargetHook;
 import net.canarymod.plugin.PluginListener;
 import net.canarymod.plugin.Priority;
 
+import com.eharrison.canary.zown.Flag;
 import com.eharrison.canary.zown.api.IZown;
 import com.eharrison.canary.zown.api.IZownManager;
+import com.eharrison.canary.zown.api.Point;
 import com.eharrison.canary.zown.api.impl.Tree;
 
 public class EntityListener implements PluginListener {
-	public static final String FLAG_HOSTILEPERMIT = "hostilepermit";
-	public static final String FLAG_PASSIVEPERMIT = "passivepermit";
-	
 	private final IZownManager zownManager;
 	
 	public EntityListener(final IZownManager zownManager) {
@@ -33,16 +33,26 @@ public class EntityListener implements PluginListener {
 		
 		if (entity instanceof EntityMob) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(location);
-			final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_HOSTILEPERMIT);
+			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.hostilepermit.name());
 			if (flag != null && !flag) {
 				entity.destroy();
 				// hook.setCanceled();
 			}
 		} else if (entity instanceof EntityAnimal) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(location);
-			final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_PASSIVEPERMIT);
+			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.passivepermit.name());
 			if (flag != null && !flag) {
-				hook.setCanceled();
+				// entity.destroy();
+				
+				// TODO efficiency?
+				final Location loc = entity.getLocation();
+				final Point centerPoint = zownTree.getData().getCenterPoint();
+				final Vector3D v = new Vector3D(centerPoint.x, loc.getBlockY(), centerPoint.z);
+				Vector3D diff = loc.subtract(v);
+				diff = diff.multiply(1 / diff.getMagnitude());
+				
+				// Move the entity out of the zown
+				entity.teleportTo(loc.add(diff));
 			}
 		}
 	}
@@ -54,13 +64,13 @@ public class EntityListener implements PluginListener {
 		
 		if (entity instanceof EntityMob) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(location);
-			final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_HOSTILEPERMIT);
+			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.hostilepermit.name());
 			if (flag != null && !flag) {
 				hook.setCanceled();
 			}
 		} else if (entity instanceof EntityAnimal) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(location);
-			final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_PASSIVEPERMIT);
+			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.passivepermit.name());
 			if (flag != null && !flag) {
 				hook.setCanceled();
 			}
@@ -74,13 +84,13 @@ public class EntityListener implements PluginListener {
 		
 		if (entity instanceof EntityMob) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
-			final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_HOSTILEPERMIT);
+			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.hostilepermit.name());
 			if (flag != null && !flag) {
 				hook.setCanceled();
 			}
 		} else if (entity instanceof EntityAnimal) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
-			final Boolean flag = zownTree.getData().getConfiguration().getFlag(FLAG_PASSIVEPERMIT);
+			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.passivepermit.name());
 			if (flag != null && !flag) {
 				hook.setCanceled();
 			}

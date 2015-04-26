@@ -35,6 +35,8 @@ public interface IZown extends IConfigurable {
 	
 	Point getMaxPoint();
 	
+	Point getCenterPoint();
+	
 	boolean contains(final Point point);
 	
 	boolean contains(final Point p1, final Point p2);

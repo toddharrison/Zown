@@ -121,6 +121,11 @@ public class Zown implements IZown {
 		return maxPoint;
 	}
 	
+	@Override
+	public Point getCenterPoint() {
+		return centerPoint;
+	}
+	
 	protected void setBounds(final Point p1, final Point p2) {
 		minPoint = new Point(Math.min(p1.x, p2.x), Math.min(p1.y, p2.y), Math.min(p1.z, p2.z));
 		maxPoint = new Point(Math.max(p1.x, p2.x), Math.max(p1.y, p2.y), Math.max(p1.z, p2.z));
