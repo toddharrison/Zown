@@ -15,16 +15,18 @@ import net.canarymod.hook.entity.HangingEntityDestroyHook;
 import net.canarymod.hook.player.BlockDestroyHook;
 import net.canarymod.hook.player.BlockPlaceHook;
 import net.canarymod.hook.player.BlockRightClickHook;
+import net.canarymod.hook.player.EntityRightClickHook;
 import net.canarymod.hook.player.ItemFrameRotateHook;
 import net.canarymod.hook.player.ItemFrameSetItemHook;
 import net.canarymod.hook.player.ItemUseHook;
 import net.canarymod.hook.world.ExplosionHook;
+import net.canarymod.hook.world.FlowHook;
 import net.canarymod.hook.world.IgnitionHook;
+import net.canarymod.hook.world.LiquidDestroyHook;
 import net.canarymod.plugin.PluginListener;
 import net.canarymod.plugin.Priority;
 
 import com.eharrison.canary.zown.Flag;
-import com.eharrison.canary.zown.ZownPlugin;
 import com.eharrison.canary.zown.api.IZown;
 import com.eharrison.canary.zown.api.IZownManager;
 import com.eharrison.canary.zown.api.impl.Tree;
@@ -93,29 +95,27 @@ public class ModifyWorldListener implements PluginListener {
 		}
 	}
 	
-	// @HookHandler(priority = Priority.CRITICAL)
-	// public void onLiquidDestroy(final LiquidDestroyHook hook) {
-	// final Block block = hook.getBlock();
-	//
-	// final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
-	// final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
-	// if (flag != null && !flag) {
-	// ZownPlugin.LOG.info("Cancelling LiquidDestroy");
-	// hook.setCanceled();
-	// }
-	// }
-	//
-	// @HookHandler(priority = Priority.CRITICAL)
-	// public void onFlow(final FlowHook hook) {
-	// final Block block = hook.getBlockTo();
-	//
-	// final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
-	// final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
-	// if (flag != null && !flag) {
-	// ZownPlugin.LOG.info("Cancelling Flow");
-	// hook.setCanceled();
-	// }
-	// }
+	@HookHandler(priority = Priority.CRITICAL)
+	public void onLiquidDestroy(final LiquidDestroyHook hook) {
+		final Block block = hook.getBlock();
+		
+		final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
+		final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
+		if (flag != null && !flag) {
+			hook.setCanceled();
+		}
+	}
+	
+	@HookHandler(priority = Priority.CRITICAL)
+	public void onFlow(final FlowHook hook) {
+		final Block block = hook.getBlockTo();
+		
+		final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
+		final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
+		if (flag != null && !flag) {
+			hook.setCanceled();
+		}
+	}
 	
 	@HookHandler(priority = Priority.CRITICAL)
 	public void onIgnition(final IgnitionHook hook) {
@@ -181,8 +181,18 @@ public class ModifyWorldListener implements PluginListener {
 		if (!player.isOperator()) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(entity.getLocation());
 			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.interact.name());
-			if (flag != null && !flag) {
-				hook.setCanceled();
+			if (flag != null) {
+				final boolean excluded = zownTree.getData().getConfiguration()
+						.hasEntityInteractExclusion(entity.getClass());
+				if (flag) {
+					if (excluded) {
+						hook.setCanceled();
+					}
+				} else {
+					if (!excluded) {
+						hook.setCanceled();
+					}
+				}
 			}
 		}
 	}
@@ -195,8 +205,18 @@ public class ModifyWorldListener implements PluginListener {
 		if (!player.isOperator()) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(entity.getLocation());
 			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.interact.name());
-			if (flag != null && !flag) {
-				hook.setCanceled();
+			if (flag != null) {
+				final boolean excluded = zownTree.getData().getConfiguration()
+						.hasEntityInteractExclusion(entity.getClass());
+				if (flag) {
+					if (excluded) {
+						hook.setCanceled();
+					}
+				} else {
+					if (!excluded) {
+						hook.setCanceled();
+					}
+				}
 			}
 		}
 	}
@@ -223,25 +243,43 @@ public class ModifyWorldListener implements PluginListener {
 		if (!player.isOperator() && block.getTileEntity() != null) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
 			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.interact.name());
-			if (flag != null && !flag) {
-				ZownPlugin.LOG.info("Cancelling right click on " + block.getType());
-				hook.setCanceled();
+			if (flag != null) {
+				final boolean excluded = zownTree.getData().getConfiguration()
+						.hasBlockInteractExclusion(block.getType());
+				if (flag) {
+					if (excluded) {
+						hook.setCanceled();
+					}
+				} else {
+					if (!excluded) {
+						hook.setCanceled();
+					}
+				}
 			}
 		}
 	}
 	
-	// @HookHandler(priority = Priority.CRITICAL)
-	// public void onEntityRightClick(final EntityRightClickHook hook) {
-	// final Player player = hook.getPlayer();
-	// final Entity entity = hook.getEntity();
-	//
-	// if (!player.isOperator()) {
-	// final Tree<? extends IZown> zownTree = zownManager.getZown(entity.getLocation());
-	// final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.interact.name());
-	// if (flag != null && !flag) {
-	// ZownPlugin.LOG.info("Cancelling right click on " + entity.getDisplayName());
-	// hook.setCanceled();
-	// }
-	// }
-	// }
+	@HookHandler(priority = Priority.CRITICAL)
+	public void onEntityRightClick(final EntityRightClickHook hook) {
+		final Player player = hook.getPlayer();
+		final Entity entity = hook.getEntity();
+		
+		if (!player.isOperator()) {
+			final Tree<? extends IZown> zownTree = zownManager.getZown(entity.getLocation());
+			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.interact.name());
+			if (flag != null) {
+				final boolean excluded = zownTree.getData().getConfiguration()
+						.hasEntityInteractExclusion(entity.getClass());
+				if (flag) {
+					if (excluded) {
+						hook.setCanceled();
+					}
+				} else {
+					if (!excluded) {
+						hook.setCanceled();
+					}
+				}
+			}
+		}
+	}
 }

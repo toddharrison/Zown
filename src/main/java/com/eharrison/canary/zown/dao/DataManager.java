@@ -104,10 +104,16 @@ public class DataManager {
 				ZownPlugin.LOG.warn("Tried to load a bad zown: " + zownDao.zownName);
 			} else {
 				final Zown zown = zownTree.getData();
-				if (zown.overridesConfiguration()) {
-					loadConfiguration(zown, zownDao);
+				
+				if (template != null) {
+					if (zownDao.templateOverride != null && zownDao.templateOverride) {
+						zown.setTemplate((Template) template, true);
+						loadConfiguration(zown, zownDao);
+					} else {
+						zown.setTemplate((Template) template, false);
+					}
 				} else {
-					zown.setTemplate((Template) template);
+					loadConfiguration(zown, zownDao);
 				}
 				
 				if (zownDao.ownerList != null) {
@@ -292,7 +298,7 @@ public class DataManager {
 				if (blockType == null) {
 					ZownPlugin.LOG.warn("Error adding " + block + " to the block interaction exclusions");
 				} else {
-					config.addBlockBuildExclusion(blockType);
+					config.addBlockInteractExclusion(blockType);
 				}
 			}
 		}

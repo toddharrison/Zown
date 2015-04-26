@@ -60,8 +60,10 @@ public class ZownTest extends EasyMockSupport {
 		zown.setTemplate(template2);
 		assertEquals(template2, zown.getTemplate());
 		assertTrue(zown.getConfiguration().hasCommandRestriction("foo"));
+		assertFalse(zown.getConfiguration().hasCommandRestriction("bar"));
 		
 		zown.loadTemplate(template2);
+		assertEquals(template2, zown.getTemplate());
 		assertFalse(zown.getConfiguration().hasCommandRestriction("foo"));
 		assertTrue(zown.getConfiguration().hasCommandRestriction("bar"));
 	}

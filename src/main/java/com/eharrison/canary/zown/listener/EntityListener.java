@@ -5,7 +5,6 @@ import net.canarymod.api.entity.living.LivingBase;
 import net.canarymod.api.entity.living.animal.EntityAnimal;
 import net.canarymod.api.entity.living.monster.EntityMob;
 import net.canarymod.api.world.position.Location;
-import net.canarymod.api.world.position.Vector3D;
 import net.canarymod.hook.HookHandler;
 import net.canarymod.hook.entity.EntityMoveHook;
 import net.canarymod.hook.entity.EntitySpawnHook;
@@ -16,7 +15,6 @@ import net.canarymod.plugin.Priority;
 import com.eharrison.canary.zown.Flag;
 import com.eharrison.canary.zown.api.IZown;
 import com.eharrison.canary.zown.api.IZownManager;
-import com.eharrison.canary.zown.api.Point;
 import com.eharrison.canary.zown.api.impl.Tree;
 
 public class EntityListener implements PluginListener {
@@ -43,16 +41,21 @@ public class EntityListener implements PluginListener {
 			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.passivepermit.name());
 			if (flag != null && !flag) {
 				// entity.destroy();
+				// TODO causes entity tick error
+				// hook.setCanceled();
 				
-				// TODO efficiency?
-				final Location loc = entity.getLocation();
-				final Point centerPoint = zownTree.getData().getCenterPoint();
-				final Vector3D v = new Vector3D(centerPoint.x, loc.getBlockY(), centerPoint.z);
-				Vector3D diff = loc.subtract(v);
-				diff = diff.multiply(1 / diff.getMagnitude());
+				entity.teleportTo(hook.getFrom());
 				
-				// Move the entity out of the zown
-				entity.teleportTo(loc.add(diff));
+				// // TODO efficiency?
+				// TODO this no work for long skinney zowns
+				// final Location loc = entity.getLocation();
+				// final Point centerPoint = zownTree.getData().getCenterPoint();
+				// final Vector3D v = new Vector3D(centerPoint.x, loc.getBlockY(), centerPoint.z);
+				// Vector3D diff = loc.subtract(v);
+				// diff = diff.multiply(1 / diff.getMagnitude());
+				//
+				// // Move the entity out of the zown
+				// entity.teleportTo(loc.add(diff));
 			}
 		}
 	}
