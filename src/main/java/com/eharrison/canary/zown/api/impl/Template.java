@@ -34,16 +34,6 @@ public class Template implements ITemplate {
 	}
 	
 	@Override
-	public boolean overridesConfiguration() {
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public boolean setOverridesConfiguration(final boolean overridesConfiguration) {
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
 	public Collection<Zown> getZowns() {
 		return Collections.unmodifiableCollection(zowns);
 	}

@@ -11,6 +11,10 @@ public interface IZown extends IConfigurable {
 	
 	ITemplate getTemplate();
 	
+	boolean overridesConfiguration();
+	
+	boolean setOverridesConfiguration(final boolean overridesConfiguration);
+	
 	boolean addOwner(final Player player);
 	
 	boolean removeOwner(final Player player);
