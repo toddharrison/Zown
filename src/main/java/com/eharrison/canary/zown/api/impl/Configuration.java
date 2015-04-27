@@ -118,7 +118,15 @@ public class Configuration implements IConfiguration {
 	
 	@Override
 	public boolean hasEntityCreateExclusion(final Class<? extends Entity> entityClass) {
-		return entityCreateExclusions.contains(entityClass);
+		// TODO performance?
+		boolean hasExclusion = false;
+		for (final Class<? extends Entity> c : entityCreateExclusions) {
+			if (c.isAssignableFrom(entityClass)) {
+				hasExclusion = true;
+				break;
+			}
+		}
+		return hasExclusion;
 	}
 	
 	public Collection<Class<? extends Entity>> getEntityCreateExclusions() {
