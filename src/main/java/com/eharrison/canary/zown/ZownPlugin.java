@@ -26,8 +26,27 @@ import com.eharrison.canary.zown.listener.PlayerListener;
 public class ZownPlugin extends Plugin implements PluginListener {
 	public static Logman LOG;
 	
-	private ITemplateManager templateManager;
-	private IZownManager zownManager;
+	private static ITemplateManager templateManager;
+	private static IZownManager zownManager;
+	
+	/**
+	 * Get the TemplateManager from the ZownPlugin.
+	 * 
+	 * @return The TemplateManager.
+	 */
+	public static ITemplateManager getTemplateManager() {
+		return templateManager;
+	}
+	
+	/**
+	 * Get the ZownManager from the ZownPlugin.
+	 * 
+	 * @return The ZownManager.
+	 */
+	public static IZownManager getZownManager() {
+		return zownManager;
+	}
+	
 	private ZownCommand zownCommand;
 	private TemplateCommand templateCommand;
 	
