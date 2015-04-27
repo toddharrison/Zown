@@ -1,10 +1,15 @@
 package com.eharrison.canary.zown.listener;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import net.canarymod.api.entity.Entity;
+import net.canarymod.api.entity.living.humanoid.Player;
 import net.canarymod.hook.HookHandler;
 import net.canarymod.hook.entity.DamageHook;
 import net.canarymod.hook.entity.EntityLightningStruckHook;
 import net.canarymod.hook.entity.ProjectileHitHook;
+import net.canarymod.hook.player.PlayerMoveHook;
 import net.canarymod.plugin.PluginListener;
 import net.canarymod.plugin.Priority;
 
@@ -15,10 +20,38 @@ import com.eharrison.canary.zown.api.impl.Tree;
 
 public class PlayerListener implements PluginListener {
 	private final IZownManager zownManager;
+	// TODO: Use this map for player location
+	private final Map<String, Tree<? extends IZown>> playerZownMap;
 	
 	public PlayerListener(final IZownManager zownManager) {
 		this.zownManager = zownManager;
+		playerZownMap = new HashMap<String, Tree<? extends IZown>>();
 	}
+	
+	@HookHandler(priority = Priority.CRITICAL)
+	public void onPlayerMove(final PlayerMoveHook hook) {
+		final Player player = hook.getPlayer();
+		
+		Tree<? extends IZown> zownTree = playerZownMap.get(player.getUUIDString());
+		if (zownTree == null) {
+			zownTree = zownManager.getZown(player.getLocation());
+			playerZownMap.put(player.getUUIDString(), zownTree);
+		} else {
+			final Tree<? extends IZown> targetZownTree = zownManager.getZown(hook.getTo());
+			if (zownTree != targetZownTree) {
+				// TODO check if the player is authorized to enter the zown
+				
+				// Changed zown
+				playerZownMap.put(player.getUUIDString(), targetZownTree);
+				player.message("Zown " + zownTree.getData().getName() + " to "
+						+ targetZownTree.getData().getName());
+				// TODO send PlayerZownExit and PlayerZownEntry
+				// TODO allow for cancel of player move
+			}
+		}
+	}
+	
+	// TODO observe tp and connect for zown change
 	
 	@HookHandler(priority = Priority.CRITICAL)
 	public void onProjectileHit(final ProjectileHitHook hook) {
