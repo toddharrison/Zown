@@ -137,7 +137,15 @@ public class Configuration implements IConfiguration {
 	
 	@Override
 	public boolean hasEntityInteractExclusion(final Class<? extends Entity> entityClass) {
-		return entityInteractExclusions.contains(entityClass);
+		// TODO performance?
+		boolean hasExclusion = false;
+		for (final Class<? extends Entity> c : entityInteractExclusions) {
+			if (c.isAssignableFrom(entityClass)) {
+				hasExclusion = true;
+				break;
+			}
+		}
+		return hasExclusion;
 	}
 	
 	public Collection<Class<? extends Entity>> getEntityInteractExclusions() {
