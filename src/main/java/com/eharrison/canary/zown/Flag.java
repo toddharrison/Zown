@@ -25,6 +25,11 @@ public enum Flag {
 	build,
 	
 	/**
+	 * DENY prevents liquids from flowing within a Zown.
+	 */
+	flow,
+	
+	/**
 	 * DENY prevents setting or spreading of fire within a Zown.
 	 */
 	firespread,

@@ -46,17 +46,19 @@ public class ModifyWorldListener implements PluginListener {
 		
 		if (!player.isOperator()) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
-			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
-			if (flag != null) {
-				final boolean excluded = zownTree.getData().getConfiguration()
-						.hasBlockBuildExclusion(block.getType());
-				if (flag) {
-					if (excluded) {
-						hook.setCanceled();
-					}
-				} else {
-					if (!excluded) {
-						hook.setCanceled();
+			if (!zownTree.getData().isOwnerOrMember(player)) {
+				final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
+				if (flag != null) {
+					final boolean excluded = zownTree.getData().getConfiguration()
+							.hasBlockBuildExclusion(block.getType());
+					if (flag) {
+						if (excluded) {
+							hook.setCanceled();
+						}
+					} else {
+						if (!excluded) {
+							hook.setCanceled();
+						}
 					}
 				}
 			}
@@ -70,17 +72,19 @@ public class ModifyWorldListener implements PluginListener {
 		
 		if (!player.isOperator()) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
-			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
-			if (flag != null) {
-				final boolean excluded = zownTree.getData().getConfiguration()
-						.hasBlockBuildExclusion(block.getType());
-				if (flag) {
-					if (excluded) {
-						hook.setCanceled();
-					}
-				} else {
-					if (!excluded) {
-						hook.setCanceled();
+			if (!zownTree.getData().isOwnerOrMember(player)) {
+				final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
+				if (flag != null) {
+					final boolean excluded = zownTree.getData().getConfiguration()
+							.hasBlockBuildExclusion(block.getType());
+					if (flag) {
+						if (excluded) {
+							hook.setCanceled();
+						}
+					} else {
+						if (!excluded) {
+							hook.setCanceled();
+						}
 					}
 				}
 			}
@@ -89,20 +93,25 @@ public class ModifyWorldListener implements PluginListener {
 	
 	@HookHandler(priority = Priority.CRITICAL)
 	public void onHangingEntityDestroy(final HangingEntityDestroyHook hook) {
+		final Player player = hook.getPlayer();
 		final HangingEntity entity = hook.getPainting();
 		
-		final Tree<? extends IZown> zownTree = zownManager.getZown(entity.getLocation());
-		final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
-		if (flag != null) {
-			final boolean excluded = zownTree.getData().getConfiguration()
-					.hasEntityCreateExclusion(entity.getClass());
-			if (flag) {
-				if (excluded) {
-					hook.setCanceled();
-				}
-			} else {
-				if (!excluded) {
-					hook.setCanceled();
+		if (player == null || !player.isOperator()) {
+			final Tree<? extends IZown> zownTree = zownManager.getZown(entity.getLocation());
+			if (!zownTree.getData().isOwnerOrMember(player)) {
+				final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
+				if (flag != null) {
+					final boolean excluded = zownTree.getData().getConfiguration()
+							.hasEntityCreateExclusion(entity.getClass());
+					if (flag) {
+						if (excluded) {
+							hook.setCanceled();
+						}
+					} else {
+						if (!excluded) {
+							hook.setCanceled();
+						}
+					}
 				}
 			}
 		}
@@ -115,12 +124,14 @@ public class ModifyWorldListener implements PluginListener {
 		
 		if (!player.isOperator()) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
-			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
-			if (flag != null && !flag) {
-				final ItemType type = hook.getItem().getType();
-				if (type == ItemType.FlintAndSteel || type == ItemType.WaterBucket
-						|| type == ItemType.LavaBucket || type == ItemType.Bonemeal) {
-					hook.setCanceled();
+			if (!zownTree.getData().isOwnerOrMember(player)) {
+				final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
+				if (flag != null && !flag) {
+					final ItemType type = hook.getItem().getType();
+					if (type == ItemType.FlintAndSteel || type == ItemType.WaterBucket
+							|| type == ItemType.LavaBucket || type == ItemType.Bonemeal) {
+						hook.setCanceled();
+					}
 				}
 			}
 		}
@@ -131,7 +142,7 @@ public class ModifyWorldListener implements PluginListener {
 		final Block block = hook.getBlock();
 		
 		final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
-		final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
+		final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.flow.name());
 		if (flag != null && !flag) {
 			hook.setCanceled();
 		}
@@ -142,7 +153,7 @@ public class ModifyWorldListener implements PluginListener {
 		final Block block = hook.getBlockTo();
 		
 		final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
-		final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
+		final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.flow.name());
 		if (flag != null && !flag) {
 			hook.setCanceled();
 		}
@@ -155,9 +166,11 @@ public class ModifyWorldListener implements PluginListener {
 		
 		if (player != null && !player.isOperator()) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
-			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
-			if (flag != null && !flag) {
-				hook.setCanceled();
+			if (!zownTree.getData().isOwnerOrMember(player)) {
+				final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
+				if (flag != null && !flag) {
+					hook.setCanceled();
+				}
 			}
 		} else {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
@@ -211,17 +224,19 @@ public class ModifyWorldListener implements PluginListener {
 		
 		if (!player.isOperator()) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(entity.getLocation());
-			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.interact.name());
-			if (flag != null) {
-				final boolean excluded = zownTree.getData().getConfiguration()
-						.hasEntityInteractExclusion(entity.getClass());
-				if (flag) {
-					if (excluded) {
-						hook.setCanceled();
-					}
-				} else {
-					if (!excluded) {
-						hook.setCanceled();
+			if (!zownTree.getData().isOwnerOrMember(player)) {
+				final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.interact.name());
+				if (flag != null) {
+					final boolean excluded = zownTree.getData().getConfiguration()
+							.hasEntityInteractExclusion(entity.getClass());
+					if (flag) {
+						if (excluded) {
+							hook.setCanceled();
+						}
+					} else {
+						if (!excluded) {
+							hook.setCanceled();
+						}
 					}
 				}
 			}
@@ -235,17 +250,19 @@ public class ModifyWorldListener implements PluginListener {
 		
 		if (!player.isOperator()) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(entity.getLocation());
-			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.interact.name());
-			if (flag != null) {
-				final boolean excluded = zownTree.getData().getConfiguration()
-						.hasEntityInteractExclusion(entity.getClass());
-				if (flag) {
-					if (excluded) {
-						hook.setCanceled();
-					}
-				} else {
-					if (!excluded) {
-						hook.setCanceled();
+			if (!zownTree.getData().isOwnerOrMember(player)) {
+				final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.interact.name());
+				if (flag != null) {
+					final boolean excluded = zownTree.getData().getConfiguration()
+							.hasEntityInteractExclusion(entity.getClass());
+					if (flag) {
+						if (excluded) {
+							hook.setCanceled();
+						}
+					} else {
+						if (!excluded) {
+							hook.setCanceled();
+						}
 					}
 				}
 			}
@@ -259,9 +276,11 @@ public class ModifyWorldListener implements PluginListener {
 		//
 		// if (!player.isOperator()) {
 		// final Tree<? extends IZown> zownTree = zownManager.getZown(entity.getLocation());
+		// if (!zownTree.getData().isOwnerOrMember(player)) {
 		// final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.interact.name());
 		// if (flag != null && !flag) {
 		hook.setCanceled();
+		// }
 		// }
 		// }
 	}
@@ -273,17 +292,19 @@ public class ModifyWorldListener implements PluginListener {
 		
 		if (!player.isOperator() && block.getTileEntity() != null) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
-			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.interact.name());
-			if (flag != null) {
-				final boolean excluded = zownTree.getData().getConfiguration()
-						.hasBlockInteractExclusion(block.getType());
-				if (flag) {
-					if (excluded) {
-						hook.setCanceled();
-					}
-				} else {
-					if (!excluded) {
-						hook.setCanceled();
+			if (!zownTree.getData().isOwnerOrMember(player)) {
+				final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.interact.name());
+				if (flag != null) {
+					final boolean excluded = zownTree.getData().getConfiguration()
+							.hasBlockInteractExclusion(block.getType());
+					if (flag) {
+						if (excluded) {
+							hook.setCanceled();
+						}
+					} else {
+						if (!excluded) {
+							hook.setCanceled();
+						}
 					}
 				}
 			}
@@ -297,17 +318,19 @@ public class ModifyWorldListener implements PluginListener {
 		
 		if (!player.isOperator()) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(entity.getLocation());
-			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.interact.name());
-			if (flag != null) {
-				final boolean excluded = zownTree.getData().getConfiguration()
-						.hasEntityInteractExclusion(entity.getClass());
-				if (flag) {
-					if (excluded) {
-						hook.setCanceled();
-					}
-				} else {
-					if (!excluded) {
-						hook.setCanceled();
+			if (!zownTree.getData().isOwnerOrMember(player)) {
+				final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.interact.name());
+				if (flag != null) {
+					final boolean excluded = zownTree.getData().getConfiguration()
+							.hasEntityInteractExclusion(entity.getClass());
+					if (flag) {
+						if (excluded) {
+							hook.setCanceled();
+						}
+					} else {
+						if (!excluded) {
+							hook.setCanceled();
+						}
 					}
 				}
 			}
