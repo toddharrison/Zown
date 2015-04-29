@@ -645,7 +645,7 @@ public class ZownCommand implements CommandListener {
 	@Command(aliases = {
 		"owner"
 	}, parent = "zown", description = "zown owner", permissions = {
-		"zown.owner"
+		"zown.user.owner"
 	}, toolTip = "/zown owner <zown> <add | remove> <player>")
 	public void zownOwnerCommand(final MessageReceiver caller, final String[] parameters) {
 		World world = null;
@@ -710,7 +710,7 @@ public class ZownCommand implements CommandListener {
 	@Command(aliases = {
 		"member"
 	}, parent = "zown", description = "zown member", permissions = {
-		"zown.member"
+		"zown.user.member"
 	}, toolTip = "/zown member <zown> <add | remove> <player>")
 	public void zownMemberCommand(final MessageReceiver caller, final String[] parameters) {
 		World world = null;
