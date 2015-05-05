@@ -42,5 +42,10 @@ public enum Flag {
 	/**
 	 * ALLOW makes a Player immune to attacks within a Zown.
 	 */
-	playerimmune;
+	playerimmune,
+	
+	/**
+	 * ALLOW lets Players create new Zowns within this Zown.
+	 */
+	playerclaim;
 }

@@ -180,16 +180,11 @@ public class ZownCommand implements CommandListener {
 		}
 		
 		if (world != null && zown != null && p1 != null && p2 != null) {
-			final Tree<? extends IZown> zownTree = zownManager.createZown(world, zown, template, p1, p2);
+			final Tree<? extends IZown> zownTree = zownManager.createZown(world, zown, template, p1, p2,
+					player);
 			if (zownTree == null) {
 				sendMessage(caller, "Failed to create zown '" + zown + "'.");
 			} else {
-				if (player != null) {
-					zownTree.getData().addOwner(player);
-					if (!zownManager.saveZownConfiguration(world, zown)) {
-						sendMessage(caller, "Could not add player '" + player.getName() + "' as default owner.");
-					}
-				}
 				sendMessage(caller, "Created zown '" + zown + "'.");
 			}
 		}
@@ -292,8 +287,9 @@ public class ZownCommand implements CommandListener {
 		String zown = null;
 		String newZown = null;
 		
+		Player player = null;
 		if (caller instanceof Player) {
-			final Player player = caller.asPlayer();
+			player = caller.asPlayer();
 			switch (parameters.length) {
 				case 3:
 					world = player.getWorld();
@@ -316,7 +312,7 @@ public class ZownCommand implements CommandListener {
 		}
 		
 		if (world != null && zown != null && newZown != null) {
-			if (zownManager.renameZown(world, zown, newZown)) {
+			if (zownManager.renameZown(world, zown, newZown, player)) {
 				sendMessage(caller, "Renamed zown to '" + newZown + "'.");
 			} else {
 				sendMessage(caller, "Failed to rename zown '" + zown + "'.");
@@ -336,8 +332,9 @@ public class ZownCommand implements CommandListener {
 		Point p1 = null;
 		Point p2 = null;
 		
+		Player player = null;
 		if (caller instanceof Player) {
-			final Player player = caller.asPlayer();
+			player = caller.asPlayer();
 			switch (parameters.length) {
 				case 8:
 					world = player.getWorld();
@@ -364,7 +361,7 @@ public class ZownCommand implements CommandListener {
 		if (world != null && zown != null && p1 != null && p2 != null) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(world, zown);
 			if (zownTree != null) {
-				if (zownManager.resizeZown(world, zown, p1, p2)) {
+				if (zownManager.resizeZown(world, zown, p1, p2, player)) {
 					sendMessage(caller, "Resized zown '" + zown + "'.");
 				} else {
 					sendMessage(caller, "Failed to resize zown '" + zown + "'.");

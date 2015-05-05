@@ -1,5 +1,6 @@
 package com.eharrison.canary.zown.api;
 
+import net.canarymod.api.entity.living.humanoid.Player;
 import net.canarymod.api.world.World;
 import net.canarymod.api.world.position.Location;
 
@@ -73,6 +74,9 @@ public interface IZownManager {
 	 */
 	Tree<? extends IZown> createZown(World world, String name, ITemplate template, Point p1, Point p2);
 	
+	Tree<? extends IZown> createZown(World world, String name, ITemplate template, Point p1,
+			Point p2, Player player);
+	
 	/**
 	 * Remove the named Zown and it's children Zowns from the specified World.
 	 * 
@@ -83,6 +87,8 @@ public interface IZownManager {
 	 * @return True if the Zown was removed, false if not present.
 	 */
 	boolean removeZown(World world, String name);
+	
+	boolean removeZown(World world, String name, Player player);
 	
 	/**
 	 * Rename the specified Zown in the specified World.
@@ -96,6 +102,8 @@ public interface IZownManager {
 	 * @return True if the Zown was renamed, false if the name was already used.
 	 */
 	boolean renameZown(World world, String oldName, String newName);
+	
+	boolean renameZown(World world, String oldName, String newName, Player player);
 	
 	/**
 	 * Resize the specified Zown to the new bounding Points.
@@ -111,6 +119,8 @@ public interface IZownManager {
 	 * @return True if the Zown was resized, false if resizing caused an overlap with other Zowns.
 	 */
 	boolean resizeZown(World world, String name, Point p1, Point p2);
+	
+	boolean resizeZown(World world, String name, Point p1, Point p2, Player player);
 	
 	/**
 	 * Applies a Template to a Zown, overwriting any current Configuration on the Zown.

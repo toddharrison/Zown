@@ -3,9 +3,11 @@ package com.eharrison.canary.zown.api.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.canarymod.api.entity.living.humanoid.Player;
 import net.canarymod.api.world.World;
 import net.canarymod.api.world.position.Location;
 
+import com.eharrison.canary.zown.Flag;
 import com.eharrison.canary.zown.ZownPlugin;
 import com.eharrison.canary.zown.api.ITemplate;
 import com.eharrison.canary.zown.api.ITemplateManager;
@@ -89,6 +91,12 @@ public class ZownManager implements IZownManager {
 	@Override
 	public Tree<? extends IZown> createZown(final World world, final String name,
 			final ITemplate template, final Point p1, final Point p2) {
+		return createZown(world, name, template, p1, p2, null);
+	}
+	
+	@Override
+	public Tree<? extends IZown> createZown(final World world, final String name,
+			final ITemplate template, final Point p1, final Point p2, final Player player) {
 		Tree<Zown> zownTree = null;
 		
 		Map<String, Tree<Zown>> zownMap = zownMaps.get(world);
@@ -100,16 +108,23 @@ public class ZownManager implements IZownManager {
 		if (!zownMap.containsKey(name)) {
 			final Tree<Zown> rootTree = zownTrees.get(world);
 			final Zown zown = new Zown(name, (Template) template, p1, p2);
+			if (player != null) {
+				zown.addOwner(player);
+			}
 			if (!intersectsExistingZown(rootTree, zown)) {
 				final Tree<Zown> targetTree = getTargetContainingZown(rootTree, zown);
-				zownTree = new Tree<Zown>(zown);
-				targetTree.addChild(zownTree);
-				zownMap.put(name, zownTree);
 				
-				try {
-					dataManager.saveZown(world, zownTree);
-				} catch (final Exception e) {
-					ZownPlugin.LOG.error("Error saving zown", e);
+				if (player == null || player.isOperator()
+						|| targetTree.getData().getConfiguration().getFlag(Flag.playerclaim.name())) {
+					zownTree = new Tree<Zown>(zown);
+					targetTree.addChild(zownTree);
+					zownMap.put(name, zownTree);
+					
+					try {
+						dataManager.saveZown(world, zownTree);
+					} catch (final Exception e) {
+						ZownPlugin.LOG.error("Error saving zown", e);
+					}
 				}
 			}
 		}
@@ -156,20 +171,28 @@ public class ZownManager implements IZownManager {
 	
 	@Override
 	public boolean removeZown(final World world, final String name) {
+		return removeZown(world, name, null);
+	}
+	
+	@Override
+	public boolean removeZown(final World world, final String name, final Player player) {
 		boolean removed = false;
 		final Map<String, Tree<Zown>> zownMap = zownMaps.get(world);
 		if (zownMap != null && zownMap.containsKey(name)) {
-			final Tree<Zown> tree = zownMap.remove(name);
-			removed = tree.removeParent();
-			if (removed) {
-				for (final Tree<Zown> t : tree) {
-					zownMap.remove(t.getData().getName());
-				}
-				
-				try {
-					dataManager.removeZown(world, tree);
-				} catch (final Exception e) {
-					ZownPlugin.LOG.error("Error saving zown", e);
+			final Tree<Zown> zownTree = zownMap.remove(name);
+			if (zownTree != null && player == null || player != null
+					&& (player.isOperator() || zownTree.getData().isOwner(player))) {
+				removed = zownTree.removeParent();
+				if (removed) {
+					for (final Tree<Zown> t : zownTree) {
+						zownMap.remove(t.getData().getName());
+					}
+					
+					try {
+						dataManager.removeZown(world, zownTree);
+					} catch (final Exception e) {
+						ZownPlugin.LOG.error("Error saving zown", e);
+					}
 				}
 			}
 		}
@@ -178,18 +201,28 @@ public class ZownManager implements IZownManager {
 	
 	@Override
 	public boolean renameZown(final World world, final String oldName, final String newName) {
+		return renameZown(world, oldName, newName, null);
+	}
+	
+	@Override
+	public boolean renameZown(final World world, final String oldName, final String newName,
+			final Player player) {
 		boolean renamed = false;
 		final Map<String, Tree<Zown>> zownMap = zownMaps.get(world);
 		if (zownMap != null && zownMap.containsKey(oldName) && !zownMap.containsKey(newName)) {
-			final Tree<Zown> zownTree = zownMap.remove(oldName);
-			zownTree.getData().setName(newName);
-			zownMap.put(newName, zownTree);
-			renamed = true;
-			
-			try {
-				dataManager.saveZown(world, zownTree, oldName);
-			} catch (final Exception e) {
-				ZownPlugin.LOG.error("Error saving zown", e);
+			final Tree<Zown> zownTree = zownMap.get(oldName);
+			if (zownTree != null && player == null || player != null
+					&& (player.isOperator() || zownTree.getData().isOwner(player))) {
+				zownMap.remove(oldName);
+				zownTree.getData().setName(newName);
+				zownMap.put(newName, zownTree);
+				renamed = true;
+				
+				try {
+					dataManager.saveZown(world, zownTree, oldName);
+				} catch (final Exception e) {
+					ZownPlugin.LOG.error("Error saving zown", e);
+				}
 			}
 		}
 		return renamed;
@@ -197,11 +230,18 @@ public class ZownManager implements IZownManager {
 	
 	@Override
 	public boolean resizeZown(final World world, final String name, final Point p1, final Point p2) {
+		return resizeZown(world, name, p1, p2, null);
+	}
+	
+	@Override
+	public boolean resizeZown(final World world, final String name, final Point p1, final Point p2,
+			final Player player) {
 		boolean resized = false;
 		final Map<String, Tree<Zown>> zownMap = zownMaps.get(world);
 		if (zownMap != null) {
 			final Tree<Zown> zownTree = zownMap.get(name);
-			if (zownTree != null) {
+			if (zownTree != null && player == null || player != null
+					&& (player.isOperator() || zownTree.getData().isOwner(player))) {
 				final Tree<Zown> rootTree = zownTrees.get(world);
 				if (!intersectsExistingZown(rootTree, p1, p2, zownTree)) {
 					final Tree<Zown> targetTree = getTargetContainingZown(rootTree, p1, p2, zownTree);
