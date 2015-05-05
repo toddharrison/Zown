@@ -2,11 +2,16 @@ package com.eharrison.canary.zown.api.impl;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
+import java.util.UUID;
 
+import net.canarymod.Canary;
+import net.canarymod.api.OfflinePlayer;
 import net.canarymod.api.entity.living.humanoid.Player;
+import net.canarymod.chat.ChatFormat;
 
-import com.eharrison.canary.zown.api.IConfiguration;
+import com.eharrison.canary.zown.ZownPlugin;
 import com.eharrison.canary.zown.api.IZown;
 import com.eharrison.canary.zown.api.Point;
 
@@ -17,6 +22,8 @@ public class Zown implements IZown {
 	private final Set<String> owners;
 	private final Set<String> members;
 	private final Set<String> entryExclusions;
+	private String welcomeMessage;
+	private String farewellMessage;
 	
 	private Point minPoint;
 	private Point maxPoint;
@@ -63,6 +70,102 @@ public class Zown implements IZown {
 	}
 	
 	@Override
+	public String getDisplay() {
+		final StringBuilder sb = new StringBuilder();
+		
+		sb.append("\n");
+		
+		sb.append(name);
+		if (template != null) {
+			sb.append(" (");
+			if (overridesConfiguration()) {
+				sb.append(ChatFormat.GRAY);
+			}
+			sb.append(template.getName());
+			if (overridesConfiguration()) {
+				sb.append(ChatFormat.RESET);
+			}
+			sb.append(")");
+		}
+		sb.append(" [");
+		sb.append(minPoint.x);
+		sb.append(",");
+		sb.append(minPoint.y);
+		sb.append(",");
+		sb.append(minPoint.z);
+		sb.append("] to [");
+		sb.append(maxPoint.x);
+		sb.append(",");
+		sb.append(maxPoint.y);
+		sb.append(",");
+		sb.append(maxPoint.z);
+		sb.append("]");
+		sb.append("\n");
+		
+		sb.append("Owners: ");
+		if (owners.isEmpty()) {
+			sb.append("none");
+		} else {
+			final Iterator<String> iter = owners.iterator();
+			while (iter.hasNext()) {
+				final String uuid = iter.next();
+				final String name = getPlayerName(uuid);
+				if (name != null) {
+					sb.append(name);
+					if (iter.hasNext()) {
+						sb.append(", ");
+					}
+				}
+			}
+		}
+		sb.append("\n");
+		
+		sb.append("Members: ");
+		if (members.isEmpty()) {
+			sb.append("none");
+		} else {
+			final Iterator<String> iter = members.iterator();
+			while (iter.hasNext()) {
+				final String uuid = iter.next();
+				final String name = getPlayerName(uuid);
+				if (name != null) {
+					sb.append(name);
+					if (iter.hasNext()) {
+						sb.append(", ");
+					}
+				}
+			}
+		}
+		sb.append("\n");
+		
+		final Configuration config = getConfiguration();
+		sb.append("Flags: ");
+		sb.append(config.getFlags());
+		
+		return sb.toString();
+	}
+	
+	@Override
+	public String getWelcomeMessage() {
+		return welcomeMessage;
+	}
+	
+	@Override
+	public void setWelcomeMessage(final String welcomeMessage) {
+		this.welcomeMessage = welcomeMessage;
+	}
+	
+	@Override
+	public String getFarewellMessage() {
+		return farewellMessage;
+	}
+	
+	@Override
+	public void setFarewellMessage(final String farewellMessage) {
+		this.farewellMessage = farewellMessage;
+	}
+	
+	@Override
 	public Template getTemplate() {
 		return template;
 	}
@@ -96,7 +199,7 @@ public class Zown implements IZown {
 	}
 	
 	@Override
-	public IConfiguration getConfiguration() {
+	public Configuration getConfiguration() {
 		if (configuration == null) {
 			return template.getConfiguration();
 		}
@@ -291,5 +394,28 @@ public class Zown implements IZown {
 			intersects = true;
 		}
 		return intersects;
+	}
+	
+	private String getPlayerName(final String uuid) {
+		ZownPlugin.LOG.info("getPlayerName enter(" + uuid + ")");
+		
+		String name = null;
+		final Player player = Canary.getServer().getPlayerFromUUID(uuid);
+		if (player != null) {
+			// Player online
+			ZownPlugin.LOG.info("Found online Player");
+			name = player.getName();
+		} else {
+			// Player offline
+			final OfflinePlayer oPlayer = Canary.getServer().getOfflinePlayer(UUID.fromString(uuid));
+			if (oPlayer != null) {
+				ZownPlugin.LOG.info("Found offline Player");
+				name = oPlayer.getName();
+			}
+		}
+		
+		ZownPlugin.LOG.info("getPlayerName exit(" + name + ")");
+		
+		return name;
 	}
 }

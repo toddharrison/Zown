@@ -109,7 +109,7 @@ public class ZownCommand implements CommandListener {
 			if (zownTree == null) {
 				sendMessage(caller, "There is no zown '" + zown + "' in world " + world.getFqName() + ".");
 			} else {
-				sendMessage(caller, zownTree.getData());
+				sendMessage(caller, zownTree.getData().getDisplay());
 			}
 		}
 	}

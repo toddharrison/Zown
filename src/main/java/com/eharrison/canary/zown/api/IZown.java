@@ -19,6 +19,44 @@ public interface IZown extends IConfigurable {
 	String getName();
 	
 	/**
+	 * Get the display String for this Zown. This is used to provide the display text of a Zown when
+	 * requested by a Player;
+	 * 
+	 * @return The Zown display text.
+	 */
+	String getDisplay();
+	
+	/**
+	 * Get the String message displayed to Players when they enter this Zown.
+	 * 
+	 * @return The String welcome message;
+	 */
+	String getWelcomeMessage();
+	
+	/**
+	 * Set the String message displayed to Players when they enter this Zown.
+	 * 
+	 * @param welcomeMessage
+	 *          The String welcome message;
+	 */
+	void setWelcomeMessage(String welcomeMessage);
+	
+	/**
+	 * Get the String message displayed to Players when they exit this Zown.
+	 * 
+	 * @return The String farewell message;
+	 */
+	String getFarewellMessage();
+	
+	/**
+	 * Set the String message displayed to Players when they exit this Zown.
+	 * 
+	 * @param farewellMessage
+	 *          The String farewell message;
+	 */
+	void setFarewellMessage(String farewellMessage);
+	
+	/**
 	 * Get the Template of this Zown, or null if there is no Template.
 	 * 
 	 * @return The Template.

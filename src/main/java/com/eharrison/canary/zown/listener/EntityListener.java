@@ -3,12 +3,16 @@ package com.eharrison.canary.zown.listener;
 import net.canarymod.api.entity.Entity;
 import net.canarymod.api.entity.living.LivingBase;
 import net.canarymod.api.entity.living.animal.EntityAnimal;
+import net.canarymod.api.entity.living.humanoid.Villager;
 import net.canarymod.api.entity.living.monster.EntityMob;
 import net.canarymod.api.world.position.Location;
 import net.canarymod.hook.HookHandler;
+import net.canarymod.hook.entity.DamageHook;
+import net.canarymod.hook.entity.EntityLightningStruckHook;
 import net.canarymod.hook.entity.EntityMoveHook;
 import net.canarymod.hook.entity.EntitySpawnHook;
 import net.canarymod.hook.entity.MobTargetHook;
+import net.canarymod.hook.entity.ProjectileHitHook;
 import net.canarymod.plugin.PluginListener;
 import net.canarymod.plugin.Priority;
 
@@ -95,6 +99,69 @@ public class EntityListener implements PluginListener {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
 			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.passivepermit.name());
 			if (flag != null && !flag) {
+				hook.setCanceled();
+			}
+		}
+	}
+	
+	@HookHandler(priority = Priority.CRITICAL)
+	public void onProjectileHit(final ProjectileHitHook hook) {
+		final Entity target = hook.getEntityHit();
+		
+		if (target != null) {
+			if (target.isAnimal()) {
+				final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
+				final Boolean flag = zownTree.getData().getConfiguration()
+						.getFlag(Flag.animalimmune.name());
+				if (flag != null && flag) {
+					hook.setCanceled();
+				}
+			} else if (target instanceof Villager) {
+				final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
+				final Boolean flag = zownTree.getData().getConfiguration()
+						.getFlag(Flag.villagerimmume.name());
+				if (flag != null && flag) {
+					hook.setCanceled();
+				}
+			}
+		}
+	}
+	
+	@HookHandler(priority = Priority.CRITICAL)
+	public void onEntityLightningStruck(final EntityLightningStruckHook hook) {
+		final Entity target = hook.getStruckEntity();
+		
+		if (target.isAnimal()) {
+			final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
+			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.animalimmune.name());
+			if (flag != null && flag) {
+				hook.setCanceled();
+			}
+		} else if (target instanceof Villager) {
+			final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
+			final Boolean flag = zownTree.getData().getConfiguration()
+					.getFlag(Flag.villagerimmume.name());
+			if (flag != null && flag) {
+				hook.setCanceled();
+			}
+		}
+	}
+	
+	@HookHandler(priority = Priority.CRITICAL)
+	public void onDamage(final DamageHook hook) {
+		final Entity target = hook.getDefender();
+		
+		if (target.isAnimal()) {
+			final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
+			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.animalimmune.name());
+			if (flag != null && flag) {
+				hook.setCanceled();
+			}
+		} else if (target instanceof Villager) {
+			final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
+			final Boolean flag = zownTree.getData().getConfiguration()
+					.getFlag(Flag.villagerimmume.name());
+			if (flag != null && flag) {
 				hook.setCanceled();
 			}
 		}

@@ -47,5 +47,15 @@ public enum Flag {
 	/**
 	 * ALLOW lets Players create new Zowns within this Zown.
 	 */
-	playerclaim;
+	playerclaim,
+	
+	/**
+	 * ALLOW makes all Animals immune to attacks within a Zown;
+	 */
+	animalimmune,
+	
+	/**
+	 * ALLOW makes all Villagers immune to attacks within a Zown.
+	 */
+	villagerimmume;
 }

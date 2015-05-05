@@ -25,6 +25,8 @@ public class ZownDao extends AConfigurationDao {
 	public static final String OWNERS = "owners";
 	public static final String MEMBERS = "members";
 	public static final String ENTRY_EXCLUSIONS = "entry_exclusions";
+	public static final String WELCOME_MESSAGE = "welcome_message";
+	public static final String FAREWELL_MESSAGE = "farewell_message";
 	
 	public ZownDao() {
 		super("zown");
@@ -68,6 +70,12 @@ public class ZownDao extends AConfigurationDao {
 	
 	@Column(columnName = ENTRY_EXCLUSIONS, dataType = DataType.STRING, isList = true)
 	public List<String> entryExclusions;
+	
+	@Column(columnName = WELCOME_MESSAGE, dataType = DataType.STRING)
+	public String welcomeMessage;
+	
+	@Column(columnName = FAREWELL_MESSAGE, dataType = DataType.STRING)
+	public String farewellMessage;
 	
 	@Override
 	public boolean read() throws DatabaseReadException {

@@ -126,6 +126,9 @@ public class DataManager {
 					zown.getEntryExclusionUUIDs().addAll(zownDao.entryExclusions);
 				}
 				
+				zown.setWelcomeMessage(zownDao.welcomeMessage);
+				zown.setFarewellMessage(zownDao.farewellMessage);
+				
 				ZownPlugin.LOG.info("Loaded zown " + zownDao.zownName);
 				
 				// Load child zowns recursively
@@ -215,6 +218,9 @@ public class DataManager {
 				clearConfiguration(zown, zownDao);
 				zownDao.templateOverride = false;
 			}
+			
+			zownDao.welcomeMessage = zown.getWelcomeMessage();
+			zownDao.farewellMessage = zown.getFarewellMessage();
 			
 			saved = zownDao.save();
 		}
