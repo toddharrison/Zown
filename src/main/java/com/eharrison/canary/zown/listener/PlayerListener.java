@@ -49,7 +49,7 @@ public class PlayerListener implements PluginListener {
 				if (zown.getFarewellMessage() != null && !zown.getFarewellMessage().isEmpty()) {
 					player.message(zown.getFarewellMessage());
 				}
-				if (targetZown.getWelcomeMessage() != null && !zown.getWelcomeMessage().isEmpty()) {
+				if (targetZown.getWelcomeMessage() != null && !targetZown.getWelcomeMessage().isEmpty()) {
 					player.message(targetZown.getWelcomeMessage());
 				}
 				// TODO send PlayerZownExit and PlayerZownEntry
