@@ -65,6 +65,9 @@ public class PlayerListener implements PluginListener {
 		final Entity target = hook.getEntityHit();
 		
 		if (target != null && target.isPlayer()) {
+			// TODO optimization
+			// final Player player = (Player) target;
+			// final Tree<? extends IZown> zownTree = playerZownMap.get(player.getUUIDString());
 			final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
 			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.playerimmune.name());
 			if (flag != null && flag) {
@@ -91,6 +94,9 @@ public class PlayerListener implements PluginListener {
 		final Entity target = hook.getStruckEntity();
 		
 		if (target.isPlayer()) {
+			// TODO optimization
+			// final Player player = (Player) target;
+			// final Tree<? extends IZown> zownTree = playerZownMap.get(player.getUUIDString());
 			final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
 			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.playerimmune.name());
 			if (flag != null && flag) {
@@ -104,6 +110,9 @@ public class PlayerListener implements PluginListener {
 		final Entity target = hook.getDefender();
 		
 		if (target.isPlayer()) {
+			// TODO optimization
+			// final Player player = (Player) target;
+			// final Tree<? extends IZown> zownTree = playerZownMap.get(player.getUUIDString());
 			final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
 			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.playerimmune.name());
 			if (flag != null && flag) {

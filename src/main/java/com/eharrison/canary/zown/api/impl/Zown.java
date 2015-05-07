@@ -397,8 +397,6 @@ public class Zown implements IZown {
 	}
 	
 	private String getPlayerName(final String uuid) {
-		ZownPlugin.LOG.info("getPlayerName enter(" + uuid + ")");
-		
 		String name = null;
 		final Player player = Canary.getServer().getPlayerFromUUID(uuid);
 		if (player != null) {
@@ -413,9 +411,6 @@ public class Zown implements IZown {
 				name = oPlayer.getName();
 			}
 		}
-		
-		ZownPlugin.LOG.info("getPlayerName exit(" + name + ")");
-		
 		return name;
 	}
 }

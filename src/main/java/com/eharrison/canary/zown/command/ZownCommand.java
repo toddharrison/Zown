@@ -78,20 +78,25 @@ public class ZownCommand implements CommandListener {
 		"info"
 	}, parent = "zown", description = "zown info", permissions = {
 		"zown.zown.info"
-	}, toolTip = "/zown info <zown>")
+	}, toolTip = "/zown info [zown]")
 	public void zownInfoCommand(final MessageReceiver caller, final String[] parameters) {
 		World world = null;
 		String zown = null;
+		Tree<? extends IZown> zownTree = null;
 		
 		if (caller instanceof Player) {
 			final Player player = caller.asPlayer();
 			switch (parameters.length) {
+				case 1:
+					world = player.getWorld();
+					zownTree = zownManager.getZown(player.getLocation());
+					break;
 				case 2:
 					world = player.getWorld();
 					zown = parameters[1];
 					break;
 				default:
-					sendMessage(caller, "Usage: /zown info <zown>");
+					sendMessage(caller, "Usage: /zown info [zown]");
 			}
 		} else {
 			switch (parameters.length) {
@@ -105,12 +110,12 @@ public class ZownCommand implements CommandListener {
 		}
 		
 		if (world != null && zown != null) {
-			final Tree<? extends IZown> zownTree = zownManager.getZown(world, zown);
-			if (zownTree == null) {
-				sendMessage(caller, "There is no zown '" + zown + "' in world " + world.getFqName() + ".");
-			} else {
-				sendMessage(caller, zownTree.getData().getDisplay());
-			}
+			zownTree = zownManager.getZown(world, zown);
+		}
+		if (zownTree == null) {
+			sendMessage(caller, "There is no zown '" + zown + "' in world " + world.getFqName() + ".");
+		} else {
+			sendMessage(caller, zownTree.getData().getDisplay());
 		}
 	}
 	
@@ -197,10 +202,11 @@ public class ZownCommand implements CommandListener {
 	}, toolTip = "/zown expand <zown>")
 	public void zownExpandCommand(final MessageReceiver caller, final String[] parameters) {
 		World world = null;
+		Player player = null;
 		String zown = null;
 		
 		if (caller instanceof Player) {
-			final Player player = caller.asPlayer();
+			player = caller.asPlayer();
 			switch (parameters.length) {
 				case 2:
 					world = player.getWorld();
@@ -227,7 +233,7 @@ public class ZownCommand implements CommandListener {
 				p1.y = 0;
 				final Point p2 = zownTree.getData().getMaxPoint().clone();
 				p2.y = 255;
-				if (zownManager.resizeZown(world, zown, p1, p2)) {
+				if (zownManager.resizeZown(world, zown, p1, p2, player)) {
 					sendMessage(caller, "Expanded zown '" + zown + "'.");
 				} else {
 					sendMessage(caller, "Failed to expand zown '" + zown + "'.");
@@ -245,10 +251,11 @@ public class ZownCommand implements CommandListener {
 	}, toolTip = "/zown delete <zown>")
 	public void zownDeleteCommand(final MessageReceiver caller, final String[] parameters) {
 		World world = null;
+		Player player = null;
 		String zown = null;
 		
 		if (caller instanceof Player) {
-			final Player player = caller.asPlayer();
+			player = caller.asPlayer();
 			switch (parameters.length) {
 				case 2:
 					world = player.getWorld();
@@ -269,7 +276,7 @@ public class ZownCommand implements CommandListener {
 		}
 		
 		if (world != null && zown != null) {
-			if (zownManager.removeZown(world, zown)) {
+			if (zownManager.removeZown(world, zown, player)) {
 				sendMessage(caller, "Deleted zown '" + zown + "'.");
 			} else {
 				sendMessage(caller, "Failed to delete zown '" + zown + "'.");
@@ -284,10 +291,10 @@ public class ZownCommand implements CommandListener {
 	}, toolTip = "/zown rename <zown> <newZown>")
 	public void zownRenameCommand(final MessageReceiver caller, final String[] parameters) {
 		World world = null;
+		Player player = null;
 		String zown = null;
 		String newZown = null;
 		
-		Player player = null;
 		if (caller instanceof Player) {
 			player = caller.asPlayer();
 			switch (parameters.length) {
@@ -328,11 +335,11 @@ public class ZownCommand implements CommandListener {
 	public void zownEditPointsCommand(final MessageReceiver caller, final String[] parameters) {
 		final ParameterTokenizer pTokens = new ParameterTokenizer(parameters);
 		World world = null;
+		Player player = null;
 		String zown = null;
 		Point p1 = null;
 		Point p2 = null;
 		
-		Player player = null;
 		if (caller instanceof Player) {
 			player = caller.asPlayer();
 			switch (parameters.length) {
@@ -375,7 +382,7 @@ public class ZownCommand implements CommandListener {
 	@Command(aliases = {
 		"applytemplate"
 	}, parent = "zown", description = "zown applytemplate", permissions = {
-		"zown.zown.applytemplate"
+		"zown.template.applytemplate"
 	}, toolTip = "/zown applytemplate <zown> <template>")
 	public void zownApplyTemplateCommand(final MessageReceiver caller, final String[] parameters) {
 		World world = null;
@@ -535,6 +542,7 @@ public class ZownCommand implements CommandListener {
 					zownManager.saveZownConfiguration(world, zown);
 				}
 				
+				boolean changed = false;
 				final IConfiguration config = zownTree.getData().getConfiguration();
 				for (int i = index; i < parameters.length; i++) {
 					final String[] flag = parameters[i].split(":");
@@ -543,21 +551,29 @@ public class ZownCommand implements CommandListener {
 							final Player player = caller.asPlayer();
 							if (player.isOperator()) {
 								config.setFlag(flag[0], "allow".equalsIgnoreCase(flag[1]));
+								changed = true;
 							} else {
 								if (zownTree.getData().isOwner(player)
 										&& zownTree.getData().getConfiguration().hasOwnerPermission(flag[0])) {
 									config.setFlag(flag[0], "allow".equalsIgnoreCase(flag[1]));
+									changed = true;
 								}
 							}
 						} else {
 							config.setFlag(flag[0], "allow".equalsIgnoreCase(flag[1]));
+							changed = true;
 						}
 					} else {
 						sendMessage(caller, "Bad flag: " + parameters[i]);
 					}
 				}
-				zownManager.saveZownConfiguration(world, zown);
-				sendMessage(caller, "Added flags to zown '" + zown + "'.");
+				
+				if (changed) {
+					zownManager.saveZownConfiguration(world, zown);
+					sendMessage(caller, "Added flags to zown '" + zown + "'.");
+				} else {
+					sendMessage(caller, "No flags set in zown '" + zown + "'.");
+				}
 			}
 		}
 	}
@@ -650,11 +666,13 @@ public class ZownCommand implements CommandListener {
 		String action = null;
 		String playerName = null;
 		
+		Player callingPlayer = null;
+		
 		if (caller instanceof Player) {
-			final Player player = caller.asPlayer();
+			callingPlayer = caller.asPlayer();
 			switch (parameters.length) {
 				case 4:
-					world = player.getWorld();
+					world = callingPlayer.getWorld();
 					zown = parameters[1];
 					action = parameters[2];
 					playerName = parameters[3];
@@ -683,22 +701,26 @@ public class ZownCommand implements CommandListener {
 			} else if (player == null) {
 				sendMessage(caller, "No player '" + playerName + "' is online.");
 			} else {
-				if ("add".equalsIgnoreCase(action)) {
-					if (zownTree.getData().addOwner(player)) {
-						sendMessage(caller, "Added owner '" + playerName + "' to zown '" + zown + "'.");
-						zownManager.saveZownConfiguration(world, zown);
+				if (callingPlayer == null || zownTree.getData().isOwner(callingPlayer)) {
+					if ("add".equalsIgnoreCase(action)) {
+						if (zownTree.getData().addOwner(player)) {
+							sendMessage(caller, "Added owner '" + playerName + "' to zown '" + zown + "'.");
+							zownManager.saveZownConfiguration(world, zown);
+						} else {
+							sendMessage(caller, "Owner '" + playerName + "' already exists on zown.");
+						}
+					} else if ("remove".equalsIgnoreCase(action)) {
+						if (zownTree.getData().removeOwner(player)) {
+							sendMessage(caller, "Removed owner '" + playerName + "' from zown '" + zown + "'.");
+							zownManager.saveZownConfiguration(world, zown);
+						} else {
+							sendMessage(caller, "Owner '" + playerName + "' does not exist on zown.");
+						}
 					} else {
-						sendMessage(caller, "Owner '" + playerName + "' already exists on zown.");
-					}
-				} else if ("remove".equalsIgnoreCase(action)) {
-					if (zownTree.getData().removeOwner(player)) {
-						sendMessage(caller, "Removed owner '" + playerName + "' from zown '" + zown + "'.");
-						zownManager.saveZownConfiguration(world, zown);
-					} else {
-						sendMessage(caller, "Owner '" + playerName + "' does not exist on zown.");
+						sendMessage(caller, "Unrecognized action '" + action + "' must be <add | remove>.");
 					}
 				} else {
-					sendMessage(caller, "Unrecognized action '" + action + "' must be <add | remove>.");
+					sendMessage(caller, "You are not an owner of this zown");
 				}
 			}
 		}
@@ -715,11 +737,13 @@ public class ZownCommand implements CommandListener {
 		String action = null;
 		String playerName = null;
 		
+		Player callingPlayer = null;
+		
 		if (caller instanceof Player) {
-			final Player player = caller.asPlayer();
+			callingPlayer = caller.asPlayer();
 			switch (parameters.length) {
 				case 4:
-					world = player.getWorld();
+					world = callingPlayer.getWorld();
 					zown = parameters[1];
 					action = parameters[2];
 					playerName = parameters[3];
@@ -748,22 +772,26 @@ public class ZownCommand implements CommandListener {
 			} else if (player == null) {
 				sendMessage(caller, "No player '" + playerName + "' is online.");
 			} else {
-				if ("add".equalsIgnoreCase(action)) {
-					if (zownTree.getData().addMember(player)) {
-						sendMessage(caller, "Added member '" + playerName + "' to zown '" + zown + "'.");
-						zownManager.saveZownConfiguration(world, zown);
+				if (callingPlayer == null || zownTree.getData().isOwner(callingPlayer)) {
+					if ("add".equalsIgnoreCase(action)) {
+						if (zownTree.getData().addMember(player)) {
+							sendMessage(caller, "Added member '" + playerName + "' to zown '" + zown + "'.");
+							zownManager.saveZownConfiguration(world, zown);
+						} else {
+							sendMessage(caller, "Member '" + playerName + "' already exists on zown.");
+						}
+					} else if ("remove".equalsIgnoreCase(action)) {
+						if (zownTree.getData().removeMember(player)) {
+							sendMessage(caller, "Removed member '" + playerName + "' from zown '" + zown + "'.");
+							zownManager.saveZownConfiguration(world, zown);
+						} else {
+							sendMessage(caller, "Member '" + playerName + "' does not exist on zown.");
+						}
 					} else {
-						sendMessage(caller, "Member '" + playerName + "' already exists on zown.");
-					}
-				} else if ("remove".equalsIgnoreCase(action)) {
-					if (zownTree.getData().removeMember(player)) {
-						sendMessage(caller, "Removed member '" + playerName + "' from zown '" + zown + "'.");
-						zownManager.saveZownConfiguration(world, zown);
-					} else {
-						sendMessage(caller, "Member '" + playerName + "' does not exist on zown.");
+						sendMessage(caller, "Unrecognized action '" + action + "' must be <add | remove>.");
 					}
 				} else {
-					sendMessage(caller, "Unrecognized action '" + action + "' must be <add | remove>.");
+					sendMessage(caller, "You are not an owner of this zown");
 				}
 			}
 		}

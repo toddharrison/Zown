@@ -57,5 +57,5 @@ public enum Flag {
 	/**
 	 * ALLOW makes all Villagers immune to attacks within a Zown.
 	 */
-	villagerimmume;
+	villagerimmune;
 }

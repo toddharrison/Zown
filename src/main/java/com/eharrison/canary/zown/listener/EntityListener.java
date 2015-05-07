@@ -119,7 +119,7 @@ public class EntityListener implements PluginListener {
 			} else if (target instanceof Villager) {
 				final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
 				final Boolean flag = zownTree.getData().getConfiguration()
-						.getFlag(Flag.villagerimmume.name());
+						.getFlag(Flag.villagerimmune.name());
 				if (flag != null && flag) {
 					hook.setCanceled();
 				}
@@ -140,7 +140,7 @@ public class EntityListener implements PluginListener {
 		} else if (target instanceof Villager) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
 			final Boolean flag = zownTree.getData().getConfiguration()
-					.getFlag(Flag.villagerimmume.name());
+					.getFlag(Flag.villagerimmune.name());
 			if (flag != null && flag) {
 				hook.setCanceled();
 			}
@@ -160,7 +160,7 @@ public class EntityListener implements PluginListener {
 		} else if (target instanceof Villager) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
 			final Boolean flag = zownTree.getData().getConfiguration()
-					.getFlag(Flag.villagerimmume.name());
+					.getFlag(Flag.villagerimmune.name());
 			if (flag != null && flag) {
 				hook.setCanceled();
 			}

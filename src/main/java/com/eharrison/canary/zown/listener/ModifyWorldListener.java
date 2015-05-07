@@ -2,6 +2,7 @@ package com.eharrison.canary.zown.listener;
 
 import java.util.List;
 
+import net.canarymod.api.entity.ArmorStand;
 import net.canarymod.api.entity.Entity;
 import net.canarymod.api.entity.hanging.HangingEntity;
 import net.canarymod.api.entity.living.humanoid.Player;
@@ -9,6 +10,7 @@ import net.canarymod.api.inventory.ItemType;
 import net.canarymod.api.world.blocks.Block;
 import net.canarymod.api.world.position.Location;
 import net.canarymod.hook.HookHandler;
+import net.canarymod.hook.entity.DamageHook;
 import net.canarymod.hook.entity.EndermanDropBlockHook;
 import net.canarymod.hook.entity.EndermanPickupBlockHook;
 import net.canarymod.hook.entity.HangingEntityDestroyHook;
@@ -98,7 +100,7 @@ public class ModifyWorldListener implements PluginListener {
 		
 		if (player == null || !player.isOperator()) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(entity.getLocation());
-			if (!zownTree.getData().isOwnerOrMember(player)) {
+			if (player == null || !zownTree.getData().isOwnerOrMember(player)) {
 				final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
 				if (flag != null) {
 					final boolean excluded = zownTree.getData().getConfiguration()
@@ -164,19 +166,19 @@ public class ModifyWorldListener implements PluginListener {
 		final Player player = hook.getPlayer();
 		final Block block = hook.getBlock();
 		
-		if (player != null && !player.isOperator()) {
+		if (player == null) {
+			final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
+			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.firespread.name());
+			if (flag != null && !flag) {
+				hook.setCanceled();
+			}
+		} else if (!player.isOperator()) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
 			if (!zownTree.getData().isOwnerOrMember(player)) {
 				final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
 				if (flag != null && !flag) {
 					hook.setCanceled();
 				}
-			}
-		} else {
-			final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
-			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.firespread.name());
-			if (flag != null && !flag) {
-				hook.setCanceled();
 			}
 		}
 	}
@@ -286,10 +288,63 @@ public class ModifyWorldListener implements PluginListener {
 	}
 	
 	@HookHandler(priority = Priority.CRITICAL)
+	public void onDamage(final DamageHook hook) {
+		final Entity attacker = hook.getAttacker();
+		final Entity target = hook.getDefender();
+		
+		if (target instanceof ArmorStand) {
+			if (attacker == null) {
+				final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
+				final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.interact.name());
+				if (flag != null) {
+					final boolean excluded = zownTree.getData().getConfiguration()
+							.hasEntityInteractExclusion(target.getClass());
+					if (flag) {
+						if (excluded) {
+							hook.setCanceled();
+						}
+					} else {
+						if (!excluded) {
+							hook.setCanceled();
+						}
+					}
+				}
+			} else {
+				if (attacker.isPlayer()) {
+					final Player player = (Player) attacker;
+					if (!player.isOperator()) {
+						final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
+						if (!zownTree.getData().isOwnerOrMember(player)) {
+							final Boolean flag = zownTree.getData().getConfiguration()
+									.getFlag(Flag.interact.name());
+							if (flag != null) {
+								final boolean excluded = zownTree.getData().getConfiguration()
+										.hasEntityInteractExclusion(target.getClass());
+								if (flag) {
+									if (excluded) {
+										hook.setCanceled();
+									}
+								} else {
+									if (!excluded) {
+										hook.setCanceled();
+									}
+								}
+							}
+						}
+					}
+				} else {
+					hook.setCanceled();
+				}
+			}
+		}
+	}
+	
+	@HookHandler(priority = Priority.CRITICAL)
 	public void onBlockRightClick(final BlockRightClickHook hook) {
 		final Player player = hook.getPlayer();
 		final Block block = hook.getBlockClicked();
 		
+		// TODO should this be limited to tile entity blocks?
 		if (!player.isOperator() && block.getTileEntity() != null) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
 			if (!zownTree.getData().isOwnerOrMember(player)) {
