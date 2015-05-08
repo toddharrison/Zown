@@ -17,16 +17,16 @@ import com.eharrison.canary.zown.ZownPlugin;
 public class ZownDao extends AConfigurationDao {
 	public static final String WORLD_NAME = "world_name";
 	public static final String ZOWN_NAME = "zown_name";
-	public static final String PARENT_ZOWN_NAME = "parent_zown_name";
+	public static final String PARENT_ZOWN_NAME = "zown_parent_name";
 	public static final String TEMPLATE_NAME = "template_name";
 	public static final String TEMPLATE_OVERRIDE = "template_override";
-	public static final String MIN_POINT = "min_point";
-	public static final String MAX_POINT = "max_point";
-	public static final String OWNERS = "owners";
-	public static final String MEMBERS = "members";
-	public static final String ENTRY_EXCLUSIONS = "entry_exclusions";
-	public static final String WELCOME_MESSAGE = "welcome_message";
-	public static final String FAREWELL_MESSAGE = "farewell_message";
+	public static final String MIN_POINT = "point_min";
+	public static final String MAX_POINT = "point_max";
+	public static final String OWNERS = "player_owners";
+	public static final String MEMBERS = "player_members";
+	public static final String ENTRY_EXCLUSIONS = "player_entry_exclusions";
+	public static final String WELCOME_MESSAGE = "message_welcome";
+	public static final String FAREWELL_MESSAGE = "message_farewell";
 	
 	public ZownDao() {
 		super("zown");

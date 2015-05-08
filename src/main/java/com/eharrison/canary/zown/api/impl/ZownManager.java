@@ -114,8 +114,9 @@ public class ZownManager implements IZownManager {
 			if (!intersectsExistingZown(rootTree, zown)) {
 				final Tree<Zown> targetTree = getTargetContainingZown(rootTree, zown);
 				
-				if (player == null || player.isOperator()
-						|| targetTree.getData().getConfiguration().getFlag(Flag.playerclaim.name())) {
+				final Boolean flag = targetTree.getData().getConfiguration()
+						.getFlag(Flag.playerclaim.name());
+				if (player == null || player.isOperator() || flag != null && flag) {
 					zownTree = new Tree<Zown>(zown);
 					targetTree.addChild(zownTree);
 					zownMap.put(name, zownTree);

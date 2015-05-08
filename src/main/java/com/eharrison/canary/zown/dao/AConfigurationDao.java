@@ -14,13 +14,13 @@ import net.canarymod.database.exceptions.DatabaseWriteException;
 
 public abstract class AConfigurationDao extends DataAccess {
 	public static final String ID = "id";
-	public static final String OWNER_PERMISSIONS = "owner_permissions";
-	public static final String ALLOW = "allow";
-	public static final String DENY = "deny";
-	public static final String BLOCK_BUILD_EXCEPTIONS = "block_build_exceptions";
-	public static final String BLOCK_INTERACT_EXCEPTIONS = "block_interact_exceptions";
-	public static final String ENTITY_CREATE_EXCEPTIONS = "entity_create_exceptions";
-	public static final String ENTITY_INTERACT_EXCEPTIONS = "entity_interact_exceptions";
+	public static final String OWNER_PERMISSIONS = "flag_owner_access";
+	public static final String ALLOW = "flag_allow";
+	public static final String DENY = "flag_deny";
+	public static final String BLOCK_BUILD_EXCEPTIONS = "exceptions_block_build";
+	public static final String BLOCK_INTERACT_EXCEPTIONS = "exceptions_block_interact";
+	public static final String ENTITY_CREATE_EXCEPTIONS = "exceptions_entity_create";
+	public static final String ENTITY_INTERACT_EXCEPTIONS = "exceptions_entity_interact";
 	public static final String COMMAND_RESTRICTIONS = "command_restrictions";
 	
 	protected final Database database;

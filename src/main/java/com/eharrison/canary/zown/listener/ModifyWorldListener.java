@@ -198,7 +198,7 @@ public class ModifyWorldListener implements PluginListener {
 	}
 	
 	@HookHandler(priority = Priority.CRITICAL)
-	public void onEnder(final EndermanPickupBlockHook hook) {
+	public void onEnderPickupBlock(final EndermanPickupBlockHook hook) {
 		final Block block = hook.getBlock();
 		
 		final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
@@ -209,7 +209,7 @@ public class ModifyWorldListener implements PluginListener {
 	}
 	
 	@HookHandler(priority = Priority.CRITICAL)
-	public void onEnder(final EndermanDropBlockHook hook) {
+	public void onEnderDropBlock(final EndermanDropBlockHook hook) {
 		final Location location = hook.getEnderman().getLocation();
 		
 		final Tree<? extends IZown> zownTree = zownManager.getZown(location);
@@ -273,18 +273,30 @@ public class ModifyWorldListener implements PluginListener {
 	
 	@HookHandler(priority = Priority.CRITICAL)
 	public void onArmorStandModify(final ArmorStandModifyHook hook) {
-		// final Player player = hook.getPlayer();
+		final Player player = hook.getPlayer();
+		// TODO wait for access to the armor stand being modified
 		// final Entity entity = hook.getArmorStand();
-		//
-		// if (!player.isOperator()) {
-		// final Tree<? extends IZown> zownTree = zownManager.getZown(entity.getLocation());
-		// if (!zownTree.getData().isOwnerOrMember(player)) {
-		// final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.interact.name());
-		// if (flag != null && !flag) {
-		hook.setCanceled();
-		// }
-		// }
-		// }
+		final Entity armorStand = player;
+		
+		if (!player.isOperator()) {
+			final Tree<? extends IZown> zownTree = zownManager.getZown(armorStand.getLocation());
+			if (!zownTree.getData().isOwnerOrMember(player)) {
+				final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.interact.name());
+				if (flag != null) {
+					final boolean excluded = zownTree.getData().getConfiguration()
+							.hasEntityInteractExclusion(ArmorStand.class);
+					if (flag) {
+						if (excluded) {
+							hook.setCanceled();
+						}
+					} else {
+						if (!excluded) {
+							hook.setCanceled();
+						}
+					}
+				}
+			}
+		}
 	}
 	
 	@HookHandler(priority = Priority.CRITICAL)
@@ -295,10 +307,10 @@ public class ModifyWorldListener implements PluginListener {
 		if (target instanceof ArmorStand) {
 			if (attacker == null) {
 				final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
-				final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.interact.name());
+				final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
 				if (flag != null) {
 					final boolean excluded = zownTree.getData().getConfiguration()
-							.hasEntityInteractExclusion(target.getClass());
+							.hasEntityCreateExclusion(target.getClass());
 					if (flag) {
 						if (excluded) {
 							hook.setCanceled();
@@ -315,11 +327,10 @@ public class ModifyWorldListener implements PluginListener {
 					if (!player.isOperator()) {
 						final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
 						if (!zownTree.getData().isOwnerOrMember(player)) {
-							final Boolean flag = zownTree.getData().getConfiguration()
-									.getFlag(Flag.interact.name());
+							final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
 							if (flag != null) {
 								final boolean excluded = zownTree.getData().getConfiguration()
-										.hasEntityInteractExclusion(target.getClass());
+										.hasEntityCreateExclusion(target.getClass());
 								if (flag) {
 									if (excluded) {
 										hook.setCanceled();
@@ -344,8 +355,7 @@ public class ModifyWorldListener implements PluginListener {
 		final Player player = hook.getPlayer();
 		final Block block = hook.getBlockClicked();
 		
-		// TODO should this be limited to tile entity blocks?
-		if (!player.isOperator() && block.getTileEntity() != null) {
+		if (!player.isOperator()) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
 			if (!zownTree.getData().isOwnerOrMember(player)) {
 				final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.interact.name());

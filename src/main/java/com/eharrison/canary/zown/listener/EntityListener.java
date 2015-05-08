@@ -51,7 +51,7 @@ public class EntityListener implements PluginListener {
 				entity.teleportTo(hook.getFrom());
 				
 				// // TODO efficiency?
-				// TODO this no work for long skinney zowns
+				// TODO this no work for long thin zowns
 				// final Location loc = entity.getLocation();
 				// final Point centerPoint = zownTree.getData().getCenterPoint();
 				// final Vector3D v = new Vector3D(centerPoint.x, loc.getBlockY(), centerPoint.z);

@@ -46,10 +46,12 @@ public class PlayerListener implements PluginListener {
 				final IZown zown = zownTree.getData();
 				final IZown targetZown = targetZownTree.getData();
 				player.message("Zown " + zown.getName() + " to " + targetZown.getName());
-				if (zown.getFarewellMessage() != null && !zown.getFarewellMessage().isEmpty()) {
+				if (zown.getFarewellMessage() != null && !zown.getFarewellMessage().isEmpty()
+						&& !zown.getFarewellMessage().equals("null")) {
 					player.message(zown.getFarewellMessage());
 				}
-				if (targetZown.getWelcomeMessage() != null && !targetZown.getWelcomeMessage().isEmpty()) {
+				if (targetZown.getWelcomeMessage() != null && !targetZown.getWelcomeMessage().isEmpty()
+						&& !zown.getWelcomeMessage().equals("null")) {
 					player.message(targetZown.getWelcomeMessage());
 				}
 				// TODO send PlayerZownExit and PlayerZownEntry

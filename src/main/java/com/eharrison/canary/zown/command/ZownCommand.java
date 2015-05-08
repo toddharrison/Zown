@@ -147,22 +147,35 @@ public class ZownCommand implements CommandListener {
 		
 		if (caller instanceof Player) {
 			player = caller.asPlayer();
-			switch (parameters.length) {
-				case 8:
-					world = player.getWorld();
-					zown = pTokens.readString();
-					p1 = pTokens.readPoint();
-					p2 = pTokens.readPoint();
-					break;
-				case 9:
-					world = player.getWorld();
-					zown = pTokens.readString();
-					template = pTokens.readTemplate(templateManager);
-					p1 = pTokens.readPoint();
-					p2 = pTokens.readPoint();
-					break;
-				default:
-					sendMessage(caller, "Usage: /zown create <zown> [template] <x1 y1 z1> <x2 y2 z2>");
+			if (player.isOperator()) {
+				switch (parameters.length) {
+					case 8:
+						world = player.getWorld();
+						zown = pTokens.readString();
+						p1 = pTokens.readPoint();
+						p2 = pTokens.readPoint();
+						break;
+					case 9:
+						world = player.getWorld();
+						zown = pTokens.readString();
+						template = pTokens.readTemplate(templateManager);
+						p1 = pTokens.readPoint();
+						p2 = pTokens.readPoint();
+						break;
+					default:
+						sendMessage(caller, "Usage: /zown create <zown> [template] <x1 y1 z1> <x2 y2 z2>");
+				}
+			} else {
+				switch (parameters.length) {
+					case 8:
+						world = player.getWorld();
+						zown = pTokens.readString();
+						p1 = pTokens.readPoint();
+						p2 = pTokens.readPoint();
+						break;
+					default:
+						sendMessage(caller, "Usage: /zown create <zown> <x1 y1 z1> <x2 y2 z2>");
+				}
 			}
 		} else {
 			switch (parameters.length) {
