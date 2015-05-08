@@ -15,7 +15,6 @@ import com.eharrison.canary.zown.api.ITemplateManager;
 import com.eharrison.canary.zown.api.IZownManager;
 import com.eharrison.canary.zown.api.impl.TemplateManager;
 import com.eharrison.canary.zown.api.impl.ZownManager;
-import com.eharrison.canary.zown.command.TemplateCommand;
 import com.eharrison.canary.zown.command.ZownCommand;
 import com.eharrison.canary.zown.dao.DataManager;
 import com.eharrison.canary.zown.listener.CommandListener;
@@ -48,7 +47,6 @@ public class ZownPlugin extends Plugin implements PluginListener {
 	}
 	
 	private ZownCommand zownCommand;
-	private TemplateCommand templateCommand;
 	
 	public ZownPlugin() throws DatabaseReadException {
 		ZownPlugin.LOG = getLogman();
@@ -72,11 +70,9 @@ public class ZownPlugin extends Plugin implements PluginListener {
 		Canary.hooks().registerListener(new PlayerListener(zownManager), this);
 		
 		zownCommand = new ZownCommand(templateManager, zownManager);
-		templateCommand = new TemplateCommand(templateManager);
 		
 		try {
 			Canary.commands().registerCommands(zownCommand, this, false);
-			Canary.commands().registerCommands(templateCommand, this, false);
 		} catch (final CommandDependencyException e) {
 			LOG.error("Error registering commands: ", e);
 			success = false;
