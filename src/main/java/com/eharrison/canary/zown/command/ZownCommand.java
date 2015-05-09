@@ -12,6 +12,7 @@ import net.canarymod.chat.MessageReceiver;
 import net.canarymod.commandsys.Command;
 import net.canarymod.commandsys.CommandListener;
 
+import com.eharrison.canary.zown.ZownConfiguration;
 import com.eharrison.canary.zown.api.IConfiguration;
 import com.eharrison.canary.zown.api.ITemplate;
 import com.eharrison.canary.zown.api.ITemplateManager;
@@ -21,12 +22,15 @@ import com.eharrison.canary.zown.api.Point;
 import com.eharrison.canary.zown.api.impl.Tree;
 
 public class ZownCommand implements CommandListener {
+	private final ZownConfiguration config;
 	private final WorldManager worldManager;
 	private final IZownManager zownManager;
 	private final ITemplateManager templateManager;
 	
-	public ZownCommand(final ITemplateManager templateManager, final IZownManager zownManager) {
+	public ZownCommand(final ZownConfiguration config, final ITemplateManager templateManager,
+			final IZownManager zownManager) {
 		worldManager = Canary.getServer().getWorldManager();
+		this.config = config;
 		this.zownManager = zownManager;
 		this.templateManager = templateManager;
 	}
@@ -135,6 +139,7 @@ public class ZownCommand implements CommandListener {
 					case 8:
 						world = player.getWorld();
 						zown = pTokens.readString();
+						template = templateManager.getTemplate(config.getDefaultWorldTemplate(world));
 						p1 = pTokens.readPoint();
 						p2 = pTokens.readPoint();
 						break;

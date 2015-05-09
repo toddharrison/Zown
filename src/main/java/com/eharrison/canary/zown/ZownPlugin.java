@@ -1,5 +1,8 @@
 package com.eharrison.canary.zown;
 
+import java.io.File;
+import java.io.IOException;
+
 import net.canarymod.Canary;
 import net.canarymod.commandsys.CommandDependencyException;
 import net.canarymod.database.exceptions.DatabaseReadException;
@@ -21,6 +24,7 @@ import com.eharrison.canary.zown.listener.CommandListener;
 import com.eharrison.canary.zown.listener.EntityListener;
 import com.eharrison.canary.zown.listener.ModifyWorldListener;
 import com.eharrison.canary.zown.listener.PlayerListener;
+import com.eharrison.canary.zown.util.JarUtil;
 
 public class ZownPlugin extends Plugin implements PluginListener {
 	public static Logman LOG;
@@ -46,6 +50,7 @@ public class ZownPlugin extends Plugin implements PluginListener {
 		return zownManager;
 	}
 	
+	private ZownConfiguration config;
 	private ZownCommand zownCommand;
 	
 	public ZownPlugin() throws DatabaseReadException {
@@ -59,6 +64,13 @@ public class ZownPlugin extends Plugin implements PluginListener {
 		LOG.info("Enabling " + getName() + " Version " + getVersion());
 		LOG.info("Authored by " + getAuthor());
 		
+		try {
+			JarUtil.exportResource(this, "Zown.cfg", new File("config/Zown"));
+		} catch (final IOException e) {
+			LOG.warn("Failed to create the default configuration file.", e);
+		}
+		
+		config = new ZownConfiguration(this);
 		final DataManager dataManager = new DataManager();
 		templateManager = new TemplateManager(dataManager);
 		zownManager = new ZownManager(dataManager, templateManager);
@@ -69,7 +81,7 @@ public class ZownPlugin extends Plugin implements PluginListener {
 		Canary.hooks().registerListener(new EntityListener(zownManager), this);
 		Canary.hooks().registerListener(new PlayerListener(zownManager), this);
 		
-		zownCommand = new ZownCommand(templateManager, zownManager);
+		zownCommand = new ZownCommand(config, templateManager, zownManager);
 		
 		try {
 			Canary.commands().registerCommands(zownCommand, this, false);
