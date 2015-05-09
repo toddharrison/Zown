@@ -1027,4 +1027,83 @@ public class ZownCommand implements CommandListener {
 			}
 		}
 	}
+	
+	@Command(aliases = {
+		"message"
+	}, parent = "zown", description = "zown message", permissions = {
+		"zown.zown.message"
+	}, toolTip = "/zown message <zown> <welcome | farewell | restrictentry> \"<message>\"")
+	public void zownMessage(final MessageReceiver caller, final String[] parameters) {
+		World world = null;
+		String zown = null;
+		String type = null;
+		String message = null;
+		
+		if (caller instanceof Player) {
+			final Player player = caller.asPlayer();
+			if (parameters.length > 3) {
+				world = player.getWorld();
+				zown = parameters[1];
+				type = parameters[2];
+				message = parseMessage(parameters, 3);
+			} else {
+				sendMessage(caller,
+						"Usage: /zown message <zown> <welcome | farewell | restrictentry> \"<message>\"");
+			}
+		} else {
+			if (parameters.length > 4) {
+				world = worldManager.getWorld(parameters[1], false);
+				zown = parameters[2];
+				type = parameters[3];
+				message = parseMessage(parameters, 4);
+			} else {
+				sendMessage(caller,
+						"Usage: /zown message <world> <zown> <welcome | farewell | restrictentry> \"<message>\"");
+			}
+		}
+		
+		if (world != null && zown != null && type != null) {
+			if (message == null) {
+				sendMessage(caller, "Bad message specified.");
+			} else {
+				final Tree<? extends IZown> zownTree = zownManager.getZown(world, zown);
+				if (zownTree == null) {
+					sendMessage(caller, "No zown '" + zown + "' exists.");
+				} else {
+					if ("welcome".equalsIgnoreCase(type)) {
+						zownTree.getData().setWelcomeMessage(message);
+						sendMessage(caller, "Added welcome message to zown '" + zown + "'.");
+						zownManager.saveZownConfiguration(world, zown);
+					} else if ("farewell".equalsIgnoreCase(type)) {
+						zownTree.getData().setFarewellMessage(message);
+						sendMessage(caller, "Added farewell message to zown '" + zown + "'.");
+						zownManager.saveZownConfiguration(world, zown);
+					} else if ("restrictentry".equalsIgnoreCase(type)) {
+						// TODO
+						throw new UnsupportedOperationException("Do not yet support restrictentry messages");
+					} else {
+						sendMessage(caller, "Unrecognized message type '" + type
+								+ "' must be <welcome | farewell | restrictentry>.");
+					}
+				}
+			}
+		}
+	}
+	
+	private String parseMessage(final String[] parameters, final int startIndex) {
+		String message = null;
+		if (parameters[startIndex].startsWith("\"") && parameters[parameters.length - 1].endsWith("\"")) {
+			final StringBuilder sb = new StringBuilder();
+			for (int i = startIndex; i < parameters.length; i++) {
+				sb.append(parameters[i]);
+				if (i < parameters.length - 1) {
+					sb.append(" ");
+				}
+			}
+			sb.deleteCharAt(0);
+			sb.deleteCharAt(sb.length() - 1);
+			message = sb.toString();
+		}
+		return message;
+	}
 }
