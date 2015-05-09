@@ -14,7 +14,7 @@ import net.canarymod.database.exceptions.DatabaseWriteException;
 
 public abstract class AConfigurationDao extends DataAccess {
 	public static final String ID = "id";
-	public static final String OWNER_PERMISSIONS = "flag_owner_access";
+	public static final String OWNER_PERMISSIONS = "flag_access";
 	public static final String ALLOW = "flag_allow";
 	public static final String DENY = "flag_deny";
 	public static final String BLOCK_BUILD_EXCEPTIONS = "exceptions_block_build";

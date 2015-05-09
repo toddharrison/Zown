@@ -8,9 +8,10 @@ import net.canarymod.api.entity.hanging.HangingEntity;
 import net.canarymod.api.entity.living.humanoid.Player;
 import net.canarymod.api.inventory.ItemType;
 import net.canarymod.api.world.blocks.Block;
+import net.canarymod.api.world.blocks.BlockType;
+import net.canarymod.api.world.blocks.properties.helpers.DoorProperties;
 import net.canarymod.api.world.position.Location;
 import net.canarymod.hook.HookHandler;
-import net.canarymod.hook.entity.DamageHook;
 import net.canarymod.hook.entity.EndermanDropBlockHook;
 import net.canarymod.hook.entity.EndermanPickupBlockHook;
 import net.canarymod.hook.entity.HangingEntityDestroyHook;
@@ -274,7 +275,7 @@ public class ModifyWorldListener implements PluginListener {
 	@HookHandler(priority = Priority.CRITICAL)
 	public void onArmorStandModify(final ArmorStandModifyHook hook) {
 		final Player player = hook.getPlayer();
-		// TODO wait for access to the armor stand being modified
+		// TODO need access to the armor stand being modified
 		// final Entity entity = hook.getArmorStand();
 		final Entity armorStand = player;
 		
@@ -300,57 +301,6 @@ public class ModifyWorldListener implements PluginListener {
 	}
 	
 	@HookHandler(priority = Priority.CRITICAL)
-	public void onDamage(final DamageHook hook) {
-		final Entity attacker = hook.getAttacker();
-		final Entity target = hook.getDefender();
-		
-		if (target instanceof ArmorStand) {
-			if (attacker == null) {
-				final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
-				final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
-				if (flag != null) {
-					final boolean excluded = zownTree.getData().getConfiguration()
-							.hasEntityCreateExclusion(target.getClass());
-					if (flag) {
-						if (excluded) {
-							hook.setCanceled();
-						}
-					} else {
-						if (!excluded) {
-							hook.setCanceled();
-						}
-					}
-				}
-			} else {
-				if (attacker.isPlayer()) {
-					final Player player = (Player) attacker;
-					if (!player.isOperator()) {
-						final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
-						if (!zownTree.getData().isOwnerOrMember(player)) {
-							final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
-							if (flag != null) {
-								final boolean excluded = zownTree.getData().getConfiguration()
-										.hasEntityCreateExclusion(target.getClass());
-								if (flag) {
-									if (excluded) {
-										hook.setCanceled();
-									}
-								} else {
-									if (!excluded) {
-										hook.setCanceled();
-									}
-								}
-							}
-						}
-					}
-				} else {
-					hook.setCanceled();
-				}
-			}
-		}
-	}
-	
-	@HookHandler(priority = Priority.CRITICAL)
 	public void onBlockRightClick(final BlockRightClickHook hook) {
 		final Player player = hook.getPlayer();
 		final Block block = hook.getBlockClicked();
@@ -365,10 +315,12 @@ public class ModifyWorldListener implements PluginListener {
 					if (flag) {
 						if (excluded) {
 							hook.setCanceled();
+							closeDoor(block);
 						}
 					} else {
 						if (!excluded) {
 							hook.setCanceled();
+							closeDoor(block);
 						}
 					}
 				}
@@ -399,6 +351,15 @@ public class ModifyWorldListener implements PluginListener {
 					}
 				}
 			}
+		}
+	}
+	
+	private void closeDoor(final Block block) {
+		final BlockType type = block.getType();
+		if (type == BlockType.OakDoor || type == BlockType.SpruceDoor || type == BlockType.BirchDoor
+				|| type == BlockType.AcaciaDoor || type == BlockType.DarkOakDoor
+				|| type == BlockType.JungleDoor) {
+			block.setPropertyValue(DoorProperties.open, false);
 		}
 	}
 }
