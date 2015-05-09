@@ -87,19 +87,22 @@ public class Zown implements IZown {
 			}
 			sb.append(")");
 		}
-		sb.append(" [");
-		sb.append(minPoint.x);
-		sb.append(",");
-		sb.append(minPoint.y);
-		sb.append(",");
-		sb.append(minPoint.z);
-		sb.append("] to [");
-		sb.append(maxPoint.x);
-		sb.append(",");
-		sb.append(maxPoint.y);
-		sb.append(",");
-		sb.append(maxPoint.z);
-		sb.append("]");
+		
+		if (minPoint != null && maxPoint != null) {
+			sb.append(" [");
+			sb.append(minPoint.x);
+			sb.append(",");
+			sb.append(minPoint.y);
+			sb.append(",");
+			sb.append(minPoint.z);
+			sb.append("] to [");
+			sb.append(maxPoint.x);
+			sb.append(",");
+			sb.append(maxPoint.y);
+			sb.append(",");
+			sb.append(maxPoint.z);
+			sb.append("]");
+		}
 		sb.append("\n");
 		
 		sb.append("Owners: ");
