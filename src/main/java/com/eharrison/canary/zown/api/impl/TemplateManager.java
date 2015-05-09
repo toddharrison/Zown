@@ -19,6 +19,7 @@ public class TemplateManager implements ITemplateManager {
 		
 		try {
 			dataManager.loadTemplates(this);
+			ZownPlugin.LOG.info("Loaded " + templates.size() + " templates.");
 		} catch (final Exception e) {
 			ZownPlugin.LOG.error("Error loading templates", e);
 		}

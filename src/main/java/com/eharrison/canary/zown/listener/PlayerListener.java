@@ -45,7 +45,7 @@ public class PlayerListener implements PluginListener {
 				playerZownMap.put(player.getUUIDString(), targetZownTree);
 				final IZown zown = zownTree.getData();
 				final IZown targetZown = targetZownTree.getData();
-				player.message("Zown " + zown.getName() + " to " + targetZown.getName());
+				// player.message("Zown " + zown.getName() + " to " + targetZown.getName());
 				if (zown.getFarewellMessage() != null && !zown.getFarewellMessage().isEmpty()
 						&& !zown.getFarewellMessage().equals("null")) {
 					player.message(zown.getFarewellMessage());

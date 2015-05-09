@@ -5,7 +5,6 @@ import java.io.IOException;
 
 import net.canarymod.Canary;
 import net.canarymod.commandsys.CommandDependencyException;
-import net.canarymod.database.exceptions.DatabaseReadException;
 import net.canarymod.hook.HookHandler;
 import net.canarymod.hook.system.LoadWorldHook;
 import net.canarymod.hook.system.UnloadWorldHook;
@@ -13,6 +12,12 @@ import net.canarymod.logger.Logman;
 import net.canarymod.plugin.Plugin;
 import net.canarymod.plugin.PluginListener;
 import net.canarymod.plugin.Priority;
+
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 
 import com.eharrison.canary.zown.api.ITemplateManager;
 import com.eharrison.canary.zown.api.IZownManager;
@@ -53,16 +58,13 @@ public class ZownPlugin extends Plugin implements PluginListener {
 	private ZownConfiguration config;
 	private ZownCommand zownCommand;
 	
-	public ZownPlugin() throws DatabaseReadException {
+	public ZownPlugin() {
 		ZownPlugin.LOG = getLogman();
 	}
 	
 	@Override
 	public boolean enable() {
 		boolean success = true;
-		
-		LOG.info("Enabling " + getName() + " Version " + getVersion());
-		LOG.info("Authored by " + getAuthor());
 		
 		try {
 			JarUtil.exportResource(this, "Zown.cfg", new File("config/Zown"));
@@ -71,6 +73,11 @@ public class ZownPlugin extends Plugin implements PluginListener {
 		}
 		
 		config = new ZownConfiguration(this);
+		setLoggingLevel(config.getLoggingLevel());
+		
+		LOG.info("Enabling " + getName() + " Version " + getVersion());
+		LOG.info("Authored by " + getAuthor());
+		
 		final DataManager dataManager = new DataManager();
 		templateManager = new TemplateManager(dataManager);
 		zownManager = new ZownManager(dataManager, templateManager);
@@ -112,5 +119,22 @@ public class ZownPlugin extends Plugin implements PluginListener {
 	@HookHandler(priority = Priority.PASSIVE)
 	public void onWorldUnload(final UnloadWorldHook hook) {
 		zownManager.unloadZowns(hook.getWorld());
+	}
+	
+	private void setLoggingLevel(final String level) {
+		
+		System.out.println("BEFORE: " + LOG);
+		
+		System.out.println("LEVEL: " + level);
+		if (level != null) {
+			final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+			final Configuration config = ctx.getConfiguration();
+			final LoggerConfig loggerConfig = config.getLoggerConfig(LOG.getName());
+			loggerConfig.setLevel(Level.toLevel(level));
+			ctx.updateLoggers();
+		}
+		
+		System.out.println("AFTER: " + LOG);
+		
 	}
 }

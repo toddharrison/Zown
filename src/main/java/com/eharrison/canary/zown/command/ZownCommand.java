@@ -36,10 +36,10 @@ public class ZownCommand implements CommandListener {
 	}
 	
 	@Command(aliases = {
-		"applytemplate"
-	}, parent = "zown", description = "zown applytemplate", permissions = {
+		"apply"
+	}, parent = "template", description = "zown template apply", permissions = {
 		"zown.template.apply"
-	}, toolTip = "/zown applytemplate <zown> <template>")
+	}, toolTip = "/zown template apply <zown> <template>")
 	public void applyTemplateToZown(final MessageReceiver caller, final String[] parameters) {
 		World world = null;
 		String zown = null;
@@ -54,7 +54,7 @@ public class ZownCommand implements CommandListener {
 					template = parameters[2];
 					break;
 				default:
-					sendMessage(caller, "Usage: /zown applytemplate <zown> <template>");
+					sendMessage(caller, "Usage: /zown template apply <zown> <template>");
 			}
 		} else {
 			switch (parameters.length) {
@@ -64,7 +64,7 @@ public class ZownCommand implements CommandListener {
 					template = parameters[3];
 					break;
 				default:
-					sendMessage(caller, "Usage: /zown applytemplate <world> <zown> <template>");
+					sendMessage(caller, "Usage: /zown template apply <world> <zown> <template>");
 			}
 		}
 		
@@ -455,12 +455,14 @@ public class ZownCommand implements CommandListener {
 						if (caller instanceof Player) {
 							final Player player = caller.asPlayer();
 							if (player.isOperator()) {
-								config.setFlag(flag[0], "allow".equalsIgnoreCase(flag[1]));
+								config.setFlag(flag[0],
+										"allow".equalsIgnoreCase(flag[1]) || "true".equalsIgnoreCase(flag[1]));
 								changed = true;
 							} else {
 								if (zownTree.getData().isOwner(player)
 										&& zownTree.getData().getConfiguration().hasOwnerPermission(flag[0])) {
-									config.setFlag(flag[0], "allow".equalsIgnoreCase(flag[1]));
+									config.setFlag(flag[0],
+											"allow".equalsIgnoreCase(flag[1]) || "true".equalsIgnoreCase(flag[1]));
 									changed = true;
 								}
 							}
@@ -811,10 +813,10 @@ public class ZownCommand implements CommandListener {
 		"template"
 	}, parent = "zown", description = "zown template", permissions = {
 		"zown.template"
-	}, toolTip = "/zown template <list | info | create | delete | rename | ownerperm | flag>")
+	}, toolTip = "/zown template <list | info | create | delete | rename | apply | flagaccess | flag>")
 	public void template(final MessageReceiver caller, final String[] parameters) {
 		sendMessage(caller,
-				"Usage: /zown template <list | info | create | delete | rename | ownerperm | flag>");
+				"Usage: /zown template <list | info | create | delete | rename | apply | flagaccess | flag>");
 	}
 	
 	@Command(aliases = {
@@ -839,11 +841,11 @@ public class ZownCommand implements CommandListener {
 		"zown"
 	}, description = "zown", permissions = {
 		"zown.zown"
-	}, toolTip = "/zown <list | info | show | create | expand | delete | rename | editpoints | template | applytemplate | ownerperm | flag | restrictcommand | owner | member>")
+	}, toolTip = "/zown <list | info | show | create | expand | delete | rename | editpoints | template | flagaccess | flag | restrictcommand | owner | member>")
 	public void zown(final MessageReceiver caller, final String[] parameters) {
 		sendMessage(
 				caller,
-				"Usage: /zown <list | info | show | create | expand | delete | rename | editpoints | template | applytemplate | ownerperm | flag | restrictcommand | owner | member>");
+				"Usage: /zown <list | info | show | create | expand | delete | rename | editpoints | template | flagaccess | flag | restrictcommand | owner | member>");
 	}
 	
 	@Command(aliases = {

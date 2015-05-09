@@ -37,6 +37,8 @@ public class ZownManager implements IZownManager {
 		zownMaps.remove(world);
 		try {
 			dataManager.loadZowns(world, templateManager, this);
+			ZownPlugin.LOG.info("Loaded " + zownMaps.get(world).size() + " zowns for world "
+					+ world.getFqName() + ".");
 		} catch (final Exception e) {
 			ZownPlugin.LOG.error("Error loading zowns for " + world.getFqName(), e);
 		}

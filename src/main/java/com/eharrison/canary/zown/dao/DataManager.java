@@ -54,7 +54,7 @@ public class DataManager {
 				ZownPlugin.LOG.warn("Tried to load a duplicate template: " + templateDao.templateName);
 			} else {
 				loadConfiguration(template, templateDao);
-				ZownPlugin.LOG.info("Loaded template " + templateDao.templateName);
+				ZownPlugin.LOG.debug("Loaded template " + templateDao.templateName);
 			}
 		}
 	}
@@ -129,7 +129,7 @@ public class DataManager {
 				zown.setWelcomeMessage(zownDao.welcomeMessage);
 				zown.setFarewellMessage(zownDao.farewellMessage);
 				
-				ZownPlugin.LOG.info("Loaded zown " + zownDao.zownName);
+				ZownPlugin.LOG.debug("Loaded zown " + zownDao.zownName);
 				
 				// Load child zowns recursively
 				final ZownDao childZownDao = new ZownDao();

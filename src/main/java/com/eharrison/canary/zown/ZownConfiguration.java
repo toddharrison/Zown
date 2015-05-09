@@ -30,4 +30,13 @@ public class ZownConfiguration {
 		}
 		return template;
 	}
+	
+	public String getLoggingLevel() {
+		String level = null;
+		final String key = "log.level";
+		if (cfg.containsKey(key)) {
+			level = cfg.getString(key);
+		}
+		return level;
+	}
 }

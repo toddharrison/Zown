@@ -2,18 +2,26 @@ package com.eharrison.canary.zown.api.impl;
 
 import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
+import net.canarymod.logger.Logman;
 
 import org.easymock.EasyMockSupport;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.eharrison.canary.zown.ZownPlugin;
 import com.eharrison.canary.zown.dao.DataManager;
 
 public class TemplateManagerTest extends EasyMockSupport {
 	private DataManager dataManagerMock;
 	
+	@BeforeClass
+	public static void initLogging() {
+		ZownPlugin.LOG = Logman.getLogman("TemplateManagerTest");
+	}
+	
 	@Before
-	public void init() {
+	public void initMocks() {
 		dataManagerMock = createMock(DataManager.class);
 	}
 	
