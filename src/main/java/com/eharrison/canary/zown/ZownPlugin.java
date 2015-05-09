@@ -122,10 +122,6 @@ public class ZownPlugin extends Plugin implements PluginListener {
 	}
 	
 	private void setLoggingLevel(final String level) {
-		
-		System.out.println("BEFORE: " + LOG);
-		
-		System.out.println("LEVEL: " + level);
 		if (level != null) {
 			final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
 			final Configuration config = ctx.getConfiguration();
@@ -133,8 +129,5 @@ public class ZownPlugin extends Plugin implements PluginListener {
 			loggerConfig.setLevel(Level.toLevel(level));
 			ctx.updateLoggers();
 		}
-		
-		System.out.println("AFTER: " + LOG);
-		
 	}
 }
