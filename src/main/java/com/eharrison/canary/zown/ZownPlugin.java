@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import net.canarymod.Canary;
+import net.canarymod.api.world.World;
 import net.canarymod.commandsys.CommandDependencyException;
 import net.canarymod.hook.HookHandler;
 import net.canarymod.hook.system.LoadWorldHook;
@@ -81,6 +82,11 @@ public class ZownPlugin extends Plugin implements PluginListener {
 		final DataManager dataManager = new DataManager();
 		templateManager = new TemplateManager(dataManager);
 		zownManager = new ZownManager(dataManager, templateManager);
+		
+		// Load the zowns for worlds already loaded on the server
+		for (final World world : Canary.getServer().getWorldManager().getAllWorlds()) {
+			zownManager.loadZowns(world);
+		}
 		
 		Canary.hooks().registerListener(this, this);
 		Canary.hooks().registerListener(new CommandListener(zownManager), this);
