@@ -1,10 +1,13 @@
 package com.eharrison.canary.zown.listener;
 
+import net.canarymod.api.entity.Arrow;
 import net.canarymod.api.entity.Entity;
 import net.canarymod.api.entity.living.LivingBase;
 import net.canarymod.api.entity.living.animal.EntityAnimal;
+import net.canarymod.api.entity.living.humanoid.Player;
 import net.canarymod.api.entity.living.humanoid.Villager;
 import net.canarymod.api.entity.living.monster.EntityMob;
+import net.canarymod.api.entity.throwable.EntityThrowable;
 import net.canarymod.api.world.position.Location;
 import net.canarymod.hook.HookHandler;
 import net.canarymod.hook.entity.DamageHook;
@@ -106,22 +109,42 @@ public class EntityListener implements PluginListener {
 	
 	@HookHandler(priority = Priority.CRITICAL)
 	public void onProjectileHit(final ProjectileHitHook hook) {
+		final Entity projectile = hook.getProjectile();
 		final Entity target = hook.getEntityHit();
 		
 		if (target != null) {
-			if (target.isAnimal()) {
-				final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
-				final Boolean flag = zownTree.getData().getConfiguration()
-						.getFlag(Flag.animalimmune.name());
-				if (flag != null && flag) {
-					hook.setCanceled();
+			Player player = null;
+			if (projectile instanceof Arrow) {
+				final Entity shooter = ((Arrow) projectile).getOwner();
+				if (shooter.isPlayer()) {
+					player = (Player) shooter;
 				}
-			} else if (target instanceof Villager) {
-				final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
-				final Boolean flag = zownTree.getData().getConfiguration()
-						.getFlag(Flag.villagerimmune.name());
-				if (flag != null && flag) {
-					hook.setCanceled();
+			} else if (projectile instanceof EntityThrowable) {
+				final Entity thrower = ((EntityThrowable) projectile).getThrower();
+				if (thrower.isPlayer()) {
+					player = (Player) thrower;
+				}
+			}
+			
+			if (player == null || !player.isOperator()) {
+				if (target.isAnimal()) {
+					final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
+					if (player == null || !zownTree.getData().isOwnerOrMember(player)) {
+						final Boolean flag = zownTree.getData().getConfiguration()
+								.getFlag(Flag.animalimmune.name());
+						if (flag != null && flag) {
+							hook.setCanceled();
+						}
+					}
+				} else if (target instanceof Villager) {
+					final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
+					if (player == null || !zownTree.getData().isOwnerOrMember(player)) {
+						final Boolean flag = zownTree.getData().getConfiguration()
+								.getFlag(Flag.villagerimmune.name());
+						if (flag != null && flag) {
+							hook.setCanceled();
+						}
+					}
 				}
 			}
 		}
@@ -149,20 +172,33 @@ public class EntityListener implements PluginListener {
 	
 	@HookHandler(priority = Priority.CRITICAL)
 	public void onDamage(final DamageHook hook) {
+		final Entity attacker = hook.getAttacker();
 		final Entity target = hook.getDefender();
 		
-		if (target.isAnimal()) {
-			final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
-			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.animalimmune.name());
-			if (flag != null && flag) {
-				hook.setCanceled();
-			}
-		} else if (target instanceof Villager) {
-			final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
-			final Boolean flag = zownTree.getData().getConfiguration()
-					.getFlag(Flag.villagerimmune.name());
-			if (flag != null && flag) {
-				hook.setCanceled();
+		Player player = null;
+		if (attacker.isPlayer()) {
+			player = (Player) attacker;
+		}
+		
+		if (player == null || !player.isOperator()) {
+			if (target.isAnimal()) {
+				final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
+				if (player == null || !zownTree.getData().isOwnerOrMember(player)) {
+					final Boolean flag = zownTree.getData().getConfiguration()
+							.getFlag(Flag.animalimmune.name());
+					if (flag != null && flag) {
+						hook.setCanceled();
+					}
+				}
+			} else if (target instanceof Villager) {
+				final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
+				if (player == null || !zownTree.getData().isOwnerOrMember(player)) {
+					final Boolean flag = zownTree.getData().getConfiguration()
+							.getFlag(Flag.villagerimmune.name());
+					if (flag != null && flag) {
+						hook.setCanceled();
+					}
+				}
 			}
 		}
 	}
