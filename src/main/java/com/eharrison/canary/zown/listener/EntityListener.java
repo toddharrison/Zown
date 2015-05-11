@@ -176,7 +176,7 @@ public class EntityListener implements PluginListener {
 		final Entity target = hook.getDefender();
 		
 		Player player = null;
-		if (attacker.isPlayer()) {
+		if (attacker != null && attacker.isPlayer()) {
 			player = (Player) attacker;
 		}
 		
