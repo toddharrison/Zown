@@ -9,13 +9,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.goodformentertainment.canary.zown.api.Point;
-import com.goodformentertainment.canary.zown.api.impl.Template;
-import com.goodformentertainment.canary.zown.api.impl.Zown;
 
 public class ZownTest extends EasyMockSupport {
 	private static final String ZOWN_NAME = "zownName";
 	
-	private Template template;
+	// private Template template;
 	private Zown zown;
 	
 	private Player playerMock;
@@ -23,7 +21,7 @@ public class ZownTest extends EasyMockSupport {
 	@Before
 	public void init() {
 		playerMock = createMock(Player.class);
-		template = new Template("template");
+		// template = new Template("template");
 		zown = new Zown(ZOWN_NAME);
 	}
 	

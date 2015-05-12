@@ -13,11 +13,9 @@ import org.junit.Test;
 import com.goodformentertainment.canary.zown.api.ITemplateManager;
 import com.goodformentertainment.canary.zown.api.IZown;
 import com.goodformentertainment.canary.zown.api.Point;
-import com.goodformentertainment.canary.zown.api.impl.Template;
-import com.goodformentertainment.canary.zown.api.impl.Tree;
-import com.goodformentertainment.canary.zown.api.impl.ZownManager;
 import com.goodformentertainment.canary.zown.dao.DataManager;
 
+@SuppressWarnings("unchecked")
 public class ZownManagerTest extends EasyMockSupport {
 	private Template template;
 	
