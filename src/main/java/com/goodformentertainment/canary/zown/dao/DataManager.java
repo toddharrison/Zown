@@ -135,6 +135,7 @@ public class DataManager {
 				final ZownDao childZownDao = new ZownDao();
 				final List<DataAccess> datasets = new ArrayList<DataAccess>();
 				final Map<String, Object> filters = new HashMap<String, Object>();
+				filters.put(ZownDao.WORLD_NAME, zownDao.worldName);
 				filters.put(ZownDao.PARENT_ZOWN_NAME, zownDao.zownName);
 				database.loadAll(childZownDao, datasets, filters);
 				for (final DataAccess da : datasets) {

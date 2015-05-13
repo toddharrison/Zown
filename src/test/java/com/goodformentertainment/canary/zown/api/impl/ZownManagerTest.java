@@ -22,12 +22,14 @@ public class ZownManagerTest extends EasyMockSupport {
 	private DataManager dataManagerMock;
 	private ITemplateManager templateManagerMock;
 	private World worldMock;
+	private World world2Mock;
 	
 	@Before
 	public void init() {
 		dataManagerMock = createMock(DataManager.class);
 		templateManagerMock = createMock(ITemplateManager.class);
 		worldMock = createMock(World.class);
+		world2Mock = createMock(World.class);
 		template = new Template("template");
 	}
 	
@@ -224,6 +226,40 @@ public class ZownManagerTest extends EasyMockSupport {
 		zownManager.applyTemplate(worldMock, "zown1", template);
 		
 		assertEquals(template, zown1.getData().getTemplate());
+		
+		verifyAll();
+	}
+	
+	@Test
+	public void testMultipleWorldsSameZownName() throws Exception {
+		expect(worldMock.getFqName()).andReturn("world1").anyTimes();
+		expect(world2Mock.getFqName()).andReturn("world2").anyTimes();
+		expect(dataManagerMock.saveZown(eq(worldMock), isA(Tree.class))).andReturn(true).times(3);
+		expect(dataManagerMock.saveZown(eq(world2Mock), isA(Tree.class))).andReturn(true).times(3);
+		replayAll();
+		
+		final ZownManager zownManager = new ZownManager(dataManagerMock, templateManagerMock);
+		
+		final Tree<? extends IZown> zown1 = zownManager.createZown(worldMock, "hub", null, null, null);
+		final Tree<? extends IZown> zown2 = zownManager.createZown(worldMock, "child1", null, null,
+				null);
+		
+		final Tree<? extends IZown> zown3 = zownManager.createZown(world2Mock, "hub", null, null, null);
+		final Tree<? extends IZown> zown4 = zownManager.createZown(world2Mock, "child2", null, null,
+				null);
+		
+		final Tree<IZown> worldTree1 = (Tree<IZown>) zownManager.getZown(worldMock);
+		final Tree<IZown> worldTree2 = (Tree<IZown>) zownManager.getZown(world2Mock);
+		
+		assertTrue(worldTree1.hasDecendant(zown1.getData()));
+		assertTrue(worldTree1.hasDecendant(zown2.getData()));
+		assertFalse(worldTree1.hasDecendant(zown3.getData()));
+		assertFalse(worldTree1.hasDecendant(zown4.getData()));
+		
+		assertFalse(worldTree2.hasDecendant(zown1.getData()));
+		assertFalse(worldTree2.hasDecendant(zown2.getData()));
+		assertTrue(worldTree2.hasDecendant(zown3.getData()));
+		assertTrue(worldTree2.hasDecendant(zown4.getData()));
 		
 		verifyAll();
 	}
