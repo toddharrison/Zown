@@ -29,6 +29,15 @@ public interface IZownManager {
 	void unloadZowns(World world);
 	
 	/**
+	 * Determine if the specified World has loaded the root Zown Tree.
+	 * 
+	 * @param world
+	 *          The WOrld.
+	 * @return True if the Zowns for the World have been loaded, false otherwise.
+	 */
+	boolean isLoaded(World world);
+	
+	/**
 	 * Gets the top-level World Tree of Zowns for the specified World.
 	 * 
 	 * @param world

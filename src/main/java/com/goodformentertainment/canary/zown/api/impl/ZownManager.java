@@ -53,6 +53,11 @@ public class ZownManager implements IZownManager {
 	}
 	
 	@Override
+	public boolean isLoaded(final World world) {
+		return zownTrees.containsKey(world);
+	}
+	
+	@Override
 	public Tree<? extends IZown> getZown(final World world) {
 		final Tree<Zown> zownTree;
 		if (!zownTrees.containsKey(world)) {

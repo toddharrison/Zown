@@ -404,13 +404,13 @@ public class Zown implements IZown {
 		final Player player = Canary.getServer().getPlayerFromUUID(uuid);
 		if (player != null) {
 			// Player online
-			ZownPlugin.LOG.info("Found online Player");
+			ZownPlugin.LOG.debug("Found online Player");
 			name = player.getName();
 		} else {
 			// Player offline
 			final OfflinePlayer oPlayer = Canary.getServer().getOfflinePlayer(UUID.fromString(uuid));
 			if (oPlayer != null) {
-				ZownPlugin.LOG.info("Found offline Player");
+				ZownPlugin.LOG.debug("Found offline Player");
 				name = oPlayer.getName();
 			}
 		}

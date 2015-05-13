@@ -119,7 +119,12 @@ public class ZownPlugin extends Plugin implements PluginListener {
 	
 	@HookHandler(priority = Priority.PASSIVE)
 	public void onWorldLoad(final LoadWorldHook hook) {
-		zownManager.loadZowns(hook.getWorld());
+		final World world = hook.getWorld();
+		if (zownManager.isLoaded(world)) {
+			LOG.debug("Zowns are already loaded for world " + world.getFqName() + ", skipping.");
+		} else {
+			zownManager.loadZowns(world);
+		}
 	}
 	
 	@HookHandler(priority = Priority.PASSIVE)
