@@ -1,0 +1,125 @@
+<zown_template>
+  <tableProperties>
+    <command_restrictions auto-increment="false" data-type="STRING" column-type="NORMAL" is-list="true" not-null="false" />
+    <exceptions_block_build auto-increment="false" data-type="STRING" column-type="NORMAL" is-list="true" not-null="false" />
+    <exceptions_block_interact auto-increment="false" data-type="STRING" column-type="NORMAL" is-list="true" not-null="false" />
+    <exceptions_entity_create auto-increment="false" data-type="STRING" column-type="NORMAL" is-list="true" not-null="false" />
+    <exceptions_entity_interact auto-increment="false" data-type="STRING" column-type="NORMAL" is-list="true" not-null="false" />
+    <flag_access auto-increment="false" data-type="STRING" column-type="NORMAL" is-list="true" not-null="false" />
+    <flag_allow auto-increment="false" data-type="STRING" column-type="NORMAL" is-list="true" not-null="false" />
+    <flag_deny auto-increment="false" data-type="STRING" column-type="NORMAL" is-list="true" not-null="false" />
+    <id auto-increment="true" data-type="INTEGER" column-type="PRIMARY" is-list="false" not-null="false" />
+    <template_name auto-increment="false" data-type="STRING" column-type="NORMAL" is-list="false" not-null="false" />
+  </tableProperties>
+  
+  <!--
+  This template we use on our survival hub. It allows players to use a lot of different blocks and
+  entities, but it prevents them from building, changing item frames, or hurting animals and
+  villagers. The exception lists below refine the restrictions against blocks and entities in zown.
+  -->
+  <entry>
+    <command_restrictions />
+    <exceptions_block_build />
+    <!--
+    Interaction is denied, except with the blocks in this list. This is tied to the interact flag.
+    -->
+    <exceptions_block_interact>
+      <list-element>minecraft:fence_gate</list-element>
+      <list-element>minecraft:spruce_fence_gate</list-element>
+      <list-element>minecraft:birch_fence_gate</list-element>
+      <list-element>minecraft:jungle_fence_gate</list-element>
+      <list-element>minecraft:dark_oak_fence_gate</list-element>
+      <list-element>minecraft:acacia_fence_gate</list-element>
+      <list-element>minecraft:spruce_door</list-element>
+      <list-element>minecraft:birch_door</list-element>
+      <list-element>minecraft:jungle_door</list-element>
+      <list-element>minecraft:acacia_door</list-element>
+      <list-element>minecraft:dark_oak_door</list-element>
+      <list-element>minecraft:wooden_door</list-element>
+      <list-element>minecraft:iron_door</list-element>
+      <list-element>minecraft:trapdoor</list-element>
+      <list-element>minecraft:iron_trapdoor</list-element>
+      <list-element>minecraft:lever</list-element>
+      <list-element>minecraft:stone_button</list-element>
+      <list-element>minecraft:wooden_button</list-element>
+      <list-element>minecraft:stone_pressure_plate</list-element>
+      <list-element>minecraft:wooden_pressure_plate</list-element>
+      <list-element>minecraft:light_weighted_pressure_plate</list-element>
+      <list-element>minecraft:heavy_weighted_pressure_plate</list-element>
+      <list-element>minecraft:ender_chest</list-element>
+      <list-element>minecraft:chest</list-element>
+      <list-element>minecraft:furnace</list-element>
+      <list-element>minecraft:lit_furnace</list-element>
+      <list-element>minecraft:crafting_table</list-element>
+      <list-element>minecraft:anvil</list-element>
+      <list-element>minecraft:enchanting_table</list-element>
+      <list-element>minecraft:brewing_stand</list-element>
+      <list-element>minecraft:standing_sign</list-element>
+      <list-element>minecraft:wall_sign</list-element>
+    </exceptions_block_interact>
+    <exceptions_entity_create />
+    <!--
+    Interaction is denied, except with vehicles and villagers. This is tied to the interact flag.
+    -->
+    <exceptions_entity_interact>
+      <list-element>minecraft:vehicle</list-element>
+      <list-element>minecraft:villager</list-element>
+    </exceptions_entity_interact>
+    <flag_access />
+    <flag_allow>
+      <list-element>flow</list-element>
+      <list-element>passivepermit</list-element>
+      <list-element>playerimmune</list-element>
+      <list-element>villagerimmune</list-element>
+      <list-element>animalimmune</list-element>
+    </flag_allow>
+    <flag_deny>
+      <list-element>build</list-element>
+      <list-element>interact</list-element>
+      <list-element>firespread</list-element>
+      <list-element>hostilepermit</list-element>
+      <list-element>playerclaim</list-element>
+    </flag_deny>
+    <id>1</id>
+    <template_name>admin</template_name>
+  </entry>
+  
+  <!--
+  This template, when applied to a player claim zown, restricts guests from being able to interact
+  or build anything in the zown but allows owners and members to interact and build normally. It
+  also defines which flags an owner can change on their zown.
+  -->
+  <entry>
+    <command_restrictions />
+    <exceptions_block_build />
+    <exceptions_block_interact />
+    <exceptions_entity_create />
+    <exceptions_entity_interact />
+    <!--
+    These are the flags that an owner of the zown can change which will impact guests abilities in
+    the zown.
+    -->
+    <flag_access>
+      <list-element>build</list-element>
+      <list-element>interact</list-element>
+      <list-element>villagerimmune</list-element>
+      <list-element>animalimmune</list-element>
+    </flag_access>
+    <flag_allow>
+      <list-element>flow</list-element>
+      <list-element>passivepermit</list-element>
+      <list-element>firespread</list-element>
+      <list-element>hostilepermit</list-element>
+      <list-element>animalimmune</list-element>
+    </flag_allow>
+    <flag_deny>
+      <list-element>build</list-element>
+      <list-element>interact</list-element>
+      <list-element>playerimmune</list-element>
+      <list-element>villagerimmune</list-element>
+      <list-element>playerclaim</list-element>
+    </flag_deny>
+    <id>2</id>
+    <template_name>player</template_name>
+  </entry>
+</zown_template>

@@ -73,6 +73,12 @@ public class ZownPlugin extends Plugin implements PluginListener {
 			LOG.warn("Failed to create the default configuration file.", e);
 		}
 		
+		try {
+			JarUtil.exportResource(this, "zown_template.xml", new File("db"));
+		} catch (final IOException e) {
+			LOG.warn("Failed to create the default template database xml file.", e);
+		}
+		
 		config = new ZownConfiguration(this);
 		setLoggingLevel(config.getLoggingLevel());
 		
