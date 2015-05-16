@@ -416,8 +416,10 @@ public class ZownCommand implements CommandListener {
 		String zown = null;
 		int index = 0;
 		
+		Player player = null;
+		
 		if (caller instanceof Player) {
-			final Player player = caller.asPlayer();
+			player = caller.asPlayer();
 			if (parameters.length >= 3) {
 				world = player.getWorld();
 				zown = parameters[1];
@@ -452,9 +454,8 @@ public class ZownCommand implements CommandListener {
 				for (int i = index; i < parameters.length; i++) {
 					final String[] flag = parameters[i].split(":");
 					if (flag.length == 2) {
-						if (caller instanceof Player) {
-							final Player player = caller.asPlayer();
-							if (player.isOperator()) {
+						if (player != null) {
+							if (player.isOperator() || player.safeHasPermission("zown.admin.flag")) {
 								config.setFlag(flag[0],
 										"allow".equalsIgnoreCase(flag[1]) || "true".equalsIgnoreCase(flag[1]));
 								changed = true;
@@ -939,7 +940,9 @@ public class ZownCommand implements CommandListener {
 			} else if (player == null) {
 				sendMessage(caller, "No player '" + playerName + "' is online.");
 			} else {
-				if (callingPlayer == null || zownTree.getData().isOwner(callingPlayer)) {
+				if (callingPlayer == null || callingPlayer.isOperator()
+						|| player.safeHasPermission("zown.admin.player.member")
+						|| zownTree.getData().isOwner(callingPlayer)) {
 					if ("add".equalsIgnoreCase(action)) {
 						if (zownTree.getData().addMember(player)) {
 							sendMessage(caller, "Added member '" + playerName + "' to zown '" + zown + "'.");
@@ -1010,7 +1013,9 @@ public class ZownCommand implements CommandListener {
 			} else if (player == null) {
 				sendMessage(caller, "No player '" + playerName + "' is online.");
 			} else {
-				if (callingPlayer == null || zownTree.getData().isOwner(callingPlayer)) {
+				if (callingPlayer == null || callingPlayer.isOperator()
+						|| player.safeHasPermission("zown.admin.player.owner")
+						|| zownTree.getData().isOwner(callingPlayer)) {
 					if ("add".equalsIgnoreCase(action)) {
 						if (zownTree.getData().addOwner(player)) {
 							sendMessage(caller, "Added owner '" + playerName + "' to zown '" + zown + "'.");
@@ -1046,8 +1051,10 @@ public class ZownCommand implements CommandListener {
 		String type = null;
 		String message = null;
 		
+		Player player = null;
+		
 		if (caller instanceof Player) {
-			final Player player = caller.asPlayer();
+			player = caller.asPlayer();
 			if (parameters.length > 3) {
 				world = player.getWorld();
 				zown = parameters[1];
@@ -1077,20 +1084,26 @@ public class ZownCommand implements CommandListener {
 				if (zownTree == null) {
 					sendMessage(caller, "No zown '" + zown + "' exists.");
 				} else {
-					if ("welcome".equalsIgnoreCase(type)) {
-						zownTree.getData().setWelcomeMessage(message);
-						sendMessage(caller, "Added welcome message to zown '" + zown + "'.");
-						zownManager.saveZownConfiguration(world, zown);
-					} else if ("farewell".equalsIgnoreCase(type)) {
-						zownTree.getData().setFarewellMessage(message);
-						sendMessage(caller, "Added farewell message to zown '" + zown + "'.");
-						zownManager.saveZownConfiguration(world, zown);
-					} else if ("restrictentry".equalsIgnoreCase(type)) {
-						// TODO
-						throw new UnsupportedOperationException("Do not yet support restrictentry messages");
+					if (player == null || player.isOperator()
+							|| player.safeHasPermission("zown.admin.message")
+							|| zownTree.getData().isOwner(player)) {
+						if ("welcome".equalsIgnoreCase(type)) {
+							zownTree.getData().setWelcomeMessage(message);
+							sendMessage(caller, "Added welcome message to zown '" + zown + "'.");
+							zownManager.saveZownConfiguration(world, zown);
+						} else if ("farewell".equalsIgnoreCase(type)) {
+							zownTree.getData().setFarewellMessage(message);
+							sendMessage(caller, "Added farewell message to zown '" + zown + "'.");
+							zownManager.saveZownConfiguration(world, zown);
+						} else if ("restrictentry".equalsIgnoreCase(type)) {
+							// TODO
+							throw new UnsupportedOperationException("Do not yet support restrictentry messages");
+						} else {
+							sendMessage(caller, "Unrecognized message type '" + type
+									+ "' must be <welcome | farewell | restrictentry>.");
+						}
 					} else {
-						sendMessage(caller, "Unrecognized message type '" + type
-								+ "' must be <welcome | farewell | restrictentry>.");
+						sendMessage(caller, "You are not an owner of this zown");
 					}
 				}
 			}

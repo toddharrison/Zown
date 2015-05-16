@@ -305,7 +305,7 @@ public class ModifyWorldListener implements PluginListener {
 		final Player player = hook.getPlayer();
 		final Block block = hook.getBlockClicked();
 		
-		if (!player.isOperator()) {
+		if (!player.isOperator() && !player.safeHasPermission("zown.admin.mod")) {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
 			if (!zownTree.getData().isOwnerOrMember(player)) {
 				final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.interact.name());

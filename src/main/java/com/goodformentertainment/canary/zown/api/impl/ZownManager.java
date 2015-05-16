@@ -123,7 +123,8 @@ public class ZownManager implements IZownManager {
 				
 				final Boolean flag = targetTree.getData().getConfiguration()
 						.getFlag(Flag.playerclaim.name());
-				if (player == null || player.isOperator() || flag != null && flag) {
+				if (player == null || player.isOperator()
+						|| player.safeHasPermission("zown.admin.manage.create") || flag != null && flag) {
 					zownTree = new Tree<Zown>(zown);
 					targetTree.addChild(zownTree);
 					zownMap.put(name, zownTree);
@@ -188,8 +189,11 @@ public class ZownManager implements IZownManager {
 		final Map<String, Tree<Zown>> zownMap = zownMaps.get(world);
 		if (zownMap != null && zownMap.containsKey(name)) {
 			final Tree<Zown> zownTree = zownMap.remove(name);
-			if (zownTree != null && player == null || player != null
-					&& (player.isOperator() || zownTree.getData().isOwner(player))) {
+			if (zownTree != null
+					&& player == null
+					|| player != null
+					&& (player.isOperator() || player.safeHasPermission("zown.admin.manage.delete") || zownTree
+							.getData().isOwner(player))) {
 				removed = zownTree.removeParent();
 				if (removed) {
 					for (final Tree<Zown> t : zownTree) {
@@ -219,8 +223,11 @@ public class ZownManager implements IZownManager {
 		final Map<String, Tree<Zown>> zownMap = zownMaps.get(world);
 		if (zownMap != null && zownMap.containsKey(oldName) && !zownMap.containsKey(newName)) {
 			final Tree<Zown> zownTree = zownMap.get(oldName);
-			if (zownTree != null && player == null || player != null
-					&& (player.isOperator() || zownTree.getData().isOwner(player))) {
+			if (zownTree != null
+					&& player == null
+					|| player != null
+					&& (player.isOperator() || player.safeHasPermission("zown.admin.manage.rename") || zownTree
+							.getData().isOwner(player))) {
 				zownMap.remove(oldName);
 				zownTree.getData().setName(newName);
 				zownMap.put(newName, zownTree);
@@ -248,8 +255,11 @@ public class ZownManager implements IZownManager {
 		final Map<String, Tree<Zown>> zownMap = zownMaps.get(world);
 		if (zownMap != null) {
 			final Tree<Zown> zownTree = zownMap.get(name);
-			if (zownTree != null && player == null || player != null
-					&& (player.isOperator() || zownTree.getData().isOwner(player))) {
+			if (zownTree != null
+					&& player == null
+					|| player != null
+					&& (player.isOperator() || player.safeHasPermission("zown.admin.manage.resize") || zownTree
+							.getData().isOwner(player))) {
 				final Tree<Zown> rootTree = zownTrees.get(world);
 				if (!intersectsExistingZown(rootTree, p1, p2, zownTree)) {
 					final Tree<Zown> targetTree = getTargetContainingZown(rootTree, p1, p2, zownTree);
@@ -262,11 +272,11 @@ public class ZownManager implements IZownManager {
 						} catch (final Exception e) {
 							ZownPlugin.LOG.error("Error saving zown", e);
 						}
-						// } else {
-						// ZownPlugin.LOG.error("Zown being moved outside current parent");
+					} else {
+						ZownPlugin.LOG.error("Zown being moved outside current parent");
 					}
-					// } else {
-					// ZownPlugin.LOG.error("Zown resize intersects another zown");
+				} else {
+					ZownPlugin.LOG.error("Zown resize intersects another zown");
 				}
 			}
 		}
