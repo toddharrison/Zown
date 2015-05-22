@@ -25,6 +25,18 @@ public interface ITemplateManager {
 	ITemplate getTemplate(String name);
 	
 	/**
+	 * Copies an existing template into a new template.
+	 * 
+	 * @param fromTemplate
+	 *          The name of the Template to copy.
+	 * @param name
+	 *          The name of the new Template to create.
+	 * @return A new Template with a copy of fromTemplate configuration or null if from doesn't exist
+	 *         or that name already exists.
+	 */
+	ITemplate copyTemplate(String fromTemplate, String name);
+	
+	/**
 	 * Creates a new Template in this manager.
 	 * 
 	 * @param name

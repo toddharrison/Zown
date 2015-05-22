@@ -36,6 +36,22 @@ public class TemplateManager implements ITemplateManager {
 	}
 	
 	@Override
+	public Template copyTemplate(final String fromTemplate, final String name) {
+		Template template = null;
+		if (templates.containsKey(fromTemplate) && !templates.containsKey(name)) {
+			template = new Template(name, templates.get(fromTemplate).getConfiguration().clone());
+			templates.put(name, template);
+			
+			try {
+				dataManager.saveTemplate(template);
+			} catch (final Exception e) {
+				ZownPlugin.LOG.error("Error saving template", e);
+			}
+		}
+		return template;
+	}
+	
+	@Override
 	public Template createTemplate(final String name) {
 		Template template = null;
 		if (!templates.containsKey(name)) {

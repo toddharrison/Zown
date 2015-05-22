@@ -13,9 +13,12 @@ public class Template implements ITemplate {
 	private final Set<Zown> zowns;
 	
 	protected Template(final String name) {
-		super();
+		this(name, new Configuration());
+	}
+	
+	protected Template(final String name, final Configuration configuration) {
 		this.name = name;
-		configuration = new Configuration();
+		this.configuration = configuration;
 		zowns = new HashSet<Zown>();
 	}
 	
@@ -26,6 +29,21 @@ public class Template implements ITemplate {
 	
 	protected void setName(final String name) {
 		this.name = name;
+	}
+	
+	@Override
+	public String getDisplay() {
+		final StringBuilder sb = new StringBuilder();
+		
+		sb.append("\n");
+		sb.append(name);
+		sb.append("\n");
+		
+		final Configuration config = getConfiguration();
+		sb.append("Flags: ");
+		sb.append(config.getFlags());
+		
+		return sb.toString();
 	}
 	
 	@Override

@@ -19,6 +19,14 @@ public interface ITemplate extends IConfigurable {
 	String getName();
 	
 	/**
+	 * Get the display String for this Template. This is used to provide the display text of a
+	 * Template when requested by a Player;
+	 * 
+	 * @return The Template display text.
+	 */
+	String getDisplay();
+	
+	/**
 	 * Get a Collection of the Zowns that belong to this Template.
 	 * 
 	 * @return A Collection of the Zowns.

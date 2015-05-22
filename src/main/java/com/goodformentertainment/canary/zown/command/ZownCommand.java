@@ -83,6 +83,25 @@ public class ZownCommand implements CommandListener {
 	}
 	
 	@Command(aliases = {
+		"copy"
+	}, parent = "template", description = "zown template copy", permissions = {
+		"zown.template.copy"
+	}, toolTip = "/zown template copy <fromTemplate> <template>")
+	public void copyTemplate(final MessageReceiver caller, final String[] parameters) {
+		if (parameters.length != 3) {
+			sendMessage(caller, "Usage: /zown template copy <fromTemplate> <template>");
+		} else {
+			final ITemplate template = templateManager.copyTemplate(parameters[1], parameters[2]);
+			if (template == null) {
+				sendMessage(caller, "Template '" + parameters[2] + "' already exists or from template '"
+						+ parameters[1] + "' does not.");
+			} else {
+				sendMessage(caller, "Copied template '" + parameters[1] + "' into '" + parameters[2] + "'.");
+			}
+		}
+	}
+	
+	@Command(aliases = {
 		"create"
 	}, parent = "template", description = "zown template create", permissions = {
 		"zown.template.create"
@@ -814,10 +833,10 @@ public class ZownCommand implements CommandListener {
 		"template"
 	}, parent = "zown", description = "zown template", permissions = {
 		"zown.template"
-	}, toolTip = "/zown template <list | info | create | delete | rename | apply | flagaccess | flag>")
+	}, toolTip = "/zown template <list | info | copy | create | delete | rename | apply | flagaccess | flag>")
 	public void template(final MessageReceiver caller, final String[] parameters) {
 		sendMessage(caller,
-				"Usage: /zown template <list | info | create | delete | rename | apply | flagaccess | flag>");
+				"Usage: /zown template <list | info | copy | create | delete | rename | apply | flagaccess | flag>");
 	}
 	
 	@Command(aliases = {
@@ -833,7 +852,7 @@ public class ZownCommand implements CommandListener {
 			if (template == null) {
 				sendMessage(caller, "No template '" + parameters[1] + "' exists.");
 			} else {
-				sendMessage(caller, template);
+				sendMessage(caller, template.getDisplay());
 			}
 		}
 	}

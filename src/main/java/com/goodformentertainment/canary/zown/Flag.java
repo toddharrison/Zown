@@ -40,9 +40,19 @@ public enum Flag {
 	interact,
 	
 	/**
-	 * ALLOW makes a Player immune to attacks within a Zown.
+	 * ALLOW makes a Player immune to environmental damage within a Zown.
 	 */
 	playerimmune,
+	
+	/**
+	 * ALLOW lets Players attack other Players within a Zown.
+	 */
+	pvp,
+	
+	/**
+	 * ALLOW lets Players and mobs combat within a Zown.
+	 */
+	hostilecombat,
 	
 	/**
 	 * ALLOW lets Players create new Zowns within this Zown.

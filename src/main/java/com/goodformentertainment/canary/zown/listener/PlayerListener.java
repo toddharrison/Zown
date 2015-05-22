@@ -3,8 +3,11 @@ package com.goodformentertainment.canary.zown.listener;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.canarymod.api.entity.Arrow;
 import net.canarymod.api.entity.Entity;
+import net.canarymod.api.entity.Projectile;
 import net.canarymod.api.entity.living.humanoid.Player;
+import net.canarymod.api.entity.throwable.EntityThrowable;
 import net.canarymod.hook.HookHandler;
 import net.canarymod.hook.entity.DamageHook;
 import net.canarymod.hook.entity.EntityLightningStruckHook;
@@ -65,15 +68,40 @@ public class PlayerListener implements PluginListener {
 	@HookHandler(priority = Priority.CRITICAL)
 	public void onProjectileHit(final ProjectileHitHook hook) {
 		final Entity target = hook.getEntityHit();
+		final Projectile projectile = (Projectile) hook.getProjectile();
+		
+		Entity attacker = null;
+		if (projectile instanceof Arrow) {
+			attacker = ((Arrow) projectile).getOwner();
+		} else if (projectile instanceof EntityThrowable) {
+			attacker = ((EntityThrowable) projectile).getThrower();
+		}
 		
 		if (target != null && target.isPlayer()) {
 			// TODO optimization
 			// final Player player = (Player) target;
 			// final Tree<? extends IZown> zownTree = playerZownMap.get(player.getUUIDString());
 			final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
-			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.playerimmune.name());
-			if (flag != null && flag) {
-				hook.setCanceled();
+			if (attacker == null) {
+				final Boolean flag = zownTree.getData().getConfiguration()
+						.getFlag(Flag.playerimmune.name());
+				if (flag != null && flag) {
+					hook.setCanceled();
+				}
+			} else if (attacker.isPlayer()) {
+				final Tree<? extends IZown> attackerZownTree = zownManager.getZown(attacker.getLocation());
+				final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.pvp.name());
+				final Boolean attackerFlag = attackerZownTree.getData().getConfiguration()
+						.getFlag(Flag.pvp.name());
+				if (flag != null && !flag || attackerFlag != null && !attackerFlag) {
+					hook.setCanceled();
+				}
+			} else if (attacker.isMob()) {
+				final Boolean flag = zownTree.getData().getConfiguration()
+						.getFlag(Flag.hostilecombat.name());
+				if (flag != null && !flag) {
+					hook.setCanceled();
+				}
 			}
 		}
 	}
@@ -110,15 +138,33 @@ public class PlayerListener implements PluginListener {
 	@HookHandler(priority = Priority.CRITICAL)
 	public void onDamage(final DamageHook hook) {
 		final Entity target = hook.getDefender();
+		final Entity attacker = hook.getAttacker();
 		
 		if (target.isPlayer()) {
 			// TODO optimization
 			// final Player player = (Player) target;
 			// final Tree<? extends IZown> zownTree = playerZownMap.get(player.getUUIDString());
 			final Tree<? extends IZown> zownTree = zownManager.getZown(target.getLocation());
-			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.playerimmune.name());
-			if (flag != null && flag) {
-				hook.setCanceled();
+			if (attacker == null) {
+				final Boolean flag = zownTree.getData().getConfiguration()
+						.getFlag(Flag.playerimmune.name());
+				if (flag != null && flag) {
+					hook.setCanceled();
+				}
+			} else if (attacker.isPlayer()) {
+				final Tree<? extends IZown> attackerZownTree = zownManager.getZown(attacker.getLocation());
+				final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.pvp.name());
+				final Boolean attackerFlag = attackerZownTree.getData().getConfiguration()
+						.getFlag(Flag.pvp.name());
+				if (flag != null && !flag || attackerFlag != null && !attackerFlag) {
+					hook.setCanceled();
+				}
+			} else if (attacker.isMob()) {
+				final Boolean flag = zownTree.getData().getConfiguration()
+						.getFlag(Flag.hostilecombat.name());
+				if (flag != null && !flag) {
+					hook.setCanceled();
+				}
 			}
 		}
 	}
