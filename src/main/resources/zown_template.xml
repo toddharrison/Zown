@@ -78,7 +78,9 @@
       <list-element>interact</list-element>
       <list-element>firespread</list-element>
       <list-element>hostilepermit</list-element>
+      <list-element>hostilecombat</list-element>
       <list-element>playerclaim</list-element>
+      <list-element>pvp</list-element>
     </flag_deny>
     <id>1</id>
     <template_name>admin</template_name>
@@ -110,6 +112,7 @@
       <list-element>passivepermit</list-element>
       <list-element>firespread</list-element>
       <list-element>hostilepermit</list-element>
+      <list-element>hostilecombat</list-element>
       <list-element>animalimmune</list-element>
     </flag_allow>
     <flag_deny>
@@ -118,6 +121,7 @@
       <list-element>playerimmune</list-element>
       <list-element>villagerimmune</list-element>
       <list-element>playerclaim</list-element>
+      <list-element>pvp</list-element>
     </flag_deny>
     <id>2</id>
     <template_name>player</template_name>
