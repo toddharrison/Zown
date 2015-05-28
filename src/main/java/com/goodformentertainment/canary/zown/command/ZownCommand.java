@@ -3,14 +3,19 @@ package com.goodformentertainment.canary.zown.command;
 import static com.goodformentertainment.canary.zown.ZownMessenger.*;
 
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.concurrent.TimeUnit;
 
 import net.canarymod.Canary;
 import net.canarymod.api.entity.living.humanoid.Player;
+import net.canarymod.api.factory.PacketFactory;
 import net.canarymod.api.world.World;
 import net.canarymod.api.world.WorldManager;
+import net.canarymod.api.world.blocks.BlockType;
 import net.canarymod.chat.MessageReceiver;
 import net.canarymod.commandsys.Command;
 import net.canarymod.commandsys.CommandListener;
+import net.visualillusionsent.utils.TaskManager;
 
 import com.goodformentertainment.canary.zown.ZownConfiguration;
 import com.goodformentertainment.canary.zown.api.IConfiguration;
@@ -823,10 +828,115 @@ public class ZownCommand implements CommandListener {
 		"zown.zown.show"
 	}, toolTip = "/zown show [zown]")
 	public void showZown(final MessageReceiver caller, final String[] parameters) {
-		// TODO implement
+		String zown = null;
+		Player player = null;
+		
 		if (caller instanceof Player) {
-			sendMessage(caller, "called zown show");
+			player = caller.asPlayer();
+			switch (parameters.length) {
+				case 2:
+					zown = parameters[1];
+					break;
+				default:
+					sendMessage(caller, "Usage: /zown show <zown>");
+			}
 		}
+		
+		if (zown != null && player != null) {
+			final Tree<? extends IZown> zownTree = zownManager.getZown(player.getWorld(), zown);
+			if (zownTree == null) {
+				sendMessage(caller, "No zown '" + zown + "' exists.");
+			} else {
+				final Point minPoint = zownTree.getData().getMinPoint();
+				final Point maxPoint = zownTree.getData().getMaxPoint();
+				if (minPoint != null && maxPoint != null) {
+					drawTemporaryZownBorder(player, minPoint, maxPoint);
+				} else {
+					sendMessage(caller, "You cannot show a global zown.");
+				}
+			}
+		}
+	}
+	
+	private void drawTemporaryZownBorder(final Player player, final Point minPoint,
+			final Point maxPoint) {
+		final World world = player.getWorld();
+		
+		final Collection<Point> points = new LinkedList<Point>();
+		
+		int x = minPoint.x;
+		int z = minPoint.z;
+		int y = world.getHighestBlockAt(x, z) - 1;
+		points.add(new Point(x, y, z));
+		
+		x = minPoint.x;
+		z = maxPoint.z;
+		y = world.getHighestBlockAt(x, z) - 1;
+		points.add(new Point(x, y, z));
+		
+		x = maxPoint.x;
+		z = minPoint.z;
+		y = world.getHighestBlockAt(x, z) - 1;
+		points.add(new Point(x, y, z));
+		
+		x = maxPoint.x;
+		z = maxPoint.z;
+		y = world.getHighestBlockAt(x, z) - 1;
+		points.add(new Point(x, y, z));
+		
+		x = minPoint.x;
+		z = minPoint.z;
+		for (x = x + 1; x < maxPoint.x; x++) {
+			if (x % 10 == 0) {
+				y = world.getHighestBlockAt(x, z) - 1;
+				points.add(new Point(x, y, z));
+			}
+		}
+		
+		x = minPoint.x;
+		z = maxPoint.z;
+		for (x = x + 1; x < maxPoint.x; x++) {
+			if (x % 10 == 0) {
+				y = world.getHighestBlockAt(x, z) - 1;
+				points.add(new Point(x, y, z));
+			}
+		}
+		
+		x = minPoint.x;
+		z = minPoint.z;
+		for (z = z + 1; z < maxPoint.z; z++) {
+			if (z % 10 == 0) {
+				y = world.getHighestBlockAt(x, z) - 1;
+				points.add(new Point(x, y, z));
+			}
+		}
+		
+		x = maxPoint.x;
+		z = minPoint.z;
+		for (z = z + 1; z < maxPoint.z; z++) {
+			if (z % 10 == 0) {
+				y = world.getHighestBlockAt(x, z) - 1;
+				points.add(new Point(x, y, z));
+			}
+		}
+		
+		final PacketFactory packetFactory = Canary.factory().getPacketFactory();
+		
+		// Show the zown to the player
+		for (final Point point : points) {
+			player.sendPacket(packetFactory.blockChange(point.x, point.y, point.z, BlockType.GlowStone));
+		}
+		
+		// Wait for the delay, then return the blocks to normal
+		TaskManager.scheduleDelayedTask(new Runnable() {
+			@Override
+			public void run() {
+				for (final Point point : points) {
+					final BlockType type = world.getBlockAt(point.x, point.y, point.z).getType();
+					player.sendPacket(packetFactory.blockChange(point.x, point.y, point.z, type));
+				}
+			}
+		}, 10, TimeUnit.SECONDS);
 	}
 	
 	@Command(aliases = {
