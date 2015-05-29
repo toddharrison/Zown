@@ -893,7 +893,7 @@ public class ZownCommand implements CommandListener {
 		"interactexception"
 	}, parent = "template", description = "zown template interactexception", permissions = {
 		"zown.template.exception.interact"
-	}, toolTip = "/zown template interactexception <template> <add | remove> <exception>")
+	}, toolTip = "/zown template interactexception <template> <add | remove> minecraft:<exception>")
 	public void templateInteractExclusion(final MessageReceiver caller, final String[] parameters) {
 		if (parameters.length != 3) {
 			sendMessage(caller,
@@ -1101,7 +1101,7 @@ public class ZownCommand implements CommandListener {
 		"interactexception"
 	}, parent = "zown", description = "zown interactexception", permissions = {
 		"zown.zown.exception.interact"
-	}, toolTip = "/zown interactexception <zown> <add | remove> <exception>")
+	}, toolTip = "/zown interactexception <zown> <add | remove> minecraft:<exception>")
 	public void zownInteractExclusion(final MessageReceiver caller, final String[] parameters) {
 		World world = null;
 		Player player = null;
@@ -1119,7 +1119,8 @@ public class ZownCommand implements CommandListener {
 					exclusion = parameters[3];
 					break;
 				default:
-					sendMessage(caller, "Usage: /zown interactexception <zown> <add | remove> <exception>");
+					sendMessage(caller,
+							"Usage: /zown interactexception <zown> <add | remove> minecraft:<exception>");
 			}
 		} else {
 			switch (parameters.length) {
@@ -1131,7 +1132,7 @@ public class ZownCommand implements CommandListener {
 					break;
 				default:
 					sendMessage(caller,
-							"Usage: /zown interactexception <world> <zown> <add | remove> <exception>");
+							"Usage: /zown interactexception <world> <zown> <add | remove> minecraft:<exception>");
 			}
 		}
 		
@@ -1424,7 +1425,7 @@ public class ZownCommand implements CommandListener {
 		"placeexception"
 	}, parent = "zown", description = "zown placeexception", permissions = {
 		"zown.zown.exception.place"
-	}, toolTip = "/zown placeexception <zown> <add | remove> <exception>")
+	}, toolTip = "/zown placeexception <zown> <add | remove> minecraft:<exception>")
 	public void zownPlaceExclusion(final MessageReceiver caller, final String[] parameters) {
 		World world = null;
 		Player player = null;
@@ -1442,7 +1443,8 @@ public class ZownCommand implements CommandListener {
 					exclusion = parameters[3];
 					break;
 				default:
-					sendMessage(caller, "Usage: /zown placeexception <zown> <add | remove> <exception>");
+					sendMessage(caller,
+							"Usage: /zown placeexception <zown> <add | remove> minecraft:<exception>");
 			}
 		} else {
 			switch (parameters.length) {
@@ -1454,7 +1456,7 @@ public class ZownCommand implements CommandListener {
 					break;
 				default:
 					sendMessage(caller,
-							"Usage: /zown placeexception <world> <zown> <add | remove> <exception>");
+							"Usage: /zown placeexception <world> <zown> <add | remove> minecraft:<exception>");
 			}
 		}
 		
