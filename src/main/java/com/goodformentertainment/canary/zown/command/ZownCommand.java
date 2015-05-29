@@ -895,7 +895,7 @@ public class ZownCommand implements CommandListener {
 		"zown.template.exception.interact"
 	}, toolTip = "/zown template interactexception <template> <add | remove> minecraft:<exception>")
 	public void templateInteractExclusion(final MessageReceiver caller, final String[] parameters) {
-		if (parameters.length != 3) {
+		if (parameters.length != 4) {
 			sendMessage(caller,
 					"Usage: /zown template interactexception <template> <add | remove> minecraft:<exception>");
 		} else {
@@ -972,7 +972,7 @@ public class ZownCommand implements CommandListener {
 		"zown.template.exception.place"
 	}, toolTip = "/zown template placeexception <template> <add | remove> minecraft:<exception>")
 	public void templatePlaceExclusion(final MessageReceiver caller, final String[] parameters) {
-		if (parameters.length != 3) {
+		if (parameters.length != 4) {
 			sendMessage(caller,
 					"Usage: /zown template placeexception <template> <add | remove> minecraft:<exception>");
 		} else {
@@ -1112,7 +1112,7 @@ public class ZownCommand implements CommandListener {
 		if (caller instanceof Player) {
 			player = caller.asPlayer();
 			switch (parameters.length) {
-				case 3:
+				case 4:
 					world = player.getWorld();
 					zown = parameters[1];
 					action = parameters[2];
@@ -1124,7 +1124,7 @@ public class ZownCommand implements CommandListener {
 			}
 		} else {
 			switch (parameters.length) {
-				case 4:
+				case 5:
 					world = worldManager.getWorld(parameters[1], false);
 					zown = parameters[2];
 					action = parameters[3];
@@ -1436,7 +1436,7 @@ public class ZownCommand implements CommandListener {
 		if (caller instanceof Player) {
 			player = caller.asPlayer();
 			switch (parameters.length) {
-				case 3:
+				case 4:
 					world = player.getWorld();
 					zown = parameters[1];
 					action = parameters[2];
@@ -1448,7 +1448,7 @@ public class ZownCommand implements CommandListener {
 			}
 		} else {
 			switch (parameters.length) {
-				case 4:
+				case 5:
 					world = worldManager.getWorld(parameters[1], false);
 					zown = parameters[2];
 					action = parameters[3];
