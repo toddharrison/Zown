@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.concurrent.TimeUnit;
 
 import net.canarymod.Canary;
+import net.canarymod.api.entity.Entity;
 import net.canarymod.api.entity.living.humanoid.Player;
 import net.canarymod.api.factory.PacketFactory;
 import net.canarymod.api.world.World;
@@ -24,6 +25,7 @@ import com.goodformentertainment.canary.zown.api.ITemplateManager;
 import com.goodformentertainment.canary.zown.api.IZown;
 import com.goodformentertainment.canary.zown.api.IZownManager;
 import com.goodformentertainment.canary.zown.api.Point;
+import com.goodformentertainment.canary.zown.api.impl.MinecraftMapper;
 import com.goodformentertainment.canary.zown.api.impl.Tree;
 
 public class ZownCommand implements CommandListener {
@@ -858,95 +860,15 @@ public class ZownCommand implements CommandListener {
 		}
 	}
 	
-	private void drawTemporaryZownBorder(final Player player, final Point minPoint,
-			final Point maxPoint) {
-		final World world = player.getWorld();
-		
-		final Collection<Point> points = new LinkedList<Point>();
-		
-		int x = minPoint.x;
-		int z = minPoint.z;
-		int y = world.getHighestBlockAt(x, z) - 1;
-		points.add(new Point(x, y, z));
-		
-		x = minPoint.x;
-		z = maxPoint.z;
-		y = world.getHighestBlockAt(x, z) - 1;
-		points.add(new Point(x, y, z));
-		
-		x = maxPoint.x;
-		z = minPoint.z;
-		y = world.getHighestBlockAt(x, z) - 1;
-		points.add(new Point(x, y, z));
-		
-		x = maxPoint.x;
-		z = maxPoint.z;
-		y = world.getHighestBlockAt(x, z) - 1;
-		points.add(new Point(x, y, z));
-		
-		x = minPoint.x;
-		z = minPoint.z;
-		for (x = x + 1; x < maxPoint.x; x++) {
-			if (x % 10 == 0) {
-				y = world.getHighestBlockAt(x, z) - 1;
-				points.add(new Point(x, y, z));
-			}
-		}
-		
-		x = minPoint.x;
-		z = maxPoint.z;
-		for (x = x + 1; x < maxPoint.x; x++) {
-			if (x % 10 == 0) {
-				y = world.getHighestBlockAt(x, z) - 1;
-				points.add(new Point(x, y, z));
-			}
-		}
-		
-		x = minPoint.x;
-		z = minPoint.z;
-		for (z = z + 1; z < maxPoint.z; z++) {
-			if (z % 10 == 0) {
-				y = world.getHighestBlockAt(x, z) - 1;
-				points.add(new Point(x, y, z));
-			}
-		}
-		
-		x = maxPoint.x;
-		z = minPoint.z;
-		for (z = z + 1; z < maxPoint.z; z++) {
-			if (z % 10 == 0) {
-				y = world.getHighestBlockAt(x, z) - 1;
-				points.add(new Point(x, y, z));
-			}
-		}
-		
-		final PacketFactory packetFactory = Canary.factory().getPacketFactory();
-		
-		// Show the zown to the player
-		for (final Point point : points) {
-			player.sendPacket(packetFactory.blockChange(point.x, point.y, point.z, BlockType.GlowStone));
-		}
-		
-		// Wait for the delay, then return the blocks to normal
-		TaskManager.scheduleDelayedTask(new Runnable() {
-			@Override
-			public void run() {
-				for (final Point point : points) {
-					final BlockType type = world.getBlockAt(point.x, point.y, point.z).getType();
-					player.sendPacket(packetFactory.blockChange(point.x, point.y, point.z, type));
-				}
-			}
-		}, 10, TimeUnit.SECONDS);
-	}
-	
 	@Command(aliases = {
 		"template"
 	}, parent = "zown", description = "zown template", permissions = {
 		"zown.template"
-	}, toolTip = "/zown template <list | info | copy | create | delete | rename | apply | flagaccess | flag>")
+	}, toolTip = "/zown template <list | info | copy | create | delete | rename | apply | flagaccess | flag | placeexception | interactexception>")
 	public void template(final MessageReceiver caller, final String[] parameters) {
-		sendMessage(caller,
-				"Usage: /zown template <list | info | copy | create | delete | rename | apply | flagaccess | flag>");
+		sendMessage(
+				caller,
+				"Usage: /zown template <list | info | copy | create | delete | rename | apply | flagaccess | flag | placeexception | interactexception>");
 	}
 	
 	@Command(aliases = {
@@ -968,14 +890,166 @@ public class ZownCommand implements CommandListener {
 	}
 	
 	@Command(aliases = {
+		"interactexception"
+	}, parent = "template", description = "zown template interactexception", permissions = {
+		"zown.template.exception.interact"
+	}, toolTip = "/zown template interactexception <template> <add | remove> <exception>")
+	public void templateInteractExclusion(final MessageReceiver caller, final String[] parameters) {
+		if (parameters.length != 3) {
+			sendMessage(caller,
+					"Usage: /zown template interactexception <template> <add | remove> minecraft:<exception>");
+		} else {
+			final String name = parameters[1];
+			final String action = parameters[2];
+			final String exclusion = parameters[3];
+			
+			final ITemplate template = templateManager.getTemplate(name);
+			if (template == null) {
+				sendMessage(caller, "Template '" + name + "' doesn't exist.");
+			} else {
+				if ("add".equalsIgnoreCase(action)) {
+					final BlockType blockType = MinecraftMapper.getBlockType(exclusion);
+					if (blockType == null) {
+						final Class<? extends Entity> entityClass = MinecraftMapper.getEntityClass(exclusion);
+						if (entityClass == null) {
+							sendMessage(caller, "The specified exception '" + exclusion + "' is unrecognized.");
+						} else {
+							if (template.getConfiguration().addEntityInteractExclusion(entityClass)) {
+								sendMessage(caller, "Added interact exception '" + exclusion + "' to template '"
+										+ name + "'.");
+								templateManager.saveTemplateConfiguration(name);
+							} else {
+								sendMessage(caller, "Interact exception '" + exclusion
+										+ "' already exists on template.");
+							}
+						}
+					} else {
+						if (template.getConfiguration().addBlockInteractExclusion(blockType)) {
+							sendMessage(caller, "Added interact exception '" + exclusion + "' to template '"
+									+ name + "'.");
+							templateManager.saveTemplateConfiguration(name);
+						} else {
+							sendMessage(caller, "Interact exception '" + exclusion
+									+ "' already exists on template.");
+						}
+					}
+				} else if ("remove".equalsIgnoreCase(action)) {
+					final BlockType blockType = MinecraftMapper.getBlockType(exclusion);
+					if (blockType == null) {
+						final Class<? extends Entity> entityClass = MinecraftMapper.getEntityClass(exclusion);
+						if (entityClass == null) {
+							sendMessage(caller, "The specified exception '" + exclusion + "' is unrecognized.");
+						} else {
+							if (template.getConfiguration().removeEntityInteractExclusion(entityClass)) {
+								sendMessage(caller, "Removed interact exception '" + exclusion
+										+ "' from template '" + name + "'.");
+								templateManager.saveTemplateConfiguration(name);
+							} else {
+								sendMessage(caller, "Interact exception '" + exclusion
+										+ "' does not exist on template.");
+							}
+						}
+					} else {
+						if (template.getConfiguration().removeBlockInteractExclusion(blockType)) {
+							sendMessage(caller, "Removed interact exception '" + exclusion + "' from template '"
+									+ name + "'.");
+							templateManager.saveTemplateConfiguration(name);
+						} else {
+							sendMessage(caller, "Interact exception '" + exclusion
+									+ "' does not exist on template.");
+						}
+					}
+				} else {
+					sendMessage(caller, "Unrecognized action '" + action + "' must be <add | remove>.");
+				}
+			}
+		}
+	}
+	
+	@Command(aliases = {
+		"placeexception"
+	}, parent = "template", description = "zown template placeexception", permissions = {
+		"zown.template.exception.place"
+	}, toolTip = "/zown template placeexception <template> <add | remove> minecraft:<exception>")
+	public void templatePlaceExclusion(final MessageReceiver caller, final String[] parameters) {
+		if (parameters.length != 3) {
+			sendMessage(caller,
+					"Usage: /zown template placeexception <template> <add | remove> minecraft:<exception>");
+		} else {
+			final String name = parameters[1];
+			final String action = parameters[2];
+			final String exclusion = parameters[3];
+			
+			final ITemplate template = templateManager.getTemplate(name);
+			if (template == null) {
+				sendMessage(caller, "Template '" + name + "' doesn't exist.");
+			} else {
+				if ("add".equalsIgnoreCase(action)) {
+					final BlockType blockType = MinecraftMapper.getBlockType(exclusion);
+					if (blockType == null) {
+						final Class<? extends Entity> entityClass = MinecraftMapper.getEntityClass(exclusion);
+						if (entityClass == null) {
+							sendMessage(caller, "The specified exception '" + exclusion + "' is unrecognized.");
+						} else {
+							if (template.getConfiguration().addEntityCreateExclusion(entityClass)) {
+								sendMessage(caller, "Added place exception '" + exclusion + "' to template '"
+										+ name + "'.");
+								templateManager.saveTemplateConfiguration(name);
+							} else {
+								sendMessage(caller, "Place exception '" + exclusion
+										+ "' already exists on template.");
+							}
+						}
+					} else {
+						if (template.getConfiguration().addBlockBuildExclusion(blockType)) {
+							sendMessage(caller, "Added place exception '" + exclusion + "' to template '" + name
+									+ "'.");
+							templateManager.saveTemplateConfiguration(name);
+						} else {
+							sendMessage(caller, "Place exception '" + exclusion + "' already exists on template.");
+						}
+					}
+				} else if ("remove".equalsIgnoreCase(action)) {
+					final BlockType blockType = MinecraftMapper.getBlockType(exclusion);
+					if (blockType == null) {
+						final Class<? extends Entity> entityClass = MinecraftMapper.getEntityClass(exclusion);
+						if (entityClass == null) {
+							sendMessage(caller, "The specified exception '" + exclusion + "' is unrecognized.");
+						} else {
+							if (template.getConfiguration().removeEntityCreateExclusion(entityClass)) {
+								sendMessage(caller, "Removed place exception '" + exclusion + "' from template '"
+										+ name + "'.");
+								templateManager.saveTemplateConfiguration(name);
+							} else {
+								sendMessage(caller, "Place exception '" + exclusion
+										+ "' does not exist on template.");
+							}
+						}
+					} else {
+						if (template.getConfiguration().removeBlockBuildExclusion(blockType)) {
+							sendMessage(caller, "Removed place exception '" + exclusion + "' from template '"
+									+ name + "'.");
+							templateManager.saveTemplateConfiguration(name);
+						} else {
+							sendMessage(caller, "Place exception '" + exclusion + "' does not exist on template.");
+						}
+					}
+				} else {
+					sendMessage(caller, "Unrecognized action '" + action + "' must be <add | remove>.");
+				}
+			}
+		}
+	}
+	
+	@Command(aliases = {
 		"zown"
 	}, description = "zown", permissions = {
 		"zown.zown"
-	}, toolTip = "/zown <list | info | show | create | expand | delete | rename | editpoints | template | flagaccess | flag | restrictcommand | owner | member>")
+	}, toolTip = "/zown <list | info | show | create | expand | delete | rename | editpoints | template | flagaccess | flag | restrictcommand | placeexception | interactexception | owner | member>")
 	public void zown(final MessageReceiver caller, final String[] parameters) {
 		sendMessage(
 				caller,
-				"Usage: /zown <list | info | show | create | expand | delete | rename | editpoints | template | flagaccess | flag | restrictcommand | owner | member>");
+				"Usage: /zown <list | info | show | create | expand | delete | rename | editpoints | template | flagaccess | flag | restrictcommand | placeexception | interactexception | owner | member>");
 	}
 	
 	@Command(aliases = {
@@ -1020,6 +1094,113 @@ public class ZownCommand implements CommandListener {
 			sendMessage(caller, "There is no zown '" + zown + "' in world " + world.getFqName() + ".");
 		} else {
 			sendMessage(caller, zownTree.getData().getDisplay());
+		}
+	}
+	
+	@Command(aliases = {
+		"interactexception"
+	}, parent = "zown", description = "zown interactexception", permissions = {
+		"zown.zown.exception.interact"
+	}, toolTip = "/zown interactexception <zown> <add | remove> <exception>")
+	public void zownInteractExclusion(final MessageReceiver caller, final String[] parameters) {
+		World world = null;
+		Player player = null;
+		String zown = null;
+		String action = null;
+		String exclusion = null;
+		
+		if (caller instanceof Player) {
+			player = caller.asPlayer();
+			switch (parameters.length) {
+				case 3:
+					world = player.getWorld();
+					zown = parameters[1];
+					action = parameters[2];
+					exclusion = parameters[3];
+					break;
+				default:
+					sendMessage(caller, "Usage: /zown interactexception <zown> <add | remove> <exception>");
+			}
+		} else {
+			switch (parameters.length) {
+				case 4:
+					world = worldManager.getWorld(parameters[1], false);
+					zown = parameters[2];
+					action = parameters[3];
+					exclusion = parameters[4];
+					break;
+				default:
+					sendMessage(caller,
+							"Usage: /zown interactexception <world> <zown> <add | remove> <exception>");
+			}
+		}
+		
+		if (world != null && zown != null && action != null && exclusion != null) {
+			final Tree<? extends IZown> zownTree = zownManager.getZown(world, zown);
+			if (zownTree == null) {
+				sendMessage(caller, "Zown '" + zown + "' doesn't exist.");
+			} else {
+				
+				if (!zownTree.getData().overridesConfiguration()) {
+					// TODO put in zownManager
+					zownTree.getData().setOverridesConfiguration(true);
+					zownManager.saveZownConfiguration(world, zown);
+				}
+				
+				if ("add".equalsIgnoreCase(action)) {
+					final BlockType blockType = MinecraftMapper.getBlockType(exclusion);
+					if (blockType == null) {
+						final Class<? extends Entity> entityClass = MinecraftMapper.getEntityClass(exclusion);
+						if (entityClass == null) {
+							sendMessage(caller, "The specified exception '" + exclusion + "' is unrecognized.");
+						} else {
+							if (zownTree.getData().getConfiguration().addEntityInteractExclusion(entityClass)) {
+								sendMessage(caller, "Added interact exception '" + exclusion + "' to zown '" + zown
+										+ "'.");
+								zownManager.saveZownConfiguration(world, zown);
+							} else {
+								sendMessage(caller, "Interact exception '" + exclusion
+										+ "' already exists on zown.");
+							}
+						}
+					} else {
+						if (zownTree.getData().getConfiguration().addBlockInteractExclusion(blockType)) {
+							sendMessage(caller, "Added interact exception '" + exclusion + "' to zown '" + zown
+									+ "'.");
+							zownManager.saveZownConfiguration(world, zown);
+						} else {
+							sendMessage(caller, "Interact exception '" + exclusion + "' already exists on zown.");
+						}
+					}
+				} else if ("remove".equalsIgnoreCase(action)) {
+					final BlockType blockType = MinecraftMapper.getBlockType(exclusion);
+					if (blockType == null) {
+						final Class<? extends Entity> entityClass = MinecraftMapper.getEntityClass(exclusion);
+						if (entityClass == null) {
+							sendMessage(caller, "The specified exception '" + exclusion + "' is unrecognized.");
+						} else {
+							if (zownTree.getData().getConfiguration().removeEntityInteractExclusion(entityClass)) {
+								sendMessage(caller, "Removed interact exception '" + exclusion + "' from zown '"
+										+ zown + "'.");
+								zownManager.saveZownConfiguration(world, zown);
+							} else {
+								sendMessage(caller, "Interact exception '" + exclusion
+										+ "' does not exist on zown.");
+							}
+						}
+					} else {
+						if (zownTree.getData().getConfiguration().removeBlockInteractExclusion(blockType)) {
+							sendMessage(caller, "Removed interact exception '" + exclusion + "' from zown '"
+									+ zown + "'.");
+							zownManager.saveZownConfiguration(world, zown);
+						} else {
+							sendMessage(caller, "Interact exception '" + exclusion + "' does not exist on zown.");
+						}
+					}
+				} else {
+					sendMessage(caller, "Unrecognized action '" + action + "' must be <add | remove>.");
+				}
+			}
 		}
 	}
 	
@@ -1237,6 +1418,192 @@ public class ZownCommand implements CommandListener {
 				}
 			}
 		}
+	}
+	
+	@Command(aliases = {
+		"placeexception"
+	}, parent = "zown", description = "zown placeexception", permissions = {
+		"zown.zown.exception.place"
+	}, toolTip = "/zown placeexception <zown> <add | remove> <exception>")
+	public void zownPlaceExclusion(final MessageReceiver caller, final String[] parameters) {
+		World world = null;
+		Player player = null;
+		String zown = null;
+		String action = null;
+		String exclusion = null;
+		
+		if (caller instanceof Player) {
+			player = caller.asPlayer();
+			switch (parameters.length) {
+				case 3:
+					world = player.getWorld();
+					zown = parameters[1];
+					action = parameters[2];
+					exclusion = parameters[3];
+					break;
+				default:
+					sendMessage(caller, "Usage: /zown placeexception <zown> <add | remove> <exception>");
+			}
+		} else {
+			switch (parameters.length) {
+				case 4:
+					world = worldManager.getWorld(parameters[1], false);
+					zown = parameters[2];
+					action = parameters[3];
+					exclusion = parameters[4];
+					break;
+				default:
+					sendMessage(caller,
+							"Usage: /zown placeexception <world> <zown> <add | remove> <exception>");
+			}
+		}
+		
+		if (world != null && zown != null && action != null && exclusion != null) {
+			final Tree<? extends IZown> zownTree = zownManager.getZown(world, zown);
+			if (zownTree == null) {
+				sendMessage(caller, "Zown '" + zown + "' doesn't exist.");
+			} else {
+				
+				if (!zownTree.getData().overridesConfiguration()) {
+					// TODO put in zownManager
+					zownTree.getData().setOverridesConfiguration(true);
+					zownManager.saveZownConfiguration(world, zown);
+				}
+				
+				if ("add".equalsIgnoreCase(action)) {
+					final BlockType blockType = MinecraftMapper.getBlockType(exclusion);
+					if (blockType == null) {
+						final Class<? extends Entity> entityClass = MinecraftMapper.getEntityClass(exclusion);
+						if (entityClass == null) {
+							sendMessage(caller, "The specified exception '" + exclusion + "' is unrecognized.");
+						} else {
+							if (zownTree.getData().getConfiguration().addEntityCreateExclusion(entityClass)) {
+								sendMessage(caller, "Added place exception '" + exclusion + "' to zown '" + zown
+										+ "'.");
+								zownManager.saveZownConfiguration(world, zown);
+							} else {
+								sendMessage(caller, "Place exception '" + exclusion + "' already exists on zown.");
+							}
+						}
+					} else {
+						if (zownTree.getData().getConfiguration().addBlockBuildExclusion(blockType)) {
+							sendMessage(caller, "Added place exception '" + exclusion + "' to zown '" + zown
+									+ "'.");
+							zownManager.saveZownConfiguration(world, zown);
+						} else {
+							sendMessage(caller, "Place exception '" + exclusion + "' already exists on zown.");
+						}
+					}
+				} else if ("remove".equalsIgnoreCase(action)) {
+					final BlockType blockType = MinecraftMapper.getBlockType(exclusion);
+					if (blockType == null) {
+						final Class<? extends Entity> entityClass = MinecraftMapper.getEntityClass(exclusion);
+						if (entityClass == null) {
+							sendMessage(caller, "The specified exception '" + exclusion + "' is unrecognized.");
+						} else {
+							if (zownTree.getData().getConfiguration().removeEntityCreateExclusion(entityClass)) {
+								sendMessage(caller, "Removed build exception '" + exclusion + "' from zown '"
+										+ zown + "'.");
+								zownManager.saveZownConfiguration(world, zown);
+							} else {
+								sendMessage(caller, "Build exception '" + exclusion + "' does not exist on zown.");
+							}
+						}
+					} else {
+						if (zownTree.getData().getConfiguration().removeBlockBuildExclusion(blockType)) {
+							sendMessage(caller, "Removed build exception '" + exclusion + "' from zown '" + zown
+									+ "'.");
+							zownManager.saveZownConfiguration(world, zown);
+						} else {
+							sendMessage(caller, "Build exception '" + exclusion + "' does not exist on zown.");
+						}
+					}
+				} else {
+					sendMessage(caller, "Unrecognized action '" + action + "' must be <add | remove>.");
+				}
+			}
+		}
+	}
+	
+	private void drawTemporaryZownBorder(final Player player, final Point minPoint,
+			final Point maxPoint) {
+		final World world = player.getWorld();
+		
+		final Collection<Point> points = new LinkedList<Point>();
+		
+		int x = minPoint.x;
+		int z = minPoint.z;
+		int y = world.getHighestBlockAt(x, z) - 1;
+		points.add(new Point(x, y, z));
+		
+		x = minPoint.x;
+		z = maxPoint.z;
+		y = world.getHighestBlockAt(x, z) - 1;
+		points.add(new Point(x, y, z));
+		
+		x = maxPoint.x;
+		z = minPoint.z;
+		y = world.getHighestBlockAt(x, z) - 1;
+		points.add(new Point(x, y, z));
+		
+		x = maxPoint.x;
+		z = maxPoint.z;
+		y = world.getHighestBlockAt(x, z) - 1;
+		points.add(new Point(x, y, z));
+		
+		x = minPoint.x;
+		z = minPoint.z;
+		for (x = x + 1; x < maxPoint.x; x++) {
+			if (x % 10 == 0) {
+				y = world.getHighestBlockAt(x, z) - 1;
+				points.add(new Point(x, y, z));
+			}
+		}
+		
+		x = minPoint.x;
+		z = maxPoint.z;
+		for (x = x + 1; x < maxPoint.x; x++) {
+			if (x % 10 == 0) {
+				y = world.getHighestBlockAt(x, z) - 1;
+				points.add(new Point(x, y, z));
+			}
+		}
+		
+		x = minPoint.x;
+		z = minPoint.z;
+		for (z = z + 1; z < maxPoint.z; z++) {
+			if (z % 10 == 0) {
+				y = world.getHighestBlockAt(x, z) - 1;
+				points.add(new Point(x, y, z));
+			}
+		}
+		
+		x = maxPoint.x;
+		z = minPoint.z;
+		for (z = z + 1; z < maxPoint.z; z++) {
+			if (z % 10 == 0) {
+				y = world.getHighestBlockAt(x, z) - 1;
+				points.add(new Point(x, y, z));
+			}
+		}
+		
+		final PacketFactory packetFactory = Canary.factory().getPacketFactory();
+		
+		// Show the zown to the player
+		for (final Point point : points) {
+			player.sendPacket(packetFactory.blockChange(point.x, point.y, point.z, BlockType.GlowStone));
+		}
+		
+		// Wait for the delay, then return the blocks to normal
+		TaskManager.scheduleDelayedTask(new Runnable() {
+			@Override
+			public void run() {
+				for (final Point point : points) {
+					final BlockType type = world.getBlockAt(point.x, point.y, point.z).getType();
+					player.sendPacket(packetFactory.blockChange(point.x, point.y, point.z, type));
+				}
+			}
+		}, 10, TimeUnit.SECONDS);
 	}
 	
 	private String parseMessage(final String[] parameters, final int startIndex) {
