@@ -6,9 +6,11 @@ import net.canarymod.api.entity.ArmorStand;
 import net.canarymod.api.entity.Entity;
 import net.canarymod.api.entity.hanging.HangingEntity;
 import net.canarymod.api.entity.living.humanoid.Player;
+import net.canarymod.api.inventory.Item;
 import net.canarymod.api.inventory.ItemType;
 import net.canarymod.api.world.blocks.Block;
 import net.canarymod.api.world.blocks.BlockType;
+import net.canarymod.api.world.blocks.TileEntity;
 import net.canarymod.api.world.blocks.properties.helpers.DoorProperties;
 import net.canarymod.api.world.position.Location;
 import net.canarymod.hook.HookHandler;
@@ -31,6 +33,7 @@ import net.canarymod.plugin.PluginListener;
 import net.canarymod.plugin.Priority;
 
 import com.goodformentertainment.canary.zown.Flag;
+import com.goodformentertainment.canary.zown.ZownPlugin;
 import com.goodformentertainment.canary.zown.api.IZown;
 import com.goodformentertainment.canary.zown.api.IZownManager;
 import com.goodformentertainment.canary.zown.api.impl.Tree;
@@ -57,10 +60,12 @@ public class ModifyWorldListener implements PluginListener {
 					if (flag) {
 						if (excluded) {
 							hook.setCanceled();
+							ZownPlugin.LOG.info("Cancelled block place: " + flag + ":" + excluded);
 						}
 					} else {
 						if (!excluded) {
 							hook.setCanceled();
+							ZownPlugin.LOG.info("Cancelled block place: " + flag + ":" + excluded);
 						}
 					}
 				}
@@ -305,22 +310,43 @@ public class ModifyWorldListener implements PluginListener {
 		final Player player = hook.getPlayer();
 		final Block block = hook.getBlockClicked();
 		
-		if (!player.isOperator() && !player.safeHasPermission("zown.admin.mod")) {
-			final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
-			if (!zownTree.getData().isOwnerOrMember(player)) {
-				final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.interact.name());
-				if (flag != null) {
-					final boolean excluded = zownTree.getData().getConfiguration()
-							.hasBlockInteractExclusion(block.getType());
-					if (flag) {
-						if (excluded) {
-							hook.setCanceled();
-							closeDoor(block);
-						}
-					} else {
-						if (!excluded) {
-							hook.setCanceled();
-							closeDoor(block);
+		final Item item = player.getItemHeld();
+		final TileEntity tileEntity = block.getTileEntity();
+		final BlockType type = block.getType();
+		
+		if (item == null || tileEntity != null || type == BlockType.AcaciaDoor
+				|| type == BlockType.AcaciaFenceGate || type == BlockType.Bed
+				|| type == BlockType.BirchDoor || type == BlockType.BirchFenceGate
+				|| type == BlockType.Cake || type == BlockType.Cauldron || type == BlockType.DarkOakDoor
+				|| type == BlockType.DarkOakFenceGate || type == BlockType.EndPortalFrame
+				|| type == BlockType.Farmland || type == BlockType.FenceGate || type == BlockType.Flowerpot
+				|| type == BlockType.JungleDoor || type == BlockType.JungleFenceGate
+				|| type == BlockType.Lever || type == BlockType.MobSpawner || type == BlockType.OakDoor
+				|| type == BlockType.RedstoneRepeaterOff || type == BlockType.RedstoneRepeaterOn
+				|| type == BlockType.SpruceDoor || type == BlockType.SpruceFenceGate
+				|| type == BlockType.StoneButton || type == BlockType.Trapdoor
+				|| type == BlockType.WoodenButton || type == BlockType.WoodenDoor) {
+			if (!player.isOperator() && !player.safeHasPermission("zown.admin.mod")) {
+				final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
+				if (!zownTree.getData().isOwnerOrMember(player)) {
+					final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.interact.name());
+					if (flag != null) {
+						final boolean excluded = zownTree.getData().getConfiguration()
+								.hasBlockInteractExclusion(block.getType());
+						if (flag) {
+							if (excluded) {
+								hook.setCanceled();
+								closeDoor(block);
+								// TODO
+								ZownPlugin.LOG.info("Cancelled right click: " + flag + ":" + excluded);
+							}
+						} else {
+							if (!excluded) {
+								hook.setCanceled();
+								closeDoor(block);
+								// TODO
+								ZownPlugin.LOG.info("Cancelled right click: " + flag + ":" + excluded);
+							}
 						}
 					}
 				}
