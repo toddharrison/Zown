@@ -18,6 +18,7 @@ import net.canarymod.commandsys.Command;
 import net.canarymod.commandsys.CommandListener;
 import net.visualillusionsent.utils.TaskManager;
 
+import com.goodformentertainment.canary.zown.Flag;
 import com.goodformentertainment.canary.zown.ZownConfiguration;
 import com.goodformentertainment.canary.zown.api.IConfiguration;
 import com.goodformentertainment.canary.zown.api.ITemplate;
@@ -28,6 +29,7 @@ import com.goodformentertainment.canary.zown.api.Point;
 import com.goodformentertainment.canary.zown.api.impl.MinecraftMapper;
 import com.goodformentertainment.canary.zown.api.impl.Tree;
 
+// TODO This class is a beast, it needs refactoring
 public class ZownCommand implements CommandListener {
 	private final ZownConfiguration config;
 	private final WorldManager worldManager;
@@ -1141,21 +1143,34 @@ public class ZownCommand implements CommandListener {
 			if (zownTree == null) {
 				sendMessage(caller, "Zown '" + zown + "' doesn't exist.");
 			} else {
-				
-				if (!zownTree.getData().overridesConfiguration()) {
-					// TODO put in zownManager
-					zownTree.getData().setOverridesConfiguration(true);
-					zownManager.saveZownConfiguration(world, zown);
-				}
-				
-				if ("add".equalsIgnoreCase(action)) {
-					final BlockType blockType = MinecraftMapper.getBlockType(exclusion);
-					if (blockType == null) {
-						final Class<? extends Entity> entityClass = MinecraftMapper.getEntityClass(exclusion);
-						if (entityClass == null) {
-							sendMessage(caller, "The specified exception '" + exclusion + "' is unrecognized.");
+				if (player == null || player.isOperator()
+						|| player.safeHasPermission("zown.admin.exception.interact")
+						|| zownTree.getData().isOwner(player)
+						&& zownTree.getData().getConfiguration().hasOwnerPermission(Flag.interact.name())) {
+					if ("add".equalsIgnoreCase(action)) {
+						if (!zownTree.getData().overridesConfiguration()) {
+							// TODO put in zownManager
+							zownTree.getData().setOverridesConfiguration(true);
+							zownManager.saveZownConfiguration(world, zown);
+						}
+						
+						final BlockType blockType = MinecraftMapper.getBlockType(exclusion);
+						if (blockType == null) {
+							final Class<? extends Entity> entityClass = MinecraftMapper.getEntityClass(exclusion);
+							if (entityClass == null) {
+								sendMessage(caller, "The specified exception '" + exclusion + "' is unrecognized.");
+							} else {
+								if (zownTree.getData().getConfiguration().addEntityInteractExclusion(entityClass)) {
+									sendMessage(caller, "Added interact exception '" + exclusion + "' to zown '"
+											+ zown + "'.");
+									zownManager.saveZownConfiguration(world, zown);
+								} else {
+									sendMessage(caller, "Interact exception '" + exclusion
+											+ "' already exists on zown.");
+								}
+							}
 						} else {
-							if (zownTree.getData().getConfiguration().addEntityInteractExclusion(entityClass)) {
+							if (zownTree.getData().getConfiguration().addBlockInteractExclusion(blockType)) {
 								sendMessage(caller, "Added interact exception '" + exclusion + "' to zown '" + zown
 										+ "'.");
 								zownManager.saveZownConfiguration(world, zown);
@@ -1164,23 +1179,31 @@ public class ZownCommand implements CommandListener {
 										+ "' already exists on zown.");
 							}
 						}
-					} else {
-						if (zownTree.getData().getConfiguration().addBlockInteractExclusion(blockType)) {
-							sendMessage(caller, "Added interact exception '" + exclusion + "' to zown '" + zown
-									+ "'.");
+					} else if ("remove".equalsIgnoreCase(action)) {
+						if (!zownTree.getData().overridesConfiguration()) {
+							// TODO put in zownManager
+							zownTree.getData().setOverridesConfiguration(true);
 							zownManager.saveZownConfiguration(world, zown);
-						} else {
-							sendMessage(caller, "Interact exception '" + exclusion + "' already exists on zown.");
 						}
-					}
-				} else if ("remove".equalsIgnoreCase(action)) {
-					final BlockType blockType = MinecraftMapper.getBlockType(exclusion);
-					if (blockType == null) {
-						final Class<? extends Entity> entityClass = MinecraftMapper.getEntityClass(exclusion);
-						if (entityClass == null) {
-							sendMessage(caller, "The specified exception '" + exclusion + "' is unrecognized.");
+						
+						final BlockType blockType = MinecraftMapper.getBlockType(exclusion);
+						if (blockType == null) {
+							final Class<? extends Entity> entityClass = MinecraftMapper.getEntityClass(exclusion);
+							if (entityClass == null) {
+								sendMessage(caller, "The specified exception '" + exclusion + "' is unrecognized.");
+							} else {
+								if (zownTree.getData().getConfiguration()
+										.removeEntityInteractExclusion(entityClass)) {
+									sendMessage(caller, "Removed interact exception '" + exclusion + "' from zown '"
+											+ zown + "'.");
+									zownManager.saveZownConfiguration(world, zown);
+								} else {
+									sendMessage(caller, "Interact exception '" + exclusion
+											+ "' does not exist on zown.");
+								}
+							}
 						} else {
-							if (zownTree.getData().getConfiguration().removeEntityInteractExclusion(entityClass)) {
+							if (zownTree.getData().getConfiguration().removeBlockInteractExclusion(blockType)) {
 								sendMessage(caller, "Removed interact exception '" + exclusion + "' from zown '"
 										+ zown + "'.");
 								zownManager.saveZownConfiguration(world, zown);
@@ -1190,16 +1213,10 @@ public class ZownCommand implements CommandListener {
 							}
 						}
 					} else {
-						if (zownTree.getData().getConfiguration().removeBlockInteractExclusion(blockType)) {
-							sendMessage(caller, "Removed interact exception '" + exclusion + "' from zown '"
-									+ zown + "'.");
-							zownManager.saveZownConfiguration(world, zown);
-						} else {
-							sendMessage(caller, "Interact exception '" + exclusion + "' does not exist on zown.");
-						}
+						sendMessage(caller, "Unrecognized action '" + action + "' must be <add | remove>.");
 					}
 				} else {
-					sendMessage(caller, "Unrecognized action '" + action + "' must be <add | remove>.");
+					sendMessage(caller, "You are not an owner of this zown");
 				}
 			}
 		}
@@ -1465,21 +1482,33 @@ public class ZownCommand implements CommandListener {
 			if (zownTree == null) {
 				sendMessage(caller, "Zown '" + zown + "' doesn't exist.");
 			} else {
-				
-				if (!zownTree.getData().overridesConfiguration()) {
-					// TODO put in zownManager
-					zownTree.getData().setOverridesConfiguration(true);
-					zownManager.saveZownConfiguration(world, zown);
-				}
-				
-				if ("add".equalsIgnoreCase(action)) {
-					final BlockType blockType = MinecraftMapper.getBlockType(exclusion);
-					if (blockType == null) {
-						final Class<? extends Entity> entityClass = MinecraftMapper.getEntityClass(exclusion);
-						if (entityClass == null) {
-							sendMessage(caller, "The specified exception '" + exclusion + "' is unrecognized.");
+				if (player == null || player.isOperator()
+						|| player.safeHasPermission("zown.admin.exception.interact")
+						|| zownTree.getData().isOwner(player)
+						&& zownTree.getData().getConfiguration().hasOwnerPermission(Flag.build.name())) {
+					if ("add".equalsIgnoreCase(action)) {
+						if (!zownTree.getData().overridesConfiguration()) {
+							// TODO put in zownManager
+							zownTree.getData().setOverridesConfiguration(true);
+							zownManager.saveZownConfiguration(world, zown);
+						}
+						
+						final BlockType blockType = MinecraftMapper.getBlockType(exclusion);
+						if (blockType == null) {
+							final Class<? extends Entity> entityClass = MinecraftMapper.getEntityClass(exclusion);
+							if (entityClass == null) {
+								sendMessage(caller, "The specified exception '" + exclusion + "' is unrecognized.");
+							} else {
+								if (zownTree.getData().getConfiguration().addEntityCreateExclusion(entityClass)) {
+									sendMessage(caller, "Added place exception '" + exclusion + "' to zown '" + zown
+											+ "'.");
+									zownManager.saveZownConfiguration(world, zown);
+								} else {
+									sendMessage(caller, "Place exception '" + exclusion + "' already exists on zown.");
+								}
+							}
 						} else {
-							if (zownTree.getData().getConfiguration().addEntityCreateExclusion(entityClass)) {
+							if (zownTree.getData().getConfiguration().addBlockBuildExclusion(blockType)) {
 								sendMessage(caller, "Added place exception '" + exclusion + "' to zown '" + zown
 										+ "'.");
 								zownManager.saveZownConfiguration(world, zown);
@@ -1487,23 +1516,29 @@ public class ZownCommand implements CommandListener {
 								sendMessage(caller, "Place exception '" + exclusion + "' already exists on zown.");
 							}
 						}
-					} else {
-						if (zownTree.getData().getConfiguration().addBlockBuildExclusion(blockType)) {
-							sendMessage(caller, "Added place exception '" + exclusion + "' to zown '" + zown
-									+ "'.");
+					} else if ("remove".equalsIgnoreCase(action)) {
+						if (!zownTree.getData().overridesConfiguration()) {
+							// TODO put in zownManager
+							zownTree.getData().setOverridesConfiguration(true);
 							zownManager.saveZownConfiguration(world, zown);
-						} else {
-							sendMessage(caller, "Place exception '" + exclusion + "' already exists on zown.");
 						}
-					}
-				} else if ("remove".equalsIgnoreCase(action)) {
-					final BlockType blockType = MinecraftMapper.getBlockType(exclusion);
-					if (blockType == null) {
-						final Class<? extends Entity> entityClass = MinecraftMapper.getEntityClass(exclusion);
-						if (entityClass == null) {
-							sendMessage(caller, "The specified exception '" + exclusion + "' is unrecognized.");
+						
+						final BlockType blockType = MinecraftMapper.getBlockType(exclusion);
+						if (blockType == null) {
+							final Class<? extends Entity> entityClass = MinecraftMapper.getEntityClass(exclusion);
+							if (entityClass == null) {
+								sendMessage(caller, "The specified exception '" + exclusion + "' is unrecognized.");
+							} else {
+								if (zownTree.getData().getConfiguration().removeEntityCreateExclusion(entityClass)) {
+									sendMessage(caller, "Removed build exception '" + exclusion + "' from zown '"
+											+ zown + "'.");
+									zownManager.saveZownConfiguration(world, zown);
+								} else {
+									sendMessage(caller, "Build exception '" + exclusion + "' does not exist on zown.");
+								}
+							}
 						} else {
-							if (zownTree.getData().getConfiguration().removeEntityCreateExclusion(entityClass)) {
+							if (zownTree.getData().getConfiguration().removeBlockBuildExclusion(blockType)) {
 								sendMessage(caller, "Removed build exception '" + exclusion + "' from zown '"
 										+ zown + "'.");
 								zownManager.saveZownConfiguration(world, zown);
@@ -1512,16 +1547,10 @@ public class ZownCommand implements CommandListener {
 							}
 						}
 					} else {
-						if (zownTree.getData().getConfiguration().removeBlockBuildExclusion(blockType)) {
-							sendMessage(caller, "Removed build exception '" + exclusion + "' from zown '" + zown
-									+ "'.");
-							zownManager.saveZownConfiguration(world, zown);
-						} else {
-							sendMessage(caller, "Build exception '" + exclusion + "' does not exist on zown.");
-						}
+						sendMessage(caller, "Unrecognized action '" + action + "' must be <add | remove>.");
 					}
 				} else {
-					sendMessage(caller, "Unrecognized action '" + action + "' must be <add | remove>.");
+					sendMessage(caller, "You are not an owner of this zown");
 				}
 			}
 		}
