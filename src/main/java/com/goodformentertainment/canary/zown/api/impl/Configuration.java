@@ -213,4 +213,39 @@ public class Configuration implements IConfiguration {
 		sb.append("\n}");
 		return sb.toString();
 	}
+	
+	public String getDisplay() {
+		final StringBuilder sb = new StringBuilder();
+		
+		sb.append("Flags: ");
+		sb.append(flags);
+		sb.append("\n");
+		
+		final Collection<String> placeExclusions = new HashSet<String>();
+		for (final BlockType blockType : blockBuildExclusions) {
+			placeExclusions.add(blockType.getMachineName());
+		}
+		for (final Class<? extends Entity> entityClass : entityCreateExclusions) {
+			placeExclusions.add(MinecraftMapper.getEntity(entityClass));
+		}
+		sb.append("Place exceptions: ");
+		sb.append(placeExclusions);
+		sb.append("\n");
+		
+		final Collection<String> interactExclusions = new HashSet<String>();
+		for (final BlockType blockType : blockInteractExclusions) {
+			interactExclusions.add(blockType.getMachineName());
+		}
+		for (final Class<? extends Entity> entityClass : entityInteractExclusions) {
+			interactExclusions.add(MinecraftMapper.getEntity(entityClass));
+		}
+		sb.append("Interact exceptions: ");
+		sb.append(interactExclusions);
+		sb.append("\n");
+		
+		sb.append("Command restrictions: ");
+		sb.append(commandRestrictions);
+		
+		return sb.toString();
+	}
 }

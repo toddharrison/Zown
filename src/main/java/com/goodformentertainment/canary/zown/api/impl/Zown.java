@@ -142,8 +142,7 @@ public class Zown implements IZown {
 		sb.append("\n");
 		
 		final Configuration config = getConfiguration();
-		sb.append("Flags: ");
-		sb.append(config.getFlags());
+		sb.append(config.getDisplay());
 		
 		return sb.toString();
 	}
