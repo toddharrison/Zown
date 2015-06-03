@@ -22,6 +22,7 @@ import net.canarymod.plugin.Priority;
 import com.goodformentertainment.canary.zown.Flag;
 import com.goodformentertainment.canary.zown.api.IZown;
 import com.goodformentertainment.canary.zown.api.IZownManager;
+import com.goodformentertainment.canary.zown.api.Point;
 import com.goodformentertainment.canary.zown.api.impl.Tree;
 
 public class EntityListener implements PluginListener {
@@ -47,22 +48,46 @@ public class EntityListener implements PluginListener {
 			final Tree<? extends IZown> zownTree = zownManager.getZown(location);
 			final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.passivepermit.name());
 			if (flag != null && !flag) {
-				// entity.destroy();
-				// TODO causes entity tick error
-				// hook.setCanceled();
+				final Location fromLoc = hook.getFrom();
+				final Point minPoint = zownTree.getData().getMinPoint();
+				final Point maxPoint = zownTree.getData().getMaxPoint();
 				
-				entity.teleportTo(hook.getFrom());
+				double fromX = fromLoc.getX();
+				final double fromY = fromLoc.getY();
+				double fromZ = fromLoc.getZ();
 				
-				// // TODO efficiency?
-				// TODO this no work for long thin zowns
-				// final Location loc = entity.getLocation();
-				// final Point centerPoint = zownTree.getData().getCenterPoint();
-				// final Vector3D v = new Vector3D(centerPoint.x, loc.getBlockY(), centerPoint.z);
-				// Vector3D diff = loc.subtract(v);
-				// diff = diff.multiply(1 / diff.getMagnitude());
-				//
-				// // Move the entity out of the zown
-				// entity.teleportTo(loc.add(diff));
+				final double insideMinX = fromX - minPoint.x;
+				final double insideMaxX = maxPoint.x - fromX;
+				// final double insideMinY = fromY - minPoint.y;
+				// final double insideMaxY = maxPoint.y - fromY;
+				final double insideMinZ = fromZ - minPoint.z;
+				final double insideMaxZ = maxPoint.z - fromZ;
+				
+				final double bump = 0.5;
+				
+				final double insideX = Math.min(insideMinX, insideMaxX);
+				final double insideZ = Math.min(insideMinZ, insideMaxZ);
+				
+				if (insideX < insideZ) {
+					if (insideMinX < insideMaxX) {
+						// Closer to min x
+						fromX -= bump;
+					} else {
+						// Closer to max x
+						fromX += bump;
+					}
+				} else {
+					if (insideMinZ < insideMaxZ) {
+						// Closer to min z
+						fromZ -= bump;
+					} else {
+						// Closer to max z
+						fromZ += bump;
+					}
+				}
+				
+				// Position outside of the zown
+				entity.teleportTo(fromX, fromY, fromZ);
 			}
 		}
 	}
