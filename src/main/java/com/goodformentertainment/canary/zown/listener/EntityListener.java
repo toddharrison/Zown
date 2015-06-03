@@ -53,28 +53,37 @@ public class EntityListener implements PluginListener {
 				final Point maxPoint = zownTree.getData().getMaxPoint();
 				
 				double fromX = fromLoc.getX();
-				final double fromY = fromLoc.getY();
+				double fromY = fromLoc.getY();
 				double fromZ = fromLoc.getZ();
 				
 				final double insideMinX = fromX - minPoint.x;
 				final double insideMaxX = maxPoint.x - fromX;
-				// final double insideMinY = fromY - minPoint.y;
-				// final double insideMaxY = maxPoint.y - fromY;
+				final double insideMinY = fromY - minPoint.y;
+				final double insideMaxY = maxPoint.y - fromY;
 				final double insideMinZ = fromZ - minPoint.z;
 				final double insideMaxZ = maxPoint.z - fromZ;
 				
 				final double bump = 0.5;
 				
 				final double insideX = Math.min(insideMinX, insideMaxX);
+				final double insideY = Math.min(insideMinY, insideMaxY);
 				final double insideZ = Math.min(insideMinZ, insideMaxZ);
 				
-				if (insideX < insideZ) {
+				if (insideX < insideY && insideX < insideZ) {
 					if (insideMinX < insideMaxX) {
 						// Closer to min x
 						fromX -= bump;
 					} else {
 						// Closer to max x
 						fromX += bump;
+					}
+				} else if (insideY < insideZ) {
+					if (insideMinY < insideMaxY) {
+						// Closer to min y
+						fromY -= bump;
+					} else {
+						// Closer to max y
+						fromY += bump;
 					}
 				} else {
 					if (insideMinZ < insideMaxZ) {
