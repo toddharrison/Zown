@@ -3,6 +3,7 @@ package com.goodformentertainment.canary.zown.listener;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.canarymod.Canary;
 import net.canarymod.api.entity.Arrow;
 import net.canarymod.api.entity.Entity;
 import net.canarymod.api.entity.Projectile;
@@ -16,6 +17,7 @@ import net.canarymod.hook.entity.ProjectileHitHook;
 import net.canarymod.hook.player.PlayerMoveHook;
 import net.canarymod.plugin.PluginListener;
 import net.canarymod.plugin.Priority;
+import net.canarymod.tasks.ServerTask;
 
 import com.goodformentertainment.canary.zown.Flag;
 import com.goodformentertainment.canary.zown.api.IZown;
@@ -45,7 +47,7 @@ public class PlayerListener implements PluginListener {
 			final Tree<? extends IZown> targetZownTree = zownManager.getZown(hook.getTo());
 			
 			// Check if the player is authorized to be in the target zown
-			if (targetZownTree.getData().hasEntryExclusion(player)) {
+			if (!player.isOperator() && targetZownTree.getData().hasEntryExclusion(player)) {
 				final Location fromLoc = hook.getFrom();
 				final Point minPoint = targetZownTree.getData().getMinPoint();
 				final Point maxPoint = targetZownTree.getData().getMaxPoint();
@@ -93,26 +95,37 @@ public class PlayerListener implements PluginListener {
 					}
 				}
 				
-				// hook.setCanceled();
-				
-				// Position outside of the zown
+				// Position toward outside of the zown
 				player.teleportTo(fromX, fromY, fromZ, fromLoc.getPitch(), fromLoc.getRotation());
 			} else if (zownTree != targetZownTree) {
 				// Changed zown
-				playerZownMap.put(player.getUUIDString(), targetZownTree);
-				final IZown zown = zownTree.getData();
-				final IZown targetZown = targetZownTree.getData();
-				// player.message("Zown " + zown.getName() + " to " + targetZown.getName());
-				if (zown.getFarewellMessage() != null && !zown.getFarewellMessage().isEmpty()
-						&& !zown.getFarewellMessage().equals("null")) {
-					player.message(zown.getFarewellMessage());
+				final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.playerexit.name());
+				if (!player.isOperator() && flag != null && !flag) {
+					final Location fromLoc = hook.getFrom();
+					hook.setCanceled();
+					// TODO: Remove when Canary fixes bug of popping up when move is cancelled
+					Canary.getServer().addSynchronousTask(new ServerTask(Canary.getServer(), 0) {
+						@Override
+						public void run() {
+							player.teleportTo(fromLoc);
+						}
+					});
+				} else {
+					playerZownMap.put(player.getUUIDString(), targetZownTree);
+					final IZown zown = zownTree.getData();
+					final IZown targetZown = targetZownTree.getData();
+					// player.message("Zown " + zown.getName() + " to " + targetZown.getName());
+					if (zown.getFarewellMessage() != null && !zown.getFarewellMessage().isEmpty()
+							&& !zown.getFarewellMessage().equals("null")) {
+						player.message(zown.getFarewellMessage());
+					}
+					if (targetZown.getWelcomeMessage() != null && !targetZown.getWelcomeMessage().isEmpty()
+							&& !targetZown.getWelcomeMessage().equals("null")) {
+						player.message(targetZown.getWelcomeMessage());
+					}
+					// TODO send PlayerZownExit and PlayerZownEntry
+					// TODO allow for cancel of player move
 				}
-				if (targetZown.getWelcomeMessage() != null && !targetZown.getWelcomeMessage().isEmpty()
-						&& !targetZown.getWelcomeMessage().equals("null")) {
-					player.message(targetZown.getWelcomeMessage());
-				}
-				// TODO send PlayerZownExit and PlayerZownEntry
-				// TODO allow for cancel of player move
 			}
 		}
 	}

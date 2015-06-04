@@ -6,6 +6,13 @@ package com.goodformentertainment.canary.zown;
  * @author Todd Harrison
  */
 public enum Flag {
+	
+	/**
+	 * DENY prevents players from leaving a Zown by trying to move outside. If they leave they will be
+	 * halted.
+	 */
+	playerexit,
+	
 	/**
 	 * DENY prevents hostile mobs from entering or spawning within a Zown. If they enter they will be
 	 * removed.
