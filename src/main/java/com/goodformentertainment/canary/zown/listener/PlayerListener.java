@@ -8,6 +8,7 @@ import net.canarymod.api.entity.Entity;
 import net.canarymod.api.entity.Projectile;
 import net.canarymod.api.entity.living.humanoid.Player;
 import net.canarymod.api.entity.throwable.EntityThrowable;
+import net.canarymod.api.world.position.Location;
 import net.canarymod.hook.HookHandler;
 import net.canarymod.hook.entity.DamageHook;
 import net.canarymod.hook.entity.EntityLightningStruckHook;
@@ -19,6 +20,7 @@ import net.canarymod.plugin.Priority;
 import com.goodformentertainment.canary.zown.Flag;
 import com.goodformentertainment.canary.zown.api.IZown;
 import com.goodformentertainment.canary.zown.api.IZownManager;
+import com.goodformentertainment.canary.zown.api.Point;
 import com.goodformentertainment.canary.zown.api.impl.Tree;
 
 public class PlayerListener implements PluginListener {
@@ -41,9 +43,61 @@ public class PlayerListener implements PluginListener {
 			playerZownMap.put(player.getUUIDString(), zownTree);
 		} else {
 			final Tree<? extends IZown> targetZownTree = zownManager.getZown(hook.getTo());
-			if (zownTree != targetZownTree) {
-				// TODO check if the player is authorized to enter the zown
+			
+			// Check if the player is authorized to be in the target zown
+			if (targetZownTree.getData().hasEntryExclusion(player)) {
+				final Location fromLoc = hook.getFrom();
+				final Point minPoint = targetZownTree.getData().getMinPoint();
+				final Point maxPoint = targetZownTree.getData().getMaxPoint();
 				
+				double fromX = fromLoc.getX();
+				double fromY = fromLoc.getY();
+				double fromZ = fromLoc.getZ();
+				
+				final double insideMinX = fromX - minPoint.x;
+				final double insideMaxX = maxPoint.x - fromX;
+				final double insideMinY = fromY - minPoint.y;
+				final double insideMaxY = maxPoint.y - fromY;
+				final double insideMinZ = fromZ - minPoint.z;
+				final double insideMaxZ = maxPoint.z - fromZ;
+				
+				final double bump = 1.0;
+				
+				final double insideX = Math.min(insideMinX, insideMaxX);
+				final double insideY = Math.min(insideMinY, insideMaxY);
+				final double insideZ = Math.min(insideMinZ, insideMaxZ);
+				
+				if (insideX < insideY && insideX < insideZ) {
+					if (insideMinX < insideMaxX) {
+						// Closer to min x
+						fromX -= bump;
+					} else {
+						// Closer to max x
+						fromX += bump;
+					}
+				} else if (insideY < insideZ) {
+					if (insideMinY < insideMaxY) {
+						// Closer to min y
+						fromY -= bump;
+					} else {
+						// Closer to max y
+						fromY += bump;
+					}
+				} else {
+					if (insideMinZ < insideMaxZ) {
+						// Closer to min z
+						fromZ -= bump;
+					} else {
+						// Closer to max z
+						fromZ += bump;
+					}
+				}
+				
+				// hook.setCanceled();
+				
+				// Position outside of the zown
+				player.teleportTo(fromX, fromY, fromZ, fromLoc.getPitch(), fromLoc.getRotation());
+			} else if (zownTree != targetZownTree) {
 				// Changed zown
 				playerZownMap.put(player.getUUIDString(), targetZownTree);
 				final IZown zown = zownTree.getData();
