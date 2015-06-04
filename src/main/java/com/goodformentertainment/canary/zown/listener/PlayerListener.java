@@ -1,20 +1,27 @@
 package com.goodformentertainment.canary.zown.listener;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import net.canarymod.Canary;
+import net.canarymod.api.GameMode;
 import net.canarymod.api.entity.Arrow;
 import net.canarymod.api.entity.Entity;
 import net.canarymod.api.entity.Projectile;
 import net.canarymod.api.entity.living.humanoid.Player;
 import net.canarymod.api.entity.throwable.EntityThrowable;
+import net.canarymod.api.inventory.ItemType;
 import net.canarymod.api.world.position.Location;
 import net.canarymod.hook.HookHandler;
 import net.canarymod.hook.entity.DamageHook;
 import net.canarymod.hook.entity.EntityLightningStruckHook;
 import net.canarymod.hook.entity.ProjectileHitHook;
+import net.canarymod.hook.player.ItemUseHook;
 import net.canarymod.hook.player.PlayerMoveHook;
+import net.canarymod.hook.player.TeleportHook;
+import net.canarymod.hook.player.TeleportHook.TeleportCause;
 import net.canarymod.plugin.PluginListener;
 import net.canarymod.plugin.Priority;
 import net.canarymod.tasks.ServerTask;
@@ -29,10 +36,12 @@ public class PlayerListener implements PluginListener {
 	private final IZownManager zownManager;
 	// TODO: Use this map for player location
 	private final Map<String, Tree<? extends IZown>> playerZownMap;
+	private final Set<Player> pearlingPlayers;
 	
 	public PlayerListener(final IZownManager zownManager) {
 		this.zownManager = zownManager;
 		playerZownMap = new HashMap<String, Tree<? extends IZown>>();
+		pearlingPlayers = new HashSet<Player>();
 	}
 	
 	@HookHandler(priority = Priority.CRITICAL)
@@ -230,6 +239,30 @@ public class PlayerListener implements PluginListener {
 				final Boolean flag = zownTree.getData().getConfiguration()
 						.getFlag(Flag.hostilecombat.name());
 				if (flag != null && !flag) {
+					hook.setCanceled();
+				}
+			}
+		}
+	}
+	
+	@HookHandler(priority = Priority.CRITICAL)
+	public void onItemUse(final ItemUseHook hook) {
+		final Player player = hook.getPlayer();
+		if (player.getMode() != GameMode.CREATIVE && hook.getItem().getType() == ItemType.EnderPearl) {
+			pearlingPlayers.add(player);
+		}
+	}
+	
+	@HookHandler(priority = Priority.CRITICAL)
+	public void onTeleport(final TeleportHook hook) {
+		// Prevent use of ender pearls to violate playerexit and entry exclusion restrictions
+		final Player player = hook.getPlayer();
+		if (hook.getTeleportReason() == TeleportCause.MOVEMENT && pearlingPlayers.remove(player)) {
+			final Tree<? extends IZown> fromZown = zownManager.getZown(hook.getCurrentLocation());
+			final Tree<? extends IZown> toZown = zownManager.getZown(hook.getDestination());
+			if (fromZown != toZown) {
+				final Boolean flag = fromZown.getData().getConfiguration().getFlag(Flag.playerexit.name());
+				if (flag != null && !flag || toZown.getData().hasEntryExclusion(player)) {
 					hook.setCanceled();
 				}
 			}
