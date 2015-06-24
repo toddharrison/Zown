@@ -4,6 +4,8 @@ import com.goodformentertainment.canary.zown.Flag;
 import com.goodformentertainment.canary.zown.api.IZown;
 import com.goodformentertainment.canary.zown.api.IZownManager;
 import com.goodformentertainment.canary.zown.api.Point;
+import com.goodformentertainment.canary.zown.api.hook.PlayerZownEntry;
+import com.goodformentertainment.canary.zown.api.hook.PlayerZownExit;
 import com.goodformentertainment.canary.zown.api.impl.Tree;
 import net.canarymod.Canary;
 import net.canarymod.api.GameMode;
@@ -116,12 +118,13 @@ public class PlayerListener implements PluginListener {
                         && !zown.getFarewellMessage().equals("null")) {
                     player.message(zown.getFarewellMessage());
                 }
+                new PlayerZownExit(player, zown).call();
+
                 if (targetZown.getWelcomeMessage() != null && !targetZown.getWelcomeMessage().isEmpty()
                         && !targetZown.getWelcomeMessage().equals("null")) {
                     player.message(targetZown.getWelcomeMessage());
                 }
-                // TODO send PlayerZownExit and PlayerZownEntry
-                // TODO allow for cancel of player move
+                new PlayerZownEntry(player, targetZown).call();
             }
         }
     }
@@ -231,9 +234,10 @@ public class PlayerListener implements PluginListener {
 
     @HookHandler(priority = Priority.CRITICAL)
     public void onTeleport(final TeleportHook hook) {
-        // Prevent use of ender pearls to violate playerexit and entry exclusion restrictions
         final Player player = hook.getPlayer();
+
         if (hook.getTeleportReason() == TeleportCause.MOVEMENT && pearlingPlayers.remove(player)) {
+            // Prevent use of ender pearls to violate playerexit and entry exclusion restrictions
             final Tree<? extends IZown> fromZown = zownManager.getZown(hook.getCurrentLocation());
             final Tree<? extends IZown> toZown = zownManager.getZown(hook.getDestination());
             if (fromZown != toZown) {
@@ -241,6 +245,27 @@ public class PlayerListener implements PluginListener {
                 if (flag != null && !flag || toZown.getData().hasEntryExclusion(player)) {
                     hook.setCanceled();
                 }
+            }
+        } else {
+            // Notify on change of zown on teleport
+            final Tree<? extends IZown> zown = zownManager.getZown(hook.getCurrentLocation());
+            final Tree<? extends IZown> targetZown = zownManager.getZown(hook.getDestination());
+            if (zown != targetZown) {
+                if (zown != null) {
+                    final IZown z = zown.getData();
+                    if (z.getFarewellMessage() != null && !z.getFarewellMessage().isEmpty()
+                            && !z.getFarewellMessage().equals("null")) {
+                        player.message(z.getFarewellMessage());
+                    }
+                    new PlayerZownExit(player, z).call();
+                }
+
+                final IZown z = targetZown.getData();
+                if (z.getWelcomeMessage() != null && !z.getWelcomeMessage().isEmpty()
+                        && !z.getWelcomeMessage().equals("null")) {
+                    player.message(z.getWelcomeMessage());
+                }
+                new PlayerZownEntry(player, z).call();
             }
         }
     }

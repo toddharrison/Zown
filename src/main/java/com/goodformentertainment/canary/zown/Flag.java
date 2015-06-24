@@ -32,6 +32,11 @@ public enum Flag {
     build,
 
     /**
+     * DENY prevents placement or removal of blocks by endermen as well as explosions.
+     */
+    mobgrief,
+
+    /**
      * DENY prevents liquids from flowing within a Zown.
      */
     flow,

@@ -7,6 +7,7 @@ import com.goodformentertainment.canary.zown.api.IZownManager;
 import com.goodformentertainment.canary.zown.api.impl.Tree;
 import net.canarymod.api.entity.ArmorStand;
 import net.canarymod.api.entity.Entity;
+import net.canarymod.api.entity.EntityType;
 import net.canarymod.api.entity.hanging.HangingEntity;
 import net.canarymod.api.entity.living.humanoid.Player;
 import net.canarymod.api.inventory.Item;
@@ -192,9 +193,20 @@ public class ModifyWorldListener implements PluginListener {
     public void onExplosion(final ExplosionHook hook) {
         final List<Block> blocks = hook.getAffectedBlocks();
 
+        final Entity cause = hook.getEntity();
+        boolean isTnt = false;
+        if (cause != null && cause.getEntityType() == EntityType.TNTMINECART && cause.getEntityType() == EntityType.TNTPRIMED) {
+            isTnt = true;
+        }
+
         for (final Block block : blocks) {
             final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
-            final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
+            final Boolean flag;
+            if (isTnt) {
+                flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
+            } else {
+                flag = zownTree.getData().getConfiguration().getFlag(Flag.mobgrief.name());
+            }
             if (flag != null && !flag) {
                 hook.setCanceled();
                 break;
@@ -207,7 +219,7 @@ public class ModifyWorldListener implements PluginListener {
         final Block block = hook.getBlock();
 
         final Tree<? extends IZown> zownTree = zownManager.getZown(block.getLocation());
-        final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
+        final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.mobgrief.name());
         if (flag != null && !flag) {
             hook.setCanceled();
         }
@@ -218,7 +230,7 @@ public class ModifyWorldListener implements PluginListener {
         final Location location = hook.getEnderman().getLocation();
 
         final Tree<? extends IZown> zownTree = zownManager.getZown(location);
-        final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.build.name());
+        final Boolean flag = zownTree.getData().getConfiguration().getFlag(Flag.mobgrief.name());
         if (flag != null && !flag) {
             hook.setCanceled();
         }
