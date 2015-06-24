@@ -1423,7 +1423,7 @@ public class ZownCommand implements CommandListener {
                             sendMessage(caller, "Added farewell message to zown '" + zown + "'.");
                             zownManager.saveZownConfiguration(world, zown);
                         } else if ("restrictentry".equalsIgnoreCase(type)) {
-                            // TODO
+                            // TODO Add support for restrictentry message
                             throw new UnsupportedOperationException("Do not yet support restrictentry messages");
                         } else {
                             sendMessage(caller, "Unrecognized message type '" + type

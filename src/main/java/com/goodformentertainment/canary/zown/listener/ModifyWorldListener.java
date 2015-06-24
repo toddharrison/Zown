@@ -348,15 +348,11 @@ public class ModifyWorldListener implements PluginListener {
                             if (excluded) {
                                 hook.setCanceled();
                                 closeDoor(block);
-                                // TODO
-                                ZownPlugin.LOG.info("Cancelled right click: " + flag + ":" + excluded);
                             }
                         } else {
                             if (!excluded) {
                                 hook.setCanceled();
                                 closeDoor(block);
-                                // TODO
-                                ZownPlugin.LOG.info("Cancelled right click: " + flag + ":" + excluded);
                             }
                         }
                     }

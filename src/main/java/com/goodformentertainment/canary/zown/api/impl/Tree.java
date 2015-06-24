@@ -82,7 +82,6 @@ public class Tree<T> implements Iterable<Tree<T>> {
         return removed;
     }
 
-    // TODO
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
