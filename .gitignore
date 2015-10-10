@@ -19,3 +19,8 @@ build
 .idea
 *.iml
 gradle.properties
+
+.classpath
+.project
+.settings/
+
